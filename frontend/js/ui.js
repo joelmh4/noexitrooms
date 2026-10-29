@@ -309,11 +309,12 @@ function piePagina() {
           <a href="contacto.html">Contacto</a>
           <a href="nuevo-ticket.html">Abrir ticket</a>
         </div>
+        ${api.modoDemo ? `
         <div class="pila" style="gap:6px">
           <h4>BOCETO</h4>
           <small>Datos de ejemplo guardados en tu navegador.</small>
           <button class="boton-enlace" id="reiniciar-demo" type="button">Reiniciar datos de demo</button>
-        </div>
+        </div>` : ""}
       </div>
     </footer>`;
 }
