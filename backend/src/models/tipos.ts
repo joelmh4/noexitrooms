@@ -34,7 +34,7 @@ export interface Sala {
   duration_min: number;
   min_players: number;
   max_players: number;
-  price_per_person: string; // DECIMAL llega como texto desde mysql2
+  price_per_person: number; // DECIMAL llega como texto desde mysql2: se pasa a número al leerlo
   description: string;
   tagline: string | null;
   min_age: number;

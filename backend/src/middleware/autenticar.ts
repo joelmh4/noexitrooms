@@ -16,3 +16,8 @@ export const autenticar: RequestHandler = async (req, _res, next) => {
   req.usuario = usuario;
   next();
 };
+
+// Para rutas públicas que cambian algo si hay sesión (por ejemplo, marcar "tuya" una hora reservada):
+// sin cabecera Authorization pasa como visitante; con ella, el token tiene que ser válido.
+export const sesionOpcional: RequestHandler = (req, res, next) =>
+  req.headers.authorization ? autenticar(req, res, next) : next();

@@ -2,7 +2,7 @@
 
 API REST de NoExitRooms hecha con Node, Express y TypeScript sobre MySQL. Es la única parte que habla con la base de datos: el frontend (`../web`) solo le hace peticiones HTTP.
 
-Estado: funcionan `/api/health`, Swagger, el registro y login con roles (`/api/auth`, `/api/users`), los tickets (`/api/tickets`: crear, listar con filtros, responder, notas internas, estados con historial y asignación) y las categorías (`/api/categories`). Faltan las salas, las reservas y las estadísticas del panel, que se añaden por semanas según el plan del enunciado (ver el documento de arquitectura).
+Estado: funcionan `/api/health`, Swagger, el registro y login con roles (`/api/auth`, `/api/users`), los tickets (`/api/tickets`: crear, listar con filtros, responder, notas internas, estados con historial y asignación), las categorías (`/api/categories`), el CRUD de salas con buscador (`/api/rooms`) y las reservas con horarios libres (`/api/rooms/:id/slots`, `/api/bookings`). Faltan las estadísticas del panel y el despliegue, que se añaden por semanas según el plan del enunciado (ver el documento de arquitectura).
 
 ## Requisitos
 
