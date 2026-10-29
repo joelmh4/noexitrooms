@@ -2,6 +2,8 @@
 import { Router } from "express";
 import { salud } from "../controllers/salud.controller";
 import { rutasAuth } from "./auth.routes";
+import { rutasCategorias } from "./categorias.routes";
+import { rutasTickets } from "./tickets.routes";
 import { rutasUsuarios } from "./usuarios.routes";
 
 export const rutas = Router();
@@ -9,3 +11,5 @@ export const rutas = Router();
 rutas.get("/health", salud);
 rutas.use("/auth", rutasAuth);
 rutas.use("/users", rutasUsuarios);
+rutas.use("/categories", rutasCategorias);
+rutas.use("/tickets", rutasTickets);
