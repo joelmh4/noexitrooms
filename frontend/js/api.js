@@ -1,25 +1,40 @@
 /* =====================================================================
    Capa de acceso a datos (API).
-   Todas las páginas piden y guardan datos SOLO a través de estas
-   funciones. Ahora mismo funcionan en MODO_DEMO: leen y escriben los
-   datos de ejemplo en el navegador (localStorage).
-   Cuando tengamos el backend, cada función hará un fetch() a la ruta
-   que indica su comentario y el resto de la web no tendrá que cambiar.
-   Ojo: en el modo demo los permisos se comprueban aquí para que el
-   boceto se comporte igual, pero en el proyecto real los comprueba
-   SIEMPRE el backend.
+   Todas las páginas piden y guardan datos SOLO a través de `api`.
+   Hay dos versiones con las mismas funciones:
+   - apiReal: hace fetch() a la API REST del backend (el proyecto de verdad).
+   - apiDemo: lee y escribe los datos de ejemplo en el navegador
+     (localStorage), para enseñar la web sin servidor. En el modo demo los
+     permisos se imitan aquí, pero en el proyecto real los comprueba
+     SIEMPRE el backend.
    ===================================================================== */
 
-const API_URL = "https://api.noexitrooms.example/api"; // Se cambiará por la URL del backend desplegado (nunca localhost)
-const MODO_DEMO = true;
+// URL de la API desplegada (nunca localhost). Mientras sea la de ejemplo, la web funciona en modo demo.
+const API_URL_PUBLICA = "https://api.noexitrooms.example/api";
+const CLAVE_API = "nxr-api";
 const CLAVE_DEMO = "nxr-demo";
 const CLAVE_SESION = "nxr-sesion";
 
+// Para probar contra otra API (por ejemplo, el backend en tu ordenador), abre cualquier página con
+// ?api=http://localhost:3000/api y se recordará en este navegador. Con ?api=publica se vuelve a la normal
+// y con ?api=demo se fuerzan los datos de ejemplo.
+const API_URL = (() => {
+  try {
+    const pedida = new URLSearchParams(location.search).get("api");
+    if (pedida === "publica") localStorage.removeItem(CLAVE_API);
+    else if (pedida) localStorage.setItem(CLAVE_API, pedida.replace(/\/$/, ""));
+    return localStorage.getItem(CLAVE_API) || API_URL_PUBLICA;
+  } catch { return API_URL_PUBLICA; }
+})();
+const MODO_DEMO = API_URL === "demo" || API_URL.includes(".example");
+
 /* ---------- Errores con código HTTP ---------- */
+// `campos` trae el error de cada campo cuando el backend responde 400 (por ejemplo { email: "Escribe un email válido." })
 class ErrorApi extends Error {
-  constructor(status, mensaje) {
+  constructor(status, mensaje, campos = null) {
     super(mensaje);
     this.status = status;
+    this.campos = campos;
   }
 }
 
@@ -92,7 +107,7 @@ function slugDe(texto) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-const api = {
+const apiDemo = {
   /* ---------------- Autenticación ---------------- */
   auth: {
     // POST /auth/login → { token, usuario }
@@ -112,7 +127,7 @@ const api = {
       const nuevo = { id: siguienteId(bd.usuarios), name: name.trim(), email: email.trim(), password, role: "cliente", is_active: true, created_at: ahora() };
       bd.usuarios.push(nuevo);
       guardarBd();
-      return api.auth.login(email, password);
+      return apiDemo.auth.login(email, password);
     },
     cerrarSesion() {
       sesionGuardada = null;
@@ -400,7 +415,8 @@ const api = {
     }
   },
 
-  reiniciarDemo
+  reiniciarDemo,
+  modoDemo: true
 };
 
 /* ---------- Ayudantes internos ---------- */
@@ -432,3 +448,130 @@ function cambiarEstadoInterno(t, nuevo, quien, fecha) {
   t.updated_at = fecha;
   t.closed_at = nuevo === "cerrado" ? fecha : null;
 }
+
+/* =====================================================================
+   API real: las mismas funciones, pero contra el backend.
+   ===================================================================== */
+function guardarSesion(sesion) {
+  sesionGuardada = sesion;
+  if (sesion) guardarAlmacen(CLAVE_SESION, sesion);
+  else try { localStorage.removeItem(CLAVE_SESION); } catch { /* nada */ }
+}
+
+// Hace la petición, añade el token si hay sesión y convierte los errores del backend en ErrorApi
+async function pedir(ruta, { metodo = "GET", cuerpo, consulta } = {}) {
+  const url = new URL(API_URL + ruta);
+  for (const [clave, valor] of Object.entries(consulta || {})) {
+    if (valor !== undefined && valor !== null && valor !== "") url.searchParams.set(clave, valor);
+  }
+  const cabeceras = { Accept: "application/json" };
+  if (cuerpo !== undefined) cabeceras["Content-Type"] = "application/json";
+  if (sesionGuardada?.token) cabeceras.Authorization = `Bearer ${sesionGuardada.token}`;
+
+  let res;
+  try {
+    res = await fetch(url, { method: metodo, headers: cabeceras, body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo) });
+  } catch {
+    throw new ErrorApi(0, "No se puede conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.");
+  }
+  const texto = await res.text();
+  let datos = null;
+  try { datos = texto ? JSON.parse(texto) : null; } catch { /* respuesta que no es JSON */ }
+  if (res.ok) return datos;
+
+  // Token caducado o cuenta borrada: se cierra la sesión para que la página mande al login
+  if (res.status === 401 && sesionGuardada) guardarSesion(null);
+  const error = datos?.error || {};
+  const campos = error.campos || null;
+  // Si el backend dice qué campo falla, ese es el mensaje más útil para enseñar
+  const mensaje = (campos && Object.values(campos)[0]) || error.mensaje ||
+    (res.status === 429 ? "Demasiados intentos. Espera unos minutos." : "Algo ha fallado en el servidor. Inténtalo de nuevo.");
+  throw new ErrorApi(res.status, mensaje, campos);
+}
+
+const apiReal = {
+  auth: {
+    async login(email, password) {
+      const sesion = await pedir("/auth/login", { metodo: "POST", cuerpo: { email, password } });
+      guardarSesion(sesion);
+      return sesion.usuario;
+    },
+    async registro({ name, email, password }) {
+      const sesion = await pedir("/auth/register", { metodo: "POST", cuerpo: { name, email, password } });
+      guardarSesion(sesion);
+      return sesion.usuario;
+    },
+    cerrarSesion() { guardarSesion(null); },
+    usuarioActual
+  },
+
+  perfil: {
+    async actualizar({ name, email }) {
+      const usuario = await pedir("/users/me", { metodo: "PUT", cuerpo: { name, email } });
+      guardarSesion({ ...sesionGuardada, usuario });
+      return usuario;
+    },
+    async cambiarPassword(actual, nueva) {
+      await pedir("/users/me/password", { metodo: "PUT", cuerpo: { actual, nueva } });
+      return true;
+    }
+  },
+
+  salas: {
+    listar: ({ todas = false } = {}) => pedir("/rooms", { consulta: { all: todas ? 1 : undefined } }),
+    obtener: slug => pedir(`/rooms/${encodeURIComponent(slug)}`),
+    crear: datos => pedir("/rooms", { metodo: "POST", cuerpo: datos }),
+    actualizar: (id, datos) => pedir(`/rooms/${id}`, { metodo: "PUT", cuerpo: datos }),
+    async borrar(id) { await pedir(`/rooms/${id}`, { metodo: "DELETE" }); return true; }
+  },
+
+  reservas: {
+    huecos: (salaId, desde, dias = 7) => pedir(`/rooms/${salaId}/slots`, { consulta: { from: desde, days: dias } }),
+    crear: ({ room_id, starts_at, players }) => pedir("/bookings", { metodo: "POST", cuerpo: { room_id, starts_at, players } }),
+    mias: () => pedir("/bookings/me")
+  },
+
+  categorias: {
+    listar: ({ todas = false } = {}) => pedir("/categories", { consulta: { all: todas ? 1 : undefined } }),
+    crear: name => pedir("/categories", { metodo: "POST", cuerpo: { name } }),
+    actualizar: (id, cambios) => pedir(`/categories/${id}`, { metodo: "PUT", cuerpo: cambios })
+  },
+
+  usuarios: {
+    listar: () => pedir("/users"),
+    // Solo los activos: son a los que se puede asignar un ticket
+    async agentes() { return (await pedir("/users", { consulta: { role: "agente" } })).filter(u => u.is_active); },
+    actualizar: (id, cambios) => pedir(`/users/${id}`, { metodo: "PATCH", cuerpo: cambios })
+  },
+
+  tickets: {
+    listar: (filtros = {}) => pedir("/tickets", { consulta: filtros }),
+    obtener: id => pedir(`/tickets/${id}`),
+    crear: ({ subject, category_id, room_id, priority, description }) =>
+      pedir("/tickets", { metodo: "POST", cuerpo: { subject, category_id, room_id: room_id || null, priority, description } }),
+    async responder(id, body, interno = false) {
+      await pedir(`/tickets/${id}/messages`, { metodo: "POST", cuerpo: { body, is_internal: interno } });
+      return true;
+    },
+    async cambiarEstado(id, status) {
+      await pedir(`/tickets/${id}/status`, { metodo: "PATCH", cuerpo: { status } });
+      return true;
+    },
+    async cambiarPrioridad(id, priority) {
+      await pedir(`/tickets/${id}`, { metodo: "PATCH", cuerpo: { priority } });
+      return true;
+    },
+    async asignar(id, agentId) {
+      await pedir(`/tickets/${id}/assign`, { metodo: "PATCH", cuerpo: { agent_id: agentId || null } });
+      return true;
+    }
+  },
+
+  estadisticas: () => pedir("/stats"),
+
+  // Con el backend no hay datos de demo que reiniciar
+  reiniciarDemo() {},
+  modoDemo: false
+};
+
+const api = MODO_DEMO ? apiDemo : apiReal;
