@@ -18,7 +18,7 @@ iniciar(async yo => {
               const soyYo = u.id === yo.id;
               return `
               <tr>
-                <td><div class="fila"><span class="avatar">${esc(iniciales(u.name))}</span><div><strong>${esc(u.name)}</strong>${soyYo ? ' <span class="subtexto">(tú)</span>' : ""}<div class="subtexto">${esc(u.email)}</div></div></div></td>
+                <td class="celda-principal"><div class="fila"><span class="avatar">${esc(iniciales(u.name))}</span><div><strong>${esc(u.name)}</strong>${soyYo ? ' <span class="subtexto">(tú)</span>' : ""}<div class="subtexto">${esc(u.email)}</div></div></div></td>
                 <td>
                   <label class="solo-lectores" for="rol-${u.id}">Rol de ${esc(u.name)}</label>
                   <select id="rol-${u.id}" data-rol="${u.id}" class="boton boton-secundario boton-pequeno"${soyYo ? " disabled" : ""}>

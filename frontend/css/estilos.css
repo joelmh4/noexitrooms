@@ -262,8 +262,8 @@ svg.lucide { width: 18px; height: 18px; flex: none; }
 .campo.con-error input, .campo.con-error select, .campo.con-error textarea { border-color: var(--color-peligro); }
 .campo.con-error .ayuda { color: var(--color-peligro); }
 .tema-oscuro .campo input, .tema-oscuro .campo select, .tema-oscuro .campo textarea { background: var(--color-carbon); }
-.grupo-botones { display: flex; gap: var(--esp-2); flex-wrap: wrap; }
-.grupo-botones input { position: absolute; opacity: 0; pointer-events: none; }
+.grupo-botones { display: flex; gap: var(--esp-2); flex-wrap: wrap; position: relative; }
+.grupo-botones input { position: absolute; top: 0; left: 0; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
 .grupo-botones label { cursor: pointer; }
 .grupo-botones input:checked + label { background: var(--color-neon); color: var(--color-grafito); border-color: var(--color-neon); }
 .grupo-botones input:focus-visible + label { outline: 3px solid #2F6FED; outline-offset: 2px; }

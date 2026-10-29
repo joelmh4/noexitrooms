@@ -1,0 +1,256 @@
+/* =====================================================================
+   Paneles: la "sala de control" del game master.
+   Se carga después de estilos.css en las páginas de cliente, soporte y admin.
+   El contenido sigue claro (guía de estilo: paneles claros) y lo oscuro se
+   reserva para lo que "vigila": el menú lateral y los monitores.
+   ===================================================================== */
+
+/* ---------- 1. Estructura del panel de soporte y admin ---------- */
+.panel-admin { grid-template-columns: 264px minmax(0, 1fr); }
+.menu-lateral {
+  gap: var(--esp-1); padding: var(--esp-6) var(--esp-4) var(--esp-4); z-index: 40;
+  background: radial-gradient(120% 50% at 0% 0%, rgba(152, 252, 2, .07), transparent 60%), var(--color-carbon);
+  border-right: 1px solid #2A2E32;
+}
+.menu-lateral-cabeza { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--esp-4); }
+.menu-lateral-cabeza .logo { margin: 0; }
+.menu-lateral .titulo-menu { font-family: var(--font-codigo); font-size: .66rem; letter-spacing: .14em; margin: 0 0 var(--esp-2); }
+.menu-lateral nav a { position: relative; padding: 10px 12px; font-size: .95rem; }
+.menu-lateral nav a svg.lucide { color: #9AA29A; transition: color .15s; }
+.menu-lateral nav a[aria-current="page"] { background: var(--color-carbon-3); color: #fff; }
+.menu-lateral nav a[aria-current="page"] svg.lucide { color: var(--color-neon); }
+/* Piloto encendido junto a la sección en la que estás */
+.menu-lateral nav a[aria-current="page"]::before {
+  content: ""; position: absolute; left: -16px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--color-neon); box-shadow: 0 0 10px var(--color-neon);
+}
+.contador-menu {
+  margin-left: auto; min-width: 22px; padding: 1px 7px; border-radius: var(--radio-pill); text-align: center;
+  font-family: var(--font-codigo); font-size: .72rem; font-weight: 700; background: var(--color-neon); color: var(--color-grafito);
+}
+.menu-lateral .pie-menu { gap: var(--esp-1); align-items: stretch; padding: var(--esp-3) 0 0; border-top: 1px solid #2A2E32; }
+.menu-lateral .tarjeta-usuario { padding: var(--esp-2) var(--esp-2) var(--esp-3); }
+.menu-lateral .tarjeta-usuario b { color: #fff; }
+.enlace-menu {
+  display: flex; align-items: center; gap: var(--esp-3); padding: 8px 10px; border-radius: var(--radio-sm);
+  color: #C9CEC6; text-decoration: none; font: inherit; font-size: .9rem; background: none; border: 0; cursor: pointer; text-align: left;
+}
+.enlace-menu:hover { background: var(--color-carbon-3); color: #fff; }
+.enlace-menu svg.lucide, .enlace-menu .icono-img { width: 18px; height: 18px; }
+
+.tarjeta-usuario { display: flex; align-items: center; gap: var(--esp-3); min-width: 0; }
+.tarjeta-usuario > span:last-child { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.tarjeta-usuario b { font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tarjeta-usuario small { font-size: .78rem; color: var(--texto-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-lateral .tarjeta-usuario small { color: #9AA29A; }
+
+.contenido-admin { padding-top: 0; gap: var(--esp-6); }
+
+/* Barra superior: ruta, conexión y hora. Translúcida: el contenido pasa por debajo */
+.barra-panel {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: var(--esp-4);
+  margin: 0 calc(-1 * var(--esp-8)); padding: 14px var(--esp-8);
+  background: color-mix(in srgb, var(--fondo) 82%, transparent); backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid var(--borde);
+}
+.barra-panel .ruta { display: flex; gap: var(--esp-2); align-items: center; font-family: var(--font-codigo); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-suave); min-width: 0; }
+.barra-panel .ruta b { color: var(--texto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.estado-sistema { margin-left: auto; display: flex; align-items: center; gap: var(--esp-2); font-family: var(--font-codigo); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-suave); white-space: nowrap; }
+.estado-sistema time { color: var(--texto); padding-left: var(--esp-3); margin-left: var(--esp-1); border-left: 1px solid var(--borde); }
+
+/* Piloto: un punto de luz como los de un cuadro de mandos */
+.piloto { --c: var(--color-bosque); width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 20%, transparent); flex: none; display: inline-block; }
+.estado-sistema .piloto { animation: latido 2.4s ease-in-out infinite; }
+.piloto-demo { --c: #D9A800; }
+@keyframes latido { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 0%, transparent); } }
+
+.boton-icono {
+  display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none;
+  border-radius: var(--radio-sm); border: 1px solid var(--borde); background: var(--superficie); color: var(--texto); cursor: pointer;
+}
+.menu-lateral .boton-icono { background: transparent; border-color: #373C40; color: #E8EBE6; }
+.boton-menu-panel, .solo-movil-panel { display: none; }
+.velo-menu { display: none; }
+
+/* Títulos del panel */
+.titulo-panel { font-size: 2rem; letter-spacing: -0.025em; }
+.sobretitulo { font-family: var(--font-codigo); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--texto-suave); }
+.sobretitulo::first-letter { text-transform: uppercase; }
+
+/* ---------- 2. Monitores (métricas) ---------- */
+.monitores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--esp-4); }
+.monitor {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px;
+  padding: var(--esp-4) var(--esp-6) var(--esp-6); border-radius: var(--radio-lg); text-decoration: none;
+  background: var(--color-carbon-2); color: #E8EBE6; border: 1px solid #2E3337;
+  transition: transform var(--dur-muelle) var(--muelle), border-color .2s;
+}
+/* Líneas de barrido de pantalla antigua, muy suaves */
+.monitor::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
+a.monitor:hover { transform: translateY(-2px); border-color: #4A5156; }
+a.monitor:active { transform: translateY(0) scale(.99); transition-duration: 100ms; }
+.monitor-titulo { display: flex; align-items: center; gap: var(--esp-2); font-family: var(--font-codigo); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: #9AA29A; }
+.monitor .piloto { box-shadow: 0 0 8px var(--c); }
+.monitor b { font-family: var(--font-codigo); font-size: 2.5rem; font-weight: 700; line-height: 1.1; color: #fff; letter-spacing: -0.02em; margin-top: var(--esp-2); }
+.monitor small { font-size: .85rem; color: #9AA29A; }
+.monitor-alerta { border-color: color-mix(in srgb, var(--prioridad-alta) 55%, transparent); }
+.monitor-alerta b { color: #FF8A8A; }
+
+/* ---------- 3. Módulos del dashboard ---------- */
+.rejilla-panel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-4); align-items: start; }
+.modulo { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: var(--esp-6); display: flex; flex-direction: column; gap: var(--esp-4); min-width: 0; }
+.modulo-ancho { grid-column: span 2; }
+.modulo-titulo { font-family: var(--font-codigo); font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-suave); }
+.modulo .vacio { padding: var(--esp-4); }
+
+.barra-apilada { display: flex; gap: 3px; height: 16px; }
+.barra-apilada span { background: var(--c); border-radius: 4px; min-width: 6px; }
+.leyenda { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--esp-2); }
+.leyenda a { display: inline-flex; align-items: center; gap: var(--esp-2); padding: 4px 10px 4px 4px; border-radius: var(--radio-sm); text-decoration: none; color: var(--texto); border: 1px solid var(--borde); }
+.leyenda a:hover { background: var(--superficie-2); }
+.leyenda b { font-family: var(--font-codigo); font-size: .9rem; }
+
+.barras-lista { display: flex; flex-direction: column; gap: var(--esp-3); }
+.barra-fila { display: grid; grid-template-columns: 84px minmax(0, 1fr) 3ch; gap: var(--esp-3); align-items: center; }
+.barra-fila-texto { grid-template-columns: minmax(0, 220px) minmax(0, 1fr) 3ch; font-size: .9rem; }
+.barra-fila-texto > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra-fila b { font-family: var(--font-codigo); text-align: right; }
+.barra-pista { display: flex; height: 8px; border-radius: 4px; background: var(--superficie-2); overflow: hidden; }
+.barra-pista span { background: var(--c); transition: width var(--dur-muelle) var(--muelle); }
+
+.agente-carga { display: flex; flex-direction: column; gap: var(--esp-2); padding-bottom: var(--esp-3); border-bottom: 1px solid var(--borde); }
+.agente-carga:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.columnas { display: flex; gap: var(--esp-2); height: 150px; align-items: stretch; }
+.columna { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; }
+.columna i { width: 100%; max-width: 30px; border-radius: 4px 4px 2px 2px; background: var(--color-grafito); }
+.columna.hoy i { background: var(--color-neon); }
+.columna b { font-family: var(--font-codigo); font-size: .78rem; min-height: 1em; }
+.columna small { font-family: var(--font-codigo); font-size: .72rem; color: var(--texto-suave); text-transform: uppercase; }
+
+.lista-libres { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.ticket-libre { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: var(--esp-4); align-items: center; padding: var(--esp-3) 0; border-top: 1px solid var(--borde); }
+.ticket-libre:first-child { border-top: 0; padding-top: 0; }
+.ticket-libre-texto { display: flex; flex-direction: column; min-width: 0; }
+.ticket-libre-texto a { font-weight: 600; }
+
+/* ---------- 4. Piezas comunes de los paneles ---------- */
+/* Las métricas del agente usan el mismo aspecto que los monitores */
+.contenido-admin .metricas .metrica { background: var(--color-carbon-2); border-color: #2E3337; color: #E8EBE6; padding: var(--esp-4) var(--esp-6) var(--esp-6); position: relative; overflow: hidden; }
+.contenido-admin .metricas .metrica::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
+.contenido-admin .metricas .metrica span { font-family: var(--font-codigo); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: #9AA29A; }
+.contenido-admin .metricas .metrica span::before { box-shadow: 0 0 8px var(--punto); }
+.contenido-admin .metricas .metrica b { font-family: var(--font-codigo); font-weight: 700; color: #fff; font-size: 2.5rem; margin-top: var(--esp-2); }
+
+/* Barra de filtros: una sola pieza encima de la tabla */
+.contenido-admin form#filtros { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: var(--esp-3); }
+.contenido-admin form#filtros .campo input, .contenido-admin form#filtros .campo select { padding-top: 9px; padding-bottom: 9px; }
+.contenido-admin .cabecera-pagina h1, .contenido-panel .cabecera-pagina h1 { font-size: 2rem !important; }
+
+/* Tablas del panel */
+.contenido-admin th, .contenido-panel th { font-family: var(--font-codigo); font-size: .68rem; letter-spacing: .1em; }
+.contenido-admin tbody tr, .contenido-panel tbody tr { transition: background-color .15s; }
+.contenido-admin td.celda-principal a, .contenido-panel td.celda-principal a { color: var(--texto); font-weight: 600; text-decoration: none; }
+.contenido-admin td.celda-principal a:hover, .contenido-panel td.celda-principal a:hover { color: var(--enlace); text-decoration: underline; }
+
+/* Ficha de un ticket */
+.contenido-admin .detalle .tarjeta, .contenido-panel .detalle .tarjeta { box-shadow: 0 1px 0 rgba(0,0,0,.02); }
+.contenido-admin .evento, .contenido-panel .evento { position: relative; display: flex; align-items: center; gap: var(--esp-3); }
+.contenido-admin .evento::before, .contenido-admin .evento::after, .contenido-panel .evento::before, .contenido-panel .evento::after { content: ""; flex: 1; height: 1px; background: var(--borde); }
+
+/* ---------- 5. Área del cliente ---------- */
+.menu-cuenta { padding: var(--esp-3); gap: 2px; position: sticky; top: 96px; }
+.menu-cuenta .tarjeta-usuario { padding: var(--esp-2) var(--esp-2) var(--esp-4); margin-bottom: var(--esp-2); border-bottom: 1px solid var(--borde); }
+.menu-cuenta a svg.lucide { color: var(--texto-suave); }
+.menu-cuenta a[aria-current="page"] svg.lucide { color: var(--color-neon); }
+.mis-reservas { display: flex; flex-direction: column; gap: var(--esp-3); }
+.menu-cuenta .cerrar-sesion { align-self: stretch; margin-top: var(--esp-2); border-top: 1px solid var(--borde); border-radius: 0; padding-top: var(--esp-3); display: flex; align-items: center; gap: var(--esp-3); text-decoration: none; color: var(--texto-suave); }
+
+/* Próximas reservas como entradas con la esquina troquelada */
+.lista-reservas .reserva-mini {
+  position: relative; text-decoration: none; color: #E8EBE6; background: var(--color-carbon-2); border: 0;
+  padding: var(--esp-4) var(--esp-6) var(--esp-4) var(--esp-6); gap: 6px; border-radius: var(--radio-lg);
+  -webkit-mask: radial-gradient(circle 10px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 10px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 10px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 10px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  transition: transform var(--dur-muelle) var(--muelle);
+}
+.lista-reservas .reserva-mini:hover { transform: translateY(-2px); }
+.lista-reservas .reserva-mini b { color: #fff; font-family: var(--font-titulos); }
+.lista-reservas .reserva-mini span:not(.pastilla) { color: #9AA29A; font-size: .9rem; }
+.lista-reservas .reserva-mini .pastilla { align-self: flex-start; }
+.lista-reservas .reserva-mini .pastilla-inactiva { background: #3A3F44; color: #FACC15; }
+
+/* ---------- 6. Móvil ---------- */
+@media (max-width: 1100px) {
+  .rejilla-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modulo-ancho { grid-column: 1 / -1; }
+  .monitores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  /* El menú lateral pasa a ser un cajón que entra desde la izquierda */
+  .menu-lateral { position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); height: 100dvh; flex-direction: column; flex-wrap: nowrap; align-items: stretch; transform: translateX(-100%); overflow-y: auto; }
+  .menu-lateral .titulo-menu { display: block; }
+  .menu-lateral .logo { margin: 0; }
+  .menu-lateral .pie-menu { margin: auto 0 0; flex-direction: column; align-items: stretch; }
+  .velo-menu { display: block; position: fixed; inset: 0; z-index: 35; background: rgba(17, 19, 21, .55); opacity: var(--velo, 0); pointer-events: none; }
+  .menu-abierto .velo-menu { pointer-events: auto; }
+  .boton-menu-panel, .solo-movil-panel { display: inline-flex; }
+  .barra-panel { margin: 0 calc(-1 * var(--esp-4)); padding: 10px var(--esp-4); }
+  .contenido-admin { padding: 0 var(--esp-4) var(--esp-12); }
+  /* Menú de cliente: el nombre ya sale en la cabecera, así que quedan cuatro botones en rejilla */
+  .menu-cuenta { position: static; display: grid; grid-template-columns: 1fr 1fr; }
+  .menu-cuenta .tarjeta-usuario { display: none; }
+  .menu-cuenta .cerrar-sesion { margin: 0; border-top: 0; padding: 10px 14px; }
+}
+@media (max-width: 700px) {
+  .rejilla-panel, .monitores { grid-template-columns: 1fr; }
+  .monitores { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); }
+  .monitor { padding: var(--esp-3) var(--esp-4) var(--esp-4); }
+  .monitor b, .contenido-admin .metricas .metrica b { font-size: 1.9rem; }
+  .contenido-admin .metricas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--esp-3); }
+  .contenido-admin .metricas .metrica { padding: var(--esp-3) var(--esp-4) var(--esp-4); }
+  .modulo { padding: var(--esp-4); }
+  .barra-fila-texto { grid-template-columns: minmax(0, 1fr) 3ch; }
+  .barra-fila-texto .barra-pista { grid-column: 1 / -1; grid-row: 2; }
+  .ticket-libre { grid-template-columns: auto minmax(0, 1fr); gap: var(--esp-2) var(--esp-3); }
+  .ticket-libre-texto { grid-column: 1 / -1; grid-row: 2; }
+  .ticket-libre > span:last-child { grid-column: 1 / -1; }
+  .ticket-libre select { width: 100%; }
+  .ticket-libre .prioridad { justify-self: end; }
+  .estado-sistema time { display: none; }
+  .barra-panel .ruta span { display: none; }
+  .leyenda { flex-direction: column; }
+  .leyenda a { justify-content: space-between; width: 100%; }
+
+  /* Las tablas se convierten en tarjetas: cada celda enseña el nombre de su columna */
+  .contenido-admin .tabla-envoltorio, .contenido-panel .tabla-envoltorio { background: none; border: 0; overflow: visible; }
+  .contenido-admin .tabla-envoltorio > p.vacio, .contenido-panel .tabla-envoltorio > p.vacio { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); }
+  .contenido-admin .tabla-envoltorio thead, .contenido-panel .tabla-envoltorio thead { display: none; }
+  .contenido-admin .tabla-envoltorio table, .contenido-panel .tabla-envoltorio table,
+  .contenido-admin .tabla-envoltorio tbody, .contenido-panel .tabla-envoltorio tbody { display: block; }
+  .contenido-admin .tabla-envoltorio tr, .contenido-panel .tabla-envoltorio tr {
+    display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); align-items: center;
+    background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: var(--esp-4); margin-bottom: var(--esp-3);
+  }
+  .contenido-admin .tabla-envoltorio td, .contenido-panel .tabla-envoltorio td { display: block; border: 0; padding: 0; }
+  .contenido-admin .tabla-envoltorio td[data-etiqueta]:not(.celda-principal):not(.codigo-ticket):not(:last-child)::before,
+  .contenido-panel .tabla-envoltorio td[data-etiqueta]:not(.celda-principal):not(.codigo-ticket):not(:last-child)::before {
+    content: attr(data-etiqueta); display: block; font-family: var(--font-codigo); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-suave); margin-bottom: 2px;
+  }
+  .contenido-admin .tabla-envoltorio td.celda-principal, .contenido-panel .tabla-envoltorio td.celda-principal { flex-basis: 100%; order: -1; font-size: 1.02rem; }
+  .contenido-admin .tabla-envoltorio td.codigo-ticket, .contenido-panel .tabla-envoltorio td.codigo-ticket { flex-basis: 100%; order: -2; }
+  .contenido-admin .tabla-envoltorio td:last-child, .contenido-panel .tabla-envoltorio td:last-child { margin-left: auto; }
+  .contenido-admin .tabla-envoltorio td:has(.acciones), .contenido-panel .tabla-envoltorio td:has(.acciones) { flex-basis: 100%; margin-left: 0; }
+  .contenido-admin .acciones, .contenido-panel .acciones { justify-content: flex-start; flex-wrap: wrap; }
+  .contenido-admin form#filtros .campo { min-width: 0 !important; flex: 1 1 100% !important; }
+}
+@media (max-width: 480px) {
+  /* Monitores en fila: nombre a la izquierda, número a la derecha */
+  .monitores, .contenido-admin .metricas { grid-template-columns: 1fr; gap: var(--esp-2); }
+  .monitor, .contenido-admin .metricas .metrica { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px var(--esp-3); padding: var(--esp-3) var(--esp-4); }
+  .monitor b, .contenido-admin .metricas .metrica b { grid-column: 2; grid-row: 1 / span 2; margin: 0; font-size: 1.8rem; }
+  .monitor small { grid-column: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .estado-sistema .piloto { animation: none; }
+}

@@ -28,6 +28,11 @@ iniciar(async () => {
       columnas: ["codigo", "asunto", "cliente", "agente", "estado", "prioridad", "fecha"]
     });
   }
+  // Desde el dashboard se llega con un filtro puesto (?estado=abierto, ?agente=ninguno…)
+  for (const campo of ["estado", "prioridad", "agente"]) {
+    const valor = parametro(campo);
+    if (valor && [...form.elements[campo].options].some(o => o.value === valor)) form.elements[campo].value = valor;
+  }
   form.addEventListener("input", pintar);
   form.addEventListener("reset", () => setTimeout(pintar));
   form.addEventListener("submit", e => e.preventDefault());
