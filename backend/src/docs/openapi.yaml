@@ -11,13 +11,52 @@ servers:
 tags:
   - name: Sistema
     description: Estado del servicio
+  - name: Autenticación
+    description: Registro e inicio de sesión (públicas)
+  - name: Perfil
+    description: Datos de la persona que ha iniciado sesión
+  - name: Usuarios
+    description: Gestión de usuarios y roles (administrador)
 components:
   securitySchemes:
     token:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  responses:
+    DatosInvalidos:
+      description: Datos incompletos o no válidos (400). `campos` dice qué falla en cada uno.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    SinSesion:
+      description: Sin token, token caducado o credenciales incorrectas (401)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Prohibido:
+      description: El rol no tiene permiso o la cuenta está desactivada (403)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NoEncontrado:
+      description: No existe o no tienes acceso (404)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Conflicto:
+      description: Duplicado o conflicto (409)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   schemas:
+    Rol:
+      type: string
+      enum: [cliente, agente, admin]
+    Usuario:
+      type: object
+      properties:
+        id: { type: integer, example: 4 }
+        name: { type: string, example: Lucía Fernández }
+        email: { type: string, format: email, example: lucia@ejemplo.test }
+        role: { $ref: "#/components/schemas/Rol" }
+        is_active: { type: boolean, example: true }
+        created_at: { type: string, format: date-time }
+    Sesion:
+      type: object
+      properties:
+        token: { type: string, description: "JWT. Se envía en Authorization: Bearer <token>. Caduca a las 8 h." }
+        usuario: { $ref: "#/components/schemas/Usuario" }
     Error:
       type: object
       properties:
@@ -49,3 +88,137 @@ paths:
                   hora: { type: string, format: date-time }
         "503":
           description: La base de datos no responde
+  /auth/register:
+    post:
+      tags: [Autenticación]
+      summary: Crear una cuenta de cliente
+      description: |
+        Pública. La cuenta nace SIEMPRE con rol `cliente`: si el cuerpo trae `role`, se ignora.
+        La contraseña se guarda con bcrypt. Devuelve la sesión ya iniciada.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 100, example: Carla Sanz }
+                email: { type: string, format: email, example: carla@ejemplo.test }
+                password: { type: string, minLength: 8, description: Mínimo 8 caracteres y al menos un número, example: Secreta123 }
+      responses:
+        "201": { description: Cuenta creada, content: { application/json: { schema: { $ref: "#/components/schemas/Sesion" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /auth/login:
+    post:
+      tags: [Autenticación]
+      summary: Iniciar sesión
+      description: |
+        Pública. Devuelve un token JWT y los datos del usuario. Tras 10 intentos fallidos en 15 minutos
+        para el mismo email y la misma IP responde 429.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email, example: lucia@ejemplo.test }
+                password: { type: string, example: Demo1234! }
+      responses:
+        "200": { description: Sesión iniciada, content: { application/json: { schema: { $ref: "#/components/schemas/Sesion" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "429": { description: Demasiados intentos fallidos }
+  /users/me:
+    get:
+      tags: [Perfil]
+      summary: Ver mi perfil
+      description: Cualquier rol con sesión.
+      security: [{ token: [] }]
+      responses:
+        "200": { description: Mis datos, content: { application/json: { schema: { $ref: "#/components/schemas/Usuario" } } } }
+        "401": { $ref: "#/components/responses/SinSesion" }
+    put:
+      tags: [Perfil]
+      summary: Editar mi nombre y email
+      description: Cualquier rol con sesión. El rol no se puede cambiar desde aquí.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 100 }
+                email: { type: string, format: email }
+      responses:
+        "200": { description: Perfil actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/Usuario" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /users/me/password:
+    put:
+      tags: [Perfil]
+      summary: Cambiar mi contraseña
+      description: Pide la contraseña actual. Cualquier rol con sesión.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actual, nueva]
+              properties:
+                actual: { type: string }
+                nueva: { type: string, minLength: 8, description: Mínimo 8 caracteres y al menos un número }
+      responses:
+        "204": { description: Contraseña cambiada }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+  /users:
+    get:
+      tags: [Usuarios]
+      summary: Listar usuarios
+      description: |
+        Admin: todos, con filtros. Agente: solo `?role=agente` (para ver a quién se puede asignar un ticket);
+        cualquier otra consulta le devuelve 403. Cliente: 403.
+      security: [{ token: [] }]
+      parameters:
+        - { name: role, in: query, schema: { $ref: "#/components/schemas/Rol" }, description: Filtrar por rol }
+        - { name: q, in: query, schema: { type: string }, description: Buscar en nombre o email }
+      responses:
+        "200": { description: Lista de usuarios, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Usuario" } } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /users/{id}:
+    patch:
+      tags: [Usuarios]
+      summary: Cambiar el rol de un usuario o activarlo/desactivarlo
+      description: Solo admin. Un admin no puede cambiarse su propio rol ni desactivarse (409).
+      security: [{ token: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role: { $ref: "#/components/schemas/Rol" }
+                is_active: { type: boolean }
+      responses:
+        "200": { description: Usuario actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/Usuario" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
