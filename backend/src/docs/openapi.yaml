@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: NoExitRooms API
-  version: 0.1.0
+  version: 0.2.0
   description: |
     API REST de NoExitRooms: salas de escape, reservas y soporte por tickets.
     Las rutas con candado necesitan la cabecera `Authorization: Bearer <token>`,
@@ -17,6 +17,12 @@ tags:
     description: Datos de la persona que ha iniciado sesión
   - name: Usuarios
     description: Gestión de usuarios y roles (administrador)
+  - name: Tickets
+    description: |
+      Soporte. Cliente: solo sus tickets. Agente: los suyos y los libres (solo trabaja en los suyos).
+      Admin: todos. Un ticket que no puedes ver responde 404, aunque exista.
+  - name: Categorías
+    description: Tipos de ticket (lectura pública, gestión del administrador)
 components:
   securitySchemes:
     token:
@@ -39,10 +45,80 @@ components:
     Conflicto:
       description: Duplicado o conflicto (409)
       content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  parameters:
+    IdTicket: { name: id, in: path, required: true, schema: { type: integer, example: 4 } }
   schemas:
     Rol:
       type: string
       enum: [cliente, agente, admin]
+    Estado:
+      type: string
+      enum: [abierto, en_curso, pendiente_cliente, resuelto, cerrado]
+    Prioridad:
+      type: string
+      enum: [baja, media, alta]
+    Persona:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        role: { $ref: "#/components/schemas/Rol" }
+    Categoria:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: Reservas y cambios de fecha }
+        is_active: { type: boolean }
+    Ticket:
+      type: object
+      properties:
+        id: { type: integer, example: 4 }
+        codigo: { type: string, example: NXR-0004 }
+        subject: { type: string }
+        description: { type: string }
+        priority: { $ref: "#/components/schemas/Prioridad" }
+        status: { $ref: "#/components/schemas/Estado" }
+        customer_id: { type: integer }
+        agent_id: { type: integer, nullable: true }
+        category_id: { type: integer }
+        room_id: { type: integer, nullable: true }
+        booking_id: { type: integer, nullable: true }
+        cliente: { $ref: "#/components/schemas/Persona" }
+        agente: { type: object, allOf: [{ $ref: "#/components/schemas/Persona" }], nullable: true }
+        categoria: { type: string, example: Reservas y cambios de fecha }
+        sala:
+          type: object
+          nullable: true
+          properties: { id: { type: integer }, name: { type: string }, slug: { type: string } }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        closed_at: { type: string, format: date-time, nullable: true }
+    TicketDetalle:
+      allOf:
+        - $ref: "#/components/schemas/Ticket"
+        - type: object
+          properties:
+            mensajes:
+              type: array
+              description: En orden cronológico. El cliente no recibe las notas internas.
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  body: { type: string }
+                  is_internal: { type: boolean }
+                  created_at: { type: string, format: date-time }
+                  autor: { $ref: "#/components/schemas/Persona" }
+            historial:
+              type: array
+              description: Cambios de estado en orden cronológico, con quién y cuándo
+              items:
+                type: object
+                properties:
+                  old_status: { type: string, allOf: [{ $ref: "#/components/schemas/Estado" }], nullable: true }
+                  new_status: { $ref: "#/components/schemas/Estado" }
+                  changed_at: { type: string, format: date-time }
+                  autor: { $ref: "#/components/schemas/Persona" }
     Usuario:
       type: object
       properties:
@@ -74,6 +150,7 @@ paths:
     get:
       tags: [Sistema]
       summary: Estado de la API y de la conexión con la base de datos
+      security: []
       description: No necesita sesión. Devuelve 503 si la API no llega a MySQL.
       responses:
         "200":
@@ -92,6 +169,7 @@ paths:
     post:
       tags: [Autenticación]
       summary: Crear una cuenta de cliente
+      security: []
       description: |
         Pública. La cuenta nace SIEMPRE con rol `cliente`: si el cuerpo trae `role`, se ignora.
         La contraseña se guarda con bcrypt. Devuelve la sesión ya iniciada.
@@ -114,6 +192,7 @@ paths:
     post:
       tags: [Autenticación]
       summary: Iniciar sesión
+      security: []
       description: |
         Pública. Devuelve un token JWT y los datos del usuario. Tras 10 intentos fallidos en 15 minutos
         para el mismo email y la misma IP responde 429.
@@ -217,6 +296,213 @@ paths:
                 is_active: { type: boolean }
       responses:
         "200": { description: Usuario actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/Usuario" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /tickets:
+    get:
+      tags: [Tickets]
+      summary: Listar los tickets que puedo ver
+      description: Cada rol recibe solo lo suyo (ver la etiqueta Tickets). Los filtros se suman.
+      security: [{ token: [] }]
+      parameters:
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/Estado" } }
+        - { name: priority, in: query, schema: { $ref: "#/components/schemas/Prioridad" } }
+        - { name: category_id, in: query, schema: { type: integer } }
+        - { name: customer_id, in: query, schema: { type: integer } }
+        - { name: agent_id, in: query, schema: { type: string }, description: "Id del agente o `ninguno` para los que están sin asignar" }
+        - { name: q, in: query, schema: { type: string }, description: "Busca en asunto y descripción, o por código (NXR-0004)" }
+        - { name: orden, in: query, schema: { type: string, enum: [recientes, antiguos, prioridad], default: recientes } }
+      responses:
+        "200": { description: Tickets, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Ticket" } } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+    post:
+      tags: [Tickets]
+      summary: Abrir un ticket
+      description: |
+        Cliente o admin. Nace en estado `abierto`; la descripción se guarda también como primer mensaje.
+        El admin puede abrirlo en nombre de un cliente con `customer_id`. Si se indica `booking_id`,
+        la reserva tiene que ser del cliente y la sala se toma de ella.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, description, category_id]
+              properties:
+                subject: { type: string, minLength: 5, maxLength: 150, example: Cambio de fecha de la partida }
+                description: { type: string, minLength: 20, maxLength: 2000, example: ¿Podemos pasarla al domingo a la misma hora? }
+                category_id: { type: integer, example: 1 }
+                priority: { allOf: [{ $ref: "#/components/schemas/Prioridad" }], default: media }
+                room_id: { type: integer, nullable: true }
+                booking_id: { type: integer, nullable: true }
+                customer_id: { type: integer, description: Solo admin }
+      responses:
+        "201": { description: Ticket creado, content: { application/json: { schema: { $ref: "#/components/schemas/TicketDetalle" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /tickets/{id}:
+    parameters: [{ $ref: "#/components/parameters/IdTicket" }]
+    get:
+      tags: [Tickets]
+      summary: Ver un ticket con sus mensajes y su historial
+      security: [{ token: [] }]
+      responses:
+        "200": { description: Ticket, content: { application/json: { schema: { $ref: "#/components/schemas/TicketDetalle" } } } }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+    patch:
+      tags: [Tickets]
+      summary: Cambiar la prioridad o la categoría
+      description: El agente que lleva el ticket o el admin.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority: { $ref: "#/components/schemas/Prioridad" }
+                category_id: { type: integer }
+      responses:
+        "200": { description: Ticket actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/TicketDetalle" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+  /tickets/{id}/messages:
+    parameters: [{ $ref: "#/components/parameters/IdTicket" }]
+    post:
+      tags: [Tickets]
+      summary: Responder en un ticket
+      description: |
+        El cliente del ticket, el agente que lo lleva o el admin. `is_internal: true` es una nota que el cliente
+        no ve (solo equipo). Si el cliente contesta a un ticket `pendiente_cliente`, vuelve a `en_curso`.
+        En un ticket cerrado responde 409.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string, maxLength: 5000, example: El domingo a las 18:00 está libre. }
+                is_internal: { type: boolean, default: false }
+      responses:
+        "201": { description: Mensaje guardado; devuelve el ticket actualizado, content: { application/json: { schema: { $ref: "#/components/schemas/TicketDetalle" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /tickets/{id}/status:
+    parameters: [{ $ref: "#/components/parameters/IdTicket" }]
+    patch:
+      tags: [Tickets]
+      summary: Cambiar el estado
+      description: |
+        Cada cambio queda en el historial con quién y cuándo.
+        - Cliente: de `resuelto` a `cerrado` (confirma el cierre) o a `abierto` (pide reabrir).
+        - Agente que lo lleva: cualquier estado menos `cerrado`, y no puede reabrir uno cerrado.
+        - Admin: cualquier cambio.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { $ref: "#/components/schemas/Estado" }
+      responses:
+        "200": { description: Estado cambiado, content: { application/json: { schema: { $ref: "#/components/schemas/TicketDetalle" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+  /tickets/{id}/assign:
+    parameters: [{ $ref: "#/components/parameters/IdTicket" }]
+    patch:
+      tags: [Tickets]
+      summary: Asignar o reasignar el ticket
+      description: Admin a cualquier agente activo (o `null` para dejarlo libre). Un agente solo puede asignarse un ticket libre.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent_id]
+              properties:
+                agent_id: { type: integer, nullable: true, example: 2 }
+      responses:
+        "200": { description: Ticket asignado, content: { application/json: { schema: { $ref: "#/components/schemas/TicketDetalle" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+  /categories:
+    get:
+      tags: [Categorías]
+      summary: Listar categorías
+      security: []
+      description: Pública, solo las activas. Con `?all=1` también las desactivadas (solo admin).
+      parameters:
+        - { name: all, in: query, schema: { type: string, enum: ["1"] } }
+      responses:
+        "200": { description: Categorías, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Categoria" } } } } }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Categorías]
+      summary: Crear una categoría
+      description: Solo admin.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 3, maxLength: 80, example: Accesibilidad }
+      responses:
+        "201": { description: Creada, content: { application/json: { schema: { $ref: "#/components/schemas/Categoria" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /categories/{id}:
+    put:
+      tags: [Categorías]
+      summary: Renombrar o activar/desactivar una categoría
+      description: Solo admin. Las categorías no se borran, se desactivan (los tickets antiguos la conservan).
+      security: [{ token: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 3, maxLength: 80 }
+                is_active: { type: boolean }
+      responses:
+        "200": { description: Actualizada, content: { application/json: { schema: { $ref: "#/components/schemas/Categoria" } } } }
         "400": { $ref: "#/components/responses/DatosInvalidos" }
         "401": { $ref: "#/components/responses/SinSesion" }
         "403": { $ref: "#/components/responses/Prohibido" }
