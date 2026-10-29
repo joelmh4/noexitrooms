@@ -6,16 +6,21 @@ import { pool } from "../src/db/conexion";
 
 let servidor: Server;
 let base = "";
+// Las peticiones esperan a que el servidor esté escuchando (por si un before() de una prueba se adelanta)
+let marcarListo: () => void;
+const listo = new Promise<void>(r => { marcarListo = r; });
 
 before(async () => {
   servidor = app.listen(0);
   await new Promise(r => servidor.once("listening", r));
   const dir = servidor.address();
   base = `http://127.0.0.1:${typeof dir === "object" && dir ? dir.port : 0}/api`;
+  marcarListo();
 });
 after(async () => { servidor.close(); await pool.end(); });
 
 export async function pedir(ruta: string, { metodo = "GET", cuerpo, token }: { metodo?: string; cuerpo?: unknown; token?: string } = {}) {
+  await listo;
   const res = await fetch(base + ruta, {
     method: metodo,
     headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
