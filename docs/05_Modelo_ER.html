@@ -1,0 +1,234 @@
+<title>Modelo de datos NoExitRooms</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@700;800&family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: diagrama arriba a todo el ancho; debajo, una ficha por tabla en rejilla y las decisiones de diseño */
+:root{
+  --bg:#F6F8F3; --surface:#FFFFFF; --fg:#25292C; --muted:#5C635C; --line:#DDE2D8; --accent:#3B7A00; --tag:#E9F5D6; --tagfg:#2F5F00; --opt:#FDF1DD; --optfg:#86500A;
+  --f-display:"Lexend","Trebuchet MS",system-ui,sans-serif; --f-body:"Figtree",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1C1F22;--surface:#25292C;--fg:#E8EBE6;--muted:#9AA29A;--line:#373C40;--accent:#98FC02;--tag:#2C3A1C;--tagfg:#C6F57E;--opt:#3A2F1A;--optfg:#F5C97A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1C1F22;--surface:#25292C;--fg:#E8EBE6;--muted:#9AA29A;--line:#373C40;--accent:#98FC02;--tag:#2C3A1C;--tagfg:#C6F57E;--opt:#3A2F1A;--optfg:#F5C97A;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15.5px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(1.9rem,4.5vw,2.6rem);font-weight:800}
+h2{font-size:1.4rem}
+h3{font-size:1.05rem}
+p{margin:0;max-width:70ch}
+code,.mono{font-family:var(--f-mono);font-size:.86em}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+header{padding-block:44px 28px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--line)}
+.facts{display:flex;flex-wrap:wrap;gap:8px}
+.fact{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:.85rem}
+section{padding-block:36px 4px;display:flex;flex-direction:column;gap:16px}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto}
+.diagram pre{margin:0;min-width:760px}
+.tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.thead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.thead h3{font-family:var(--f-mono);font-weight:500;font-size:1rem}
+.badge{font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 10px;background:var(--tag);color:var(--tagfg)}
+.badge.opt{background:var(--opt);color:var(--optfg)}
+.tcard p{color:var(--muted);font-size:.9rem}
+.cols{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+td{padding:5px 6px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-family:var(--f-mono);white-space:nowrap}
+td:nth-child(2){font-family:var(--f-mono);color:var(--muted);white-space:nowrap}
+.k{font-size:.66rem;font-weight:700;border-radius:4px;padding:0 5px;margin-left:4px;border:1px solid var(--line);color:var(--muted);font-family:var(--f-body)}
+.k.pk{color:var(--accent);border-color:var(--accent)}
+ul.dec{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:80ch}
+.files{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.users{overflow-x:auto}
+.users table td:first-child{white-space:normal}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+@media (max-width:760px){.tables{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">Paso 5 · Semana 2 · Diseño técnico</span>
+  <h1>Modelo de datos NoExitRooms</h1>
+  <p>Diagrama entidad-relación de la base de datos MySQL, con lo que guarda cada tabla y por qué. El script SQL con las tablas y los datos de ejemplo está probado y se ejecuta sin errores.</p>
+  <div class="facts"><span class="fact">7 tablas</span><span class="fact">6 obligatorias + 1 de mejora</span><span class="fact">11 claves foráneas</span><span class="fact">Datos de ejemplo para los 3 roles</span></div>
+</header>
+
+<section>
+  <h2>Diagrama entidad-relación</h2>
+  <div class="diagram">
+<pre class="mermaid">
+erDiagram
+  users ||--o{ tickets : "abre (cliente)"
+  users |o--o{ tickets : "atiende (agente)"
+  ticket_categories ||--o{ tickets : clasifica
+  rooms |o--o{ tickets : "trata sobre"
+  bookings |o--o{ tickets : "se refiere a"
+  tickets ||--o{ ticket_messages : contiene
+  users ||--o{ ticket_messages : escribe
+  tickets ||--o{ ticket_status_history : registra
+  users ||--o{ ticket_status_history : cambia
+  users ||--o{ bookings : reserva
+  rooms ||--o{ bookings : "se reserva en"
+
+  users {
+    int id PK
+    varchar name
+    varchar email UK
+    varchar password_hash
+    enum role "cliente | agente | admin"
+    bool is_active
+    datetime created_at
+  }
+  rooms {
+    int id PK
+    varchar name UK
+    varchar slug UK
+    varchar theme
+    tinyint difficulty "1 a 5"
+    smallint duration_min
+    tinyint min_players
+    tinyint max_players
+    decimal price_per_person
+    text description
+    varchar tagline
+    tinyint min_age
+    bool is_active
+  }
+  ticket_categories {
+    int id PK
+    varchar name UK
+    bool is_active
+  }
+  tickets {
+    int id PK
+    int customer_id FK
+    int agent_id FK "nullable"
+    int category_id FK
+    int room_id FK "nullable"
+    int booking_id FK "nullable"
+    varchar subject
+    text description
+    enum priority "baja | media | alta"
+    enum status "5 estados"
+    datetime created_at
+    datetime updated_at
+  }
+  ticket_messages {
+    int id PK
+    int ticket_id FK
+    int author_id FK
+    text body
+    bool is_internal
+    datetime created_at
+  }
+  ticket_status_history {
+    int id PK
+    int ticket_id FK
+    int changed_by_id FK
+    enum old_status
+    enum new_status
+    datetime changed_at
+  }
+  bookings {
+    int id PK
+    int customer_id FK
+    int room_id FK
+    datetime starts_at
+    tinyint players
+    enum status
+  }
+</pre>
+  </div>
+</section>
+
+<section>
+  <h2>Las tablas una a una</h2>
+  <div class="tables">
+    <div class="tcard"><div class="thead"><h3>users</h3><span class="badge">Obligatoria</span></div>
+      <p>Todas las personas que entran en la web. El rol decide qué puede hacer cada una.</p>
+      <div class="cols"><table>
+        <tr><td>id<span class="k pk">PK</span></td><td>INT</td><td>Identificador</td></tr>
+        <tr><td>email<span class="k">ÚNICO</span></td><td>VARCHAR(150)</td><td>No puede haber dos cuentas con el mismo email</td></tr>
+        <tr><td>password_hash</td><td>VARCHAR(255)</td><td>Hash bcrypt, nunca la contraseña</td></tr>
+        <tr><td>role</td><td>ENUM</td><td><code>cliente</code> por defecto; solo el admin lo cambia</td></tr>
+        <tr><td>is_active</td><td>BOOLEAN</td><td>Para bloquear una cuenta sin borrarla</td></tr>
+      </table></div></div>
+    <div class="tcard"><div class="thead"><h3>rooms</h3><span class="badge">CRUD temático</span></div>
+      <p>Las salas del catálogo. Es la entidad propia del negocio que pide el enunciado.</p>
+      <div class="cols"><table>
+        <tr><td>name, slug<span class="k">ÚNICO</span></td><td>VARCHAR</td><td>El slug forma la URL: <code>/salas/operacion-david</code></td></tr>
+        <tr><td>difficulty</td><td>TINYINT</td><td>De 1 a 5, comprobado con CHECK</td></tr>
+        <tr><td>min_players, max_players</td><td>TINYINT</td><td>CHECK: máximo ≥ mínimo</td></tr>
+        <tr><td>price_per_person</td><td>DECIMAL(6,2)</td><td>Precio orientativo, sin pagos reales</td></tr>
+        <tr><td>tagline, min_age</td><td>VARCHAR, TINYINT</td><td>Lema de la tarjeta y edad mínima (0 = sin mínimo)</td></tr>
+        <tr><td>is_active</td><td>BOOLEAN</td><td>"Eliminar" desactiva si ya tiene tickets</td></tr>
+      </table></div></div>
+    <div class="tcard"><div class="thead"><h3>tickets</h3><span class="badge">Obligatoria</span></div>
+      <p>Cada consulta o incidencia. Se relaciona con quién la abre, quién la atiende y, si procede, con una sala o reserva.</p>
+      <div class="cols"><table>
+        <tr><td>customer_id<span class="k">FK</span></td><td>→ users</td><td>Cliente que lo abre; base del control de propiedad</td></tr>
+        <tr><td>agent_id<span class="k">FK</span></td><td>→ users</td><td>Agente asignado; vacío hasta que el admin lo asigna</td></tr>
+        <tr><td>category_id<span class="k">FK</span></td><td>→ ticket_categories</td><td>Obligatoria</td></tr>
+        <tr><td>room_id, booking_id<span class="k">FK</span></td><td>→ rooms / bookings</td><td>Opcionales: de qué sala o partida se habla</td></tr>
+        <tr><td>priority</td><td>ENUM</td><td><code>baja · media · alta</code></td></tr>
+        <tr><td>status</td><td>ENUM</td><td><code>abierto · en_curso · pendiente_cliente · resuelto · cerrado</code></td></tr>
+      </table></div></div>
+    <div class="tcard"><div class="thead"><h3>ticket_messages</h3><span class="badge">Obligatoria</span></div>
+      <p>Las respuestas de la conversación. Guarda quién escribió cada una y cuándo.</p>
+      <div class="cols"><table>
+        <tr><td>ticket_id<span class="k">FK</span></td><td>→ tickets</td><td>Si se borra el ticket, se borran sus mensajes</td></tr>
+        <tr><td>author_id<span class="k">FK</span></td><td>→ users</td><td>Cliente, agente o admin</td></tr>
+        <tr><td>is_internal</td><td>BOOLEAN</td><td>Mejora: nota que el cliente no ve</td></tr>
+      </table></div></div>
+    <div class="tcard"><div class="thead"><h3>ticket_status_history</h3><span class="badge">Obligatoria</span></div>
+      <p>Un registro por cada cambio de estado, para mostrar el historial y poder auditarlo.</p>
+      <div class="cols"><table>
+        <tr><td>changed_by_id<span class="k">FK</span></td><td>→ users</td><td>Quién hizo el cambio</td></tr>
+        <tr><td>old_status</td><td>ENUM</td><td>Vacío en el registro de creación</td></tr>
+        <tr><td>new_status</td><td>ENUM</td><td>Estado nuevo</td></tr>
+      </table></div></div>
+    <div class="tcard"><div class="thead"><h3>ticket_categories</h3><span class="badge">Obligatoria</span></div>
+      <p>Tipos de consulta que administra el admin. Se desactivan en vez de borrarse.</p>
+      <div class="cols"><table>
+        <tr><td>name<span class="k">ÚNICO</span></td><td>VARCHAR(80)</td><td>Reservas, Bonos, Grupos, Objetos perdidos, Reclamaciones, Cuenta</td></tr>
+      </table></div></div>
+    <div class="tcard"><div class="thead"><h3>bookings</h3><span class="badge opt">Mejora opcional</span></div>
+      <p>Reservas de partida. Es la segunda entidad que se propuso como mejora en la ficha; si no se hace, se quita junto con <code>tickets.booking_id</code>.</p>
+      <div class="cols"><table>
+        <tr><td>room_id + starts_at<span class="k">ÚNICO</span></td><td>—</td><td>Una sala no se puede reservar dos veces a la misma hora</td></tr>
+        <tr><td>status</td><td>ENUM</td><td><code>pendiente · confirmada · cancelada</code></td></tr>
+      </table></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Decisiones de diseño</h2>
+  <ul class="dec">
+    <li><b>El rol vive en <code>users.role</code>.</b> Con tres roles fijos no hace falta una tabla aparte, y el backend lo comprueba en cada petición con un middleware.</li>
+    <li><b>La propiedad se comprueba con <code>tickets.customer_id</code>.</b> Un cliente solo recibe tickets donde <code>customer_id</code> es el suyo; un agente, donde <code>agent_id</code> es el suyo. Así se supera la prueba de cambiar el id en la URL.</li>
+    <li><b>El código visible (NXR-0042) no se guarda.</b> La API lo forma a partir del id (<code>'NXR-' + id con 4 cifras</code>), así nunca se duplica ni se desincroniza.</li>
+    <li><b>Desactivar en lugar de borrar.</b> Salas, categorías y usuarios tienen <code>is_active</code>; las claves foráneas usan RESTRICT para no perder tickets por un borrado.</li>
+    <li><b>Los datos que el enunciado llama "trazabilidad"</b> están en <code>created_at</code>, <code>updated_at</code>, los mensajes y el historial de estados.</li>
+    <li><b>Validación doble.</b> La base de datos impide valores imposibles (CHECK, UNIQUE, ENUM) y el backend devuelve el error con un mensaje claro y el código HTTP adecuado (400, 409…).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Datos de ejemplo y usuarios de prueba</h2>
+  <p>El script crea 6 salas, 6 categorías, 2 reservas, 5 tickets en distintos estados, 10 mensajes y 12 cambios de estado. Todos los usuarios tienen la contraseña <code>Demo1234!</code>, guardada como hash bcrypt.</p>
+  <div class="users"><table>
+    <tr><td><b>Admin</b></td><td>admin@noexitrooms.test</td><td>Ve y asigna todos los tickets, gestiona salas, usuarios y categorías</td></tr>
+    <tr><td><b>Agente</b></td><td>marta@noexitrooms.test · sergio@noexitrooms.test</td><td>Atienden sus tickets asignados</td></tr>
+    <tr><td><b>Cliente</b></td><td>lucia@ejemplo.test · pablo@ejemplo.test · ana@ejemplo.test</td><td>Lucía tiene 3 tickets, para probar que Pablo no puede verlos</td></tr>
+  </table></div>
+  <div class="files">
+    <span class="eyebrow">Archivo en la carpeta del proyecto</span>
+    <span class="mono">NoExitRooms/05_esquema_mysql.sql</span>
+    <span style="color:var(--muted);font-size:.9rem">Probado en MariaDB 10.11 (compatible con MySQL 8): crea las 7 tablas, inserta los datos y rechaza valores inválidos como una dificultad de 9.</span>
+  </div>
+</section>
+
+<footer>NoExitRooms · Joel, Edu e Iván · Modelo de datos v1, 27/10/2026.</footer>
+</div>

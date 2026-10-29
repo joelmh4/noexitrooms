@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salas · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/pasillo.css">
+  <link rel="stylesheet" href="css/linterna.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/puerta.js" defer></script>
+  <script src="js/pasillo.js" defer></script>
+  <script src="js/sonido.js" defer></script>
+  <script src="js/linterna.js" defer></script>
+  <script src="js/paginas/salas.js" defer></script>
+</head>
+<body class="tema-oscuro" data-zona="publica" data-pagina="salas">
+<main>
+  <section class="pasillo" id="pasillo" aria-label="Las salas, una a una">
+    <div class="pasillo-escena">
+      <header class="contenedor pasillo-cabecera">
+        <div class="pila">
+          <span class="etiqueta-superior">Catálogo</span>
+          <h1>Elegid qué puerta abrir</h1>
+          <p>Bajad y recorred el pasillo. Detrás de cada puerta hay una historia y sesenta minutos (o alguno más).</p>
+        </div>
+        <div class="pasillo-guia">
+          <span id="pasillo-contador">01 / 05</span>
+          <span class="pasillo-barra" aria-hidden="true"><span></span></span>
+          <a href="#catalogo">Ir al catálogo con filtros</a>
+        </div>
+      </header>
+      <div class="pasillo-pista" id="pasillo-pista"></div>
+    </div>
+  </section>
+  <section class="seccion" id="catalogo">
+    <div class="contenedor">
+      <div class="pila" style="gap:8px"><span class="etiqueta-superior">Filtrad y elegid</span><h2>Todas las salas</h2></div>
+      <div class="foto-banda foto-banda-fina" aria-hidden="true"><img src="img/salas-cabecera.webp" alt="" loading="lazy" width="2400" height="1340"></div>
+      <div class="catalogo">
+        <form class="filtros tarjeta" id="filtros" role="search" aria-label="Filtrar salas">
+          <div class="campo">
+            <label for="buscar">Buscar</label>
+            <input id="buscar" name="buscar" type="search" placeholder="Nombre de la sala">
+          </div>
+          <fieldset><legend>Temática</legend><div class="pila" style="gap:8px" id="lista-tematicas"></div></fieldset>
+          <div class="campo">
+            <label for="dificultad">Dificultad</label>
+            <select id="dificultad" name="dificultad">
+              <option value="">Cualquiera</option>
+              <option value="1">1 · Iniciación</option><option value="2">2 · Fácil</option><option value="3">3 · Media</option>
+              <option value="4">4 · Difícil</option><option value="5">5 · Experto</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="jugadores">Somos…</label>
+            <select id="jugadores" name="jugadores">
+              <option value="">Cualquier número</option>
+              <option value="2">2 personas</option><option value="3">3 personas</option><option value="4">4 personas</option>
+              <option value="5">5 personas</option><option value="6">6 personas</option><option value="7">7 personas</option>
+            </select>
+          </div>
+          <button class="boton boton-secundario boton-pequeno" type="reset">Quitar filtros</button>
+        </form>
+        <div class="pila">
+          <div class="fila-entre">
+            <p class="texto-suave" id="contador" aria-live="polite"></p>
+            <div class="campo" style="flex-direction:row;align-items:center;gap:8px">
+              <label for="orden">Ordenar por</label>
+              <select id="orden" name="orden" form="filtros" style="width:auto">
+                <option value="nombre">Nombre</option><option value="precio">Precio</option><option value="dificultad">Dificultad</option>
+              </select>
+            </div>
+          </div>
+          <div class="rejilla-salas" id="rejilla"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,89 @@
+/* =====================================================================
+   Ficha de sala: ambientación, galería a oscuras, visor y reserva
+   ===================================================================== */
+
+/* ---------- Ambientación (js/ambiente.js) ---------- */
+.ambiente { margin-top: var(--esp-4); border-radius: var(--radio-lg); overflow: hidden; border: 1px solid rgba(255,255,255,.08); background: #0A0B0C; box-shadow: inset 0 0 40px rgba(0,0,0,.8); }
+.ambiente-titulo { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 16px; font-family: var(--font-codigo); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: #8A918A; border-bottom: 1px solid rgba(255,255,255,.06); }
+.ambiente-piloto { width: 8px; height: 8px; border-radius: 50%; background: #E05555; box-shadow: 0 0 8px #E05555; animation: piloto 1.6s steps(1) infinite; }
+@keyframes piloto { 50% { opacity: .25; } }
+.ambiente-pantalla { font-family: var(--font-codigo); font-size: .86rem; line-height: 1.55; padding: 16px; min-height: 230px; max-height: 300px; overflow: hidden; white-space: pre-wrap; color: #D5DAD1; }
+.ambiente .alarma { color: #FF6B6B; }
+.ambiente .bien { color: var(--color-neon); }
+.ambiente .apagado { color: #7C837C; }
+.ambiente-grande { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+.ambiente-cursor { display: inline-block; width: .6em; height: 1.1em; margin-left: 1px; vertical-align: text-bottom; background: currentColor; animation: piloto 1s steps(1) infinite; }
+
+/* Fósforo verde (San Tomás): líneas de barrido y brillo */
+.ambiente-fosforo .ambiente-pantalla { color: #7DFF6A; text-shadow: 0 0 6px rgba(125,255,106,.55); background:
+  repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.28) 2px 3px), radial-gradient(ellipse at center, #0E1A0E, #040704 80%); }
+.ambiente-fosforo .alarma { color: #C9FF5A; text-shadow: 0 0 8px rgba(201,255,90,.8); }
+/* Consola (David, almacén, Perro) */
+.ambiente-consola .ambiente-pantalla { background: #0B0D0F; }
+/* Acta (Sol, camarote): números grandes */
+.ambiente-acta .ambiente-pantalla { white-space: normal; display: flex; flex-direction: column; gap: 10px; }
+.acta-fila { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px dashed rgba(255,255,255,.1); padding-bottom: 8px; }
+.acta-fila span { color: #8A918A; }
+.acta-fila b { text-align: right; }
+.acta-votos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.acta-votos span { display: flex; flex-direction: column; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: #8A918A; }
+.acta-votos b { font-size: 1.5rem; color: #fff; font-variant-numeric: tabular-nums; }
+
+/* ---------- Galería a oscuras ---------- */
+.galeria-sala .galeria-foto { position: relative; display: block; padding: 0; border: 1px solid var(--borde); border-radius: var(--radio-md, 8px); overflow: hidden; background: #000; cursor: zoom-in; }
+.galeria-foto img { display: block; }
+.galeria-foto::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: rgba(4,5,6,.35); transition: background .3s; }
+.galeria-foto:focus-visible { outline: 2px solid var(--color-neon); outline-offset: 2px; }
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .galeria-foto::after { background: rgba(4,5,6,.82);
+    -webkit-mask-image: radial-gradient(circle 110px at var(--mx, -200px) var(--my, -200px), transparent 0, transparent 30%, #000 100%);
+            mask-image: radial-gradient(circle 110px at var(--mx, -200px) var(--my, -200px), transparent 0, transparent 30%, #000 100%); }
+  .galeria-foto:focus-visible::after { -webkit-mask-image: none; mask-image: none; background: rgba(4,5,6,.1); }
+}
+
+/* ---------- Visor a pantalla completa ---------- */
+.visor { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(4,5,6,.96); color: #fff; display: none; align-items: center; justify-content: center; }
+.visor[open] { display: flex; }
+.visor::backdrop { background: rgba(0,0,0,.6); }
+.visor img { max-width: min(92vw, 1600px); max-height: 82dvh; border-radius: 6px; box-shadow: 0 40px 100px rgba(0,0,0,.8); user-select: none; -webkit-user-drag: none; touch-action: pan-y; }
+.visor img.entrando { animation: visor-entra .35s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes visor-entra { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+.visor-pie { position: absolute; bottom: max(20px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); margin: 0; font-family: var(--font-codigo); font-size: .8rem; letter-spacing: .1em; color: #C9CEC6; }
+.visor-boton { position: absolute; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); background: rgba(17,19,21,.6); color: #fff; cursor: pointer; }
+.visor-boton:hover, .visor-boton:focus-visible { border-color: var(--color-neon); outline: none; }
+.visor-cerrar { top: 20px; right: 20px; }
+.visor-anterior { left: 20px; top: 50%; transform: translateY(-50%); }
+.visor-siguiente { right: 20px; top: 50%; transform: translateY(-50%); }
+@media (max-width: 640px) { .visor-anterior, .visor-siguiente { top: auto; bottom: 12px; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .visor img.entrando, .ambiente-piloto, .ambiente-cursor { animation: none; } }
+
+/* ---------- Reserva con calendario ---------- */
+.reserva { margin-top: var(--esp-16); display: flex; flex-direction: column; gap: var(--esp-6); scroll-margin-top: 88px; }
+.reserva-cabecera { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--esp-4); flex-wrap: wrap; }
+.reserva-semana { display: flex; align-items: center; gap: 12px; font-family: var(--font-codigo); font-size: .9rem; }
+.reserva-semana span { min-width: 120px; text-align: center; }
+.calendario { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+.calendario-dia { display: flex; flex-direction: column; gap: 8px; }
+.calendario-fecha { margin: 0 0 4px; font-family: var(--font-codigo); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--texto-suave); text-align: center; }
+.hueco { padding: 10px 4px; border-radius: 10px; font-family: var(--font-codigo); font-weight: 700; font-size: .9rem; border: 1px solid var(--borde); background: var(--superficie); color: var(--texto); cursor: pointer; transition: border-color .2s, background .2s, transform .15s; }
+.hueco-libre:hover { border-color: var(--color-neon); }
+.hueco-libre:active { transform: scale(.96); }
+.hueco[aria-pressed="true"] { background: var(--color-neon); border-color: var(--color-neon); color: var(--color-grafito); }
+.hueco-ocupada { background: repeating-linear-gradient(45deg, #1A1D20 0 6px, #22262A 6px 12px); color: #5C635C; text-decoration: line-through; cursor: not-allowed; }
+.hueco-tuya { border-color: var(--color-neon); color: var(--color-neon); background: rgba(152,252,2,.08); cursor: default; }
+.hueco-pasada { opacity: .3; cursor: not-allowed; }
+.hueco:focus-visible { outline: 2px solid var(--color-neon); outline-offset: 2px; }
+.calendario-leyenda { list-style: none; margin: 0; padding: 0; display: flex; gap: 20px; font-size: .82rem; color: var(--texto-suave); }
+.calendario-leyenda li { display: flex; align-items: center; gap: 8px; }
+.hueco-muestra { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--borde); }
+.hueco-muestra.hueco-libre { background: var(--superficie); }
+.reserva-resumen { display: flex; align-items: center; justify-content: space-between; gap: var(--esp-6); flex-wrap: wrap; padding: var(--esp-6); }
+.resumen-hueco { display: flex; flex-direction: column; gap: 4px; }
+.resumen-hueco b { font-size: 1.15rem; }
+.resumen-jugadores { display: flex; align-items: center; gap: 14px; }
+.resumen-jugadores b { font-family: var(--font-codigo); font-size: 1.3rem; }
+@media (max-width: 760px) {
+  .calendario { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 92px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 8px; }
+  .calendario-dia { scroll-snap-align: start; }
+  .reserva-resumen { flex-direction: column; align-items: stretch; }
+}

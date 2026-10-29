@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: NoExitRooms API
+  version: 0.1.0
+  description: |
+    API REST de NoExitRooms: salas de escape, reservas y soporte por tickets.
+    Las rutas con candado necesitan la cabecera `Authorization: Bearer <token>`,
+    que se obtiene con `POST /auth/login`.
+servers:
+  - url: /api
+tags:
+  - name: Sistema
+    description: Estado del servicio
+components:
+  securitySchemes:
+    token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: NO_ENCONTRADO }
+            mensaje: { type: string, example: No existe o no tienes acceso. }
+            campos:
+              type: object
+              additionalProperties: { type: string }
+              example: { email: Escribe un email válido. }
+paths:
+  /health:
+    get:
+      tags: [Sistema]
+      summary: Estado de la API y de la conexión con la base de datos
+      description: No necesita sesión. Devuelve 503 si la API no llega a MySQL.
+      responses:
+        "200":
+          description: Todo funciona
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api: { type: string, example: ok }
+                  baseDeDatos: { type: string, example: ok }
+                  hora: { type: string, format: date-time }
+        "503":
+          description: La base de datos no responde

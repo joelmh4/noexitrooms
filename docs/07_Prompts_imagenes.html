@@ -1,0 +1,468 @@
+<title>Prompts de imágenes NoExitRooms</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700&family=Figtree:wght@400;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Una sola apariencia oscura a propósito: es la de la web pública de NoExitRooms.
+   Columna de lectura con índice de salas arriba; cada imagen es una ficha con su prompt copiable. */
+:root {
+  color-scheme: dark;
+  --fondo: #17191C;
+  --superficie: #202327;
+  --superficie-2: #2A2E33;
+  --borde: #383D43;
+  --texto: #E8EBE6;
+  --suave: #9AA29A;
+  --neon: #98FC02;
+  --grafito: #313539;
+  --aviso: #FFC93C;
+  --peligro: #FF6B6B;
+  --f-titulos: "Lexend", "Segoe UI", system-ui, sans-serif;
+  --f-texto: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --f-codigo: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { background: var(--fondo); color: var(--texto); font-family: var(--f-texto); font-size: 16px; line-height: 1.6; margin: 0; }
+.envoltorio { max-width: 1040px; margin: 0 auto; padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { font-family: var(--f-titulos); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); }
+h2 { font-size: 1.7rem; }
+h3 { font-size: 1.12rem; }
+p { margin: 0; }
+a { color: var(--neon); }
+.etiqueta { font-size: .74rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--neon); }
+.suave { color: var(--suave); }
+.pila { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.lectura { max-width: 68ch; }
+
+/* Cabecera */
+.cabecera { display: flex; flex-direction: column; gap: 16px; }
+.cabecera .lectura { font-size: 1.1rem; }
+.indice { display: flex; flex-wrap: wrap; gap: 8px; }
+.indice a { text-decoration: none; color: var(--texto); border: 1px solid var(--borde); border-radius: 999px; padding: 6px 14px; font-size: .9rem; }
+.indice a:hover, .indice a:focus-visible { border-color: var(--neon); color: var(--neon); outline: none; }
+
+/* Bloques de ayuda */
+.rejilla-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.caja { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.caja ul, .caja ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.consola { font-family: var(--f-codigo); font-size: .85rem; background: #0F1113; border: 1px solid var(--borde); border-radius: 8px; padding: 12px 14px; white-space: pre-wrap; word-break: break-word; color: var(--texto); }
+.linea-aviso { font-family: var(--f-codigo); font-size: .85rem; border-left: 3px solid var(--aviso); padding: 8px 12px; background: var(--superficie-2); border-radius: 0 8px 8px 0; }
+.linea-aviso b { color: var(--aviso); }
+
+/* Sala */
+.sala { display: flex; flex-direction: column; gap: 20px; scroll-margin-top: 16px; }
+.sala-cabecera { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--borde); padding-top: 28px; }
+.datos { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .88rem; color: var(--suave); font-variant-numeric: tabular-nums; }
+.lema { font-style: italic; color: var(--suave); }
+
+/* Ficha de imagen */
+.fichas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.ficha { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.ficha.principal { grid-column: 1 / -1; }
+.ficha-cuerpo { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; flex: 1; }
+.marco { background: repeating-linear-gradient(135deg, var(--superficie-2) 0 10px, var(--superficie) 10px 20px); border-bottom: 1px solid var(--borde); display: flex; align-items: center; justify-content: center; color: var(--suave); font-family: var(--f-codigo); font-size: .8rem; max-width: 100%; }
+.ficha.principal .marco { max-height: 150px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--f-codigo); font-size: .76rem; border: 1px solid var(--borde); border-radius: 6px; padding: 2px 8px; color: var(--suave); white-space: nowrap; }
+.chip.neon { border-color: var(--neon); color: var(--neon); }
+.chip.hecha { background: var(--neon); border-color: var(--neon); color: var(--grafito); font-weight: 700; }
+.chip.falta { border-color: #FF6B8B; color: #FF6B8B; }
+/* Fotos ya creadas: la ficha se atenúa y el prompt queda plegado */
+.ficha.hecha { opacity: .62; }
+.ficha.hecha:hover, .ficha.hecha:focus-within { opacity: 1; }
+.ficha.hecha .marco { background: var(--superficie-2); color: var(--neon); }
+.solo-pendientes .ficha.hecha { display: none; }
+.solo-pendientes .sala:not(:has(.ficha:not(.hecha))) { display: none; }
+.solo-pendientes tr.hecha { display: none; }
+.progreso { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.progreso-barra { flex: 1; min-width: 160px; height: 8px; border-radius: 99px; background: var(--superficie-2); overflow: hidden; }
+.progreso-barra span { display: block; height: 100%; background: var(--neon); }
+.prompt { position: relative; }
+.prompt .consola { padding-right: 14px; }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+button { font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; border-radius: 8px; padding: 7px 14px; border: 1px solid var(--neon); background: var(--neon); color: var(--grafito); }
+button.sec { background: transparent; color: var(--texto); border-color: var(--borde); }
+button:focus-visible { outline: 2px solid var(--texto); outline-offset: 2px; }
+button.hecho { background: var(--grafito); color: var(--neon); }
+.alt { font-size: .88rem; color: var(--suave); }
+.alt b { color: var(--texto); font-weight: 600; }
+details summary { cursor: pointer; font-size: .88rem; color: var(--suave); }
+details[open] summary { margin-bottom: 8px; }
+
+/* Tabla resumen */
+.tabla { overflow-x: auto; border: 1px solid var(--borde); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 640px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--borde); vertical-align: top; }
+th { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--suave); background: var(--superficie-2); }
+td code { font-family: var(--f-codigo); font-size: .8rem; color: var(--neon); word-break: break-all; }
+tr:last-child td { border-bottom: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="envoltorio">
+
+<header class="cabecera">
+  <span class="etiqueta">NoExitRooms · Imágenes con IA</span>
+  <h1>Prompts de imágenes para la web</h1>
+  <p class="lectura suave">Todo lo que hay que generar: la imagen principal y tres de galería por sala, más las fotos de portada y del resto de páginas públicas. Cada ficha dice dónde va, el tamaño, el nombre del archivo, la idea en español, el prompt en inglés listo para copiar y el texto alternativo.</p>
+  <nav class="indice" aria-label="Índice">
+    <a href="#como-usar">Cómo usarlo</a>
+    <span id="indice-salas" style="display:contents"></span>
+    <a href="#resto-web">Resto de la web</a>
+    <a href="#resumen">Lista de archivos</a>
+  </nav>
+  <div class="progreso">
+    <b id="progreso-texto"></b>
+    <span class="progreso-barra" aria-hidden="true"><span id="progreso-relleno"></span></span>
+    <button type="button" class="sec" id="ver-pendientes" aria-pressed="false">Ver solo las que faltan</button>
+  </div>
+</header>
+
+<section id="como-usar" class="pila" style="gap:20px">
+  <div class="pila"><span class="etiqueta">Antes de empezar</span><h2>Cómo usar estos prompts</h2></div>
+  <div class="rejilla-2">
+    <div class="caja">
+      <h3>Qué herramienta</h3>
+      <ul>
+        <li><b>ChatGPT</b> o <b>Gemini</b>: los mejores para seguir instrucciones largas y para editar ("hazla más oscura").</li>
+        <li><b>Bing Image Creator</b> y <b>Leonardo</b>: gratis, buenos para probar muchas variantes.</li>
+        <li><b>Midjourney</b>: el más cinematográfico. Al final del prompt añadid <code>--ar 16:9</code> y el negativo con <code>--no</code>.</li>
+      </ul>
+    </div>
+    <div class="caja">
+      <h3>Para que todas parezcan de la misma web</h3>
+      <ol>
+        <li>Generad primero la <b>imagen principal</b> de cada sala.</li>
+        <li>Para la galería, subid la principal como referencia y decid: <i>"same room, same lighting and style"</i> + el prompt.</li>
+        <li>El final de todos los prompts es el mismo bloque de estilo (abajo). No lo quitéis.</li>
+        <li>Si sale texto o letras raras, borradlas en Canva o Photoshop: la IA escribe mal.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="pila">
+    <h3>Bloque de estilo común (ya va incluido en cada prompt)</h3>
+    <div class="consola" id="estilo-comun"></div>
+  </div>
+  <div class="pila">
+    <h3>Prompt negativo (para las herramientas que tienen ese campo)</h3>
+    <div class="consola" id="negativo-comun"></div>
+    <div class="acciones"><button type="button" class="sec" data-copiar="negativo-comun">Copiar negativo</button></div>
+  </div>
+  <div class="pila" style="gap:10px">
+    <p class="linea-aviso"><b>AVISO</b> · Salas de parodia (Perro y Mascarillas): ningún generador hace retratos de políticos reales y no conviene intentarlo. Los personajes se insinúan con objetos, siluetas sin cara o recortes de cartón. Así además encaja con el aviso "personajes caricaturizados y ficticios" de la ficha.</p>
+    <p class="linea-aviso" style="border-left-color:var(--neon)"><b style="color:var(--neon)">INFO</b> · Edu, Tomás y David sí salen con su cara (han dado permiso). Las fichas marcadas con <span class="chip neon">Foto de …</span> piden adjuntar su foto en el generador junto al prompt. Usad una foto de frente, con buena luz y sin gafas de sol.</p>
+    <div class="caja">
+      <h3>Cómo adjuntar la foto según la herramienta</h3>
+      <ul>
+        <li><b>ChatGPT</b> o <b>Gemini</b>: subid la foto en el mismo mensaje y pegad el prompt. Son los que mejor mantienen la cara.</li>
+        <li><b>Leonardo</b>: subid la foto como <i>Character Reference</i>.</li>
+        <li><b>Midjourney</b>: subid la foto y usadla como <i>Omni Reference</i> (<code>--oref</code>).</li>
+        <li><b>Bing Image Creator</b> no admite fotos: para estas fichas no sirve.</li>
+        <li>Si la cara no se parece, generad la escena primero y pedid después <i>"replace the face of the person with the face in this photo"</i>.</li>
+      </ul>
+    </div>
+    <p class="linea-aviso"><b>AVISO</b> · Poned en "Sobre el proyecto" una línea tipo <i>"Imágenes de las salas generadas con IA"</i>. Al profesor le gustará ver que lo declaráis.</p>
+  </div>
+  <div class="rejilla-2">
+    <div class="caja">
+      <h3>Formato y peso</h3>
+      <ul>
+        <li>Exportad en <b>WebP</b> (calidad 80). Objetivo: menos de 250 KB por foto.</li>
+        <li>Guardad la principal grande (1920 × 1080) y que el CSS la recorte: la tarjeta usa 16:9 y la cabecera de la ficha es más panorámica.</li>
+        <li>Herramienta gratuita para convertir y comprimir: Squoosh.</li>
+      </ul>
+    </div>
+    <div class="caja">
+      <h3>Dónde guardarlas</h3>
+      <ul>
+        <li>Carpeta <code>web/img/salas/&lt;slug&gt;/</code> con <code>principal.webp</code> y <code>galeria-1.webp</code> a <code>galeria-3.webp</code>.</li>
+        <li>La tabla <code>rooms</code> ya tiene <code>image_url</code>: ahí va la ruta de la principal.</li>
+        <li>La galería sale del slug y no necesita tabla nueva.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div id="salas" class="pila" style="gap:56px"></div>
+
+<section id="resto-web" class="sala">
+  <div class="sala-cabecera">
+    <span class="etiqueta">Resto de la web</span>
+    <h2>Portada, sobre nosotros y demás páginas</h2>
+    <p class="suave lectura">Solo para la zona pública (oscura). Los paneles de cliente, agente y administrador no llevan fotos: son herramientas y se leen mejor limpios.</p>
+  </div>
+  <div class="fichas" id="fichas-web"></div>
+</section>
+
+<section id="resumen" class="pila" style="gap:16px">
+  <div class="pila"><span class="etiqueta">Para repartir el trabajo</span><h2>Lista de archivos</h2></div>
+  <div class="tabla"><table>
+    <thead><tr><th>Archivo</th><th>Página</th><th>Tamaño</th><th>Prioridad</th><th>Foto de</th><th>Estado</th></tr></thead>
+    <tbody id="tabla-resumen"></tbody>
+  </table></div>
+</section>
+
+</div>
+
+<script>
+const ESTILO = "Photorealistic photo of a professionally built escape room set, cinematic low-key lighting, deep charcoal shadows, subtle acid lime-green neon accent light, light atmospheric haze, wide-angle 24mm lens, rich detailed practical props, sharp focus, no text, no letters, no logos, no watermark.";
+const NEGATIVO = "text, letters, words, numbers, logo, watermark, signature, celebrities, politicians, gore, blood, deformed hands, extra fingers, blurry, oversaturated, cartoonish 3D render";
+const SIN_GENTE = " No people visible, no faces.";
+const REFERENCIA = (rol) => `Use the attached photo as the face reference for ${rol}: keep the face clearly recognizable and natural, matching the photographic style and lighting of the scene. `;
+
+// Fotos ya creadas y colocadas en web/img (actualizar al recibir más)
+const HECHAS = new Set([
+  ...["la-acampada-de-sol", "el-despertar-del-perro", "el-camarote-del-capitan-eduardo-el-panzas", "el-manicomio-de-san-tomas", "operacion-david", "el-almacen-de-las-mascarillas"]
+    .flatMap((slug) => ["principal", "galeria-1", "galeria-2", "galeria-3"].map((f) => `img/salas/${slug}/${f}.webp`)),
+  "img/portada.webp", "img/salida-grupo.webp", "img/salas-cabecera.webp", "img/acceso.webp", "img/contacto.webp", "img/ayuda-game-master.webp"
+]);
+
+const SALAS = [
+  {
+    slug: "la-acampada-de-sol", nombre: "La acampada de Sol", tema: "Humor", datos: ["Dificultad 4", "60 min", "2–6 jugadores", "+14"],
+    lema: "La asamblea no se disuelve hasta que haya consenso. Y nunca hay consenso.",
+    imagenes: [
+      { tipo: "principal", titulo: "Imagen principal", idea: "La plaza de noche convertida en sala: tiendas de campaña, lonas azules colgadas de farolas, sillas en círculo para la asamblea infinita y un gran reloj pintado al fondo que recuerda al de la Puerta del Sol.",
+        prompt: "Escape room set recreating a protest camp inside a city square at night: a cluster of improvised camping tents and blue plastic tarps strung between old street lamps, folding chairs arranged in a circle for an endless assembly, blank cardboard placards, a megaphone resting on a wooden crate, warm string lights, a classic clock tower painted on the back wall, a padlocked supply box in the foreground, playful and slightly chaotic satirical mood.",
+        alt: "Sala La acampada de Sol: tiendas de campaña y sillas en círculo bajo un gran reloj, de noche." },
+      { titulo: "Galería 1 · La asamblea sin fin", idea: "El círculo de sillas vacías, una pizarra llena de tachones y manos de cartón levantadas pidiendo turno.",
+        prompt: "Close view of a circle of mismatched empty folding chairs in an escape room protest camp, cardboard cut-out raised hands taped to the chair backs asking for a turn to speak, a whiteboard covered in crossed-out scribbles and arrows, a talking stick lying on the floor, a hidden combination lock under one chair, humorous mood.",
+        alt: "Círculo de sillas vacías con manos de cartón levantadas y una pizarra llena de tachones." },
+      { titulo: "Galería 2 · La tienda imposible", idea: "Una tienda a medio montar con varillas por todas partes y unas instrucciones de otra tienda distinta.",
+        prompt: "A half-assembled dome tent collapsing on itself in an escape room, tent poles scattered everywhere, an instruction sheet with diagrams of a completely different tent pinned to a board, a flashlight beam cutting through the haze, a lime-green glow coming from inside the tent where a clue is hidden, comedic mood.",
+        alt: "Tienda de campaña a medio montar con varillas por el suelo y una linterna encendida." },
+      { titulo: "Galería 3 · Los votos de las comisiones", idea: "Mesa de votación con tarjetas de colores, una urna con candado de combinación y pósits verde neón.",
+        prompt: "A folding table used as a voting station in an escape room protest camp, colored voting cards fanned out, a transparent ballot box sealed with a brass combination padlock, neon green sticky notes on the table edge, a desk lamp, close-up composition with shallow depth of field.",
+        alt: "Mesa de votación con tarjetas de colores y una urna cerrada con candado." }
+    ]
+  },
+  {
+    slug: "el-almacen-de-las-mascarillas", nombre: "El almacén de las mascarillas", tema: "Humor", datos: ["Dificultad 3", "60 min", "3–6 jugadores", "+12"], parodia: true,
+    lema: "Mil cajas de mascarillas. Solo una es la buena. La UCO llega en 60 minutos.",
+    imagenes: [
+      { tipo: "principal", titulo: "Imagen principal", idea: "Nave enorme llena hasta el techo de cajas iguales de mascarillas. Una brilla en verde. Al fondo, luces azules intermitentes por las ventanas: la UCO está llegando.",
+        prompt: "Escape room set of a huge dim warehouse filled floor to ceiling with identical cardboard boxes of face masks, one single box faintly glowing lime green among the rows, narrow aisles, a pallet jack, a small cluttered office cubicle with overflowing filing cabinets in a corner, flashing blue emergency lights shining through high frosted windows, comedic heist mood.",
+        alt: "Almacén lleno de cajas de mascarillas iguales; una brilla en verde y entran luces azules por las ventanas." },
+      { titulo: "Galería 1 · La caja buena", idea: "Primer plano de cajas apiladas; una tiene un compartimento secreto con candado.",
+        prompt: "Close-up of stacked identical cardboard boxes of surgical face masks, one box with a hidden compartment slightly open revealing a small brass padlock and a lime-green glow, packing tape, inventory stickers with no readable text, dramatic side light.",
+        alt: "Cajas de mascarillas apiladas; una tiene un compartimento secreto con candado." },
+      { titulo: "Galería 2 · La oficina de los archivadores", idea: "Despacho desordenado: archivadores, facturas, calculadora de rollo y una rueda de cifrado.",
+        prompt: "A messy small office inside a warehouse escape room: metal filing cabinets with half-open drawers, piles of invoices and ring binders, an old printing calculator with a long paper roll, a desk lamp, a cipher wheel on the desk, a cheap wall clock, warm desk light against cold warehouse shadows.",
+        alt: "Despacho lleno de archivadores, facturas y una calculadora de rollo." },
+      { titulo: "Galería 3 · La agenda de llamadas", idea: "Teléfono de sobremesa antiguo, agenda con pestañas en clave y un timbre a punto de sonar.",
+        prompt: "An old beige desk telephone on a cluttered desk next to a worn leather address book with coded colored tabs, a doorbell intercom on the wall glowing red, flashing blue light reflected on the desk surface, sense of urgency, shallow depth of field.",
+        alt: "Teléfono de sobremesa antiguo junto a una agenda con pestañas de colores." }
+    ]
+  },
+  {
+    slug: "el-manicomio-de-san-tomas", nombre: "El manicomio de San Tomás", tema: "Terror", datos: ["Dificultad 5", "150 min", "4–7 jugadores", "+18"],
+    lema: "IDENTIFICATION DIVISION. PROGRAM-ID. SALIR. Nadie lo ha compilado nunca.",
+    nota: "Terror psicológico, sin sangre: así no lo bloquea ningún generador y se puede enseñar en clase. Tomás aparece como el hermano Tomás, con hábito de monje de los años 70: en un retrato antiguo en la principal y a los mandos del terminal en la galería.",
+    imagenes: [
+      { tipo: "principal", cara: "Tomás", titulo: "Imagen principal", idea: "El pabellón C en 1974: un mainframe con cintas magnéticas que se vuelve a encender en un hospital abandonado, tarjetas perforadas por el suelo y una pantalla de fósforo verde. En la pared, un retrato antiguo del hermano Tomás que parece vigilar.",
+        prompt: REFERENCIA("Brother Tomás, who appears only in a framed portrait") + "Escape room set of an abandoned 1970s psychiatric hospital ward converted into a computing center: a massive vintage mainframe computer with reel-to-reel tape drives coming back to life, a green phosphor CRT terminal glowing in the dark, hundreds of punched cards scattered across a cracked tiled floor, peeling walls, rusty hospital beds pushed aside, one flickering fluorescent tube, and on the wall a faded sepia framed portrait of Brother Tomás wearing a brown monk's habit, staring into the room. Unsettling psychological horror, no gore.",
+        alt: "Pabellón de hospital abandonado con un ordenador antiguo encendido y el retrato del hermano Tomás en la pared." },
+      { titulo: "Galería 1 · Las tarjetas perforadas", idea: "Bandeja metálica con tarjetas perforadas desordenadas y otras clavadas en la pared unidas con hilo rojo.",
+        prompt: "A metal hospital tray full of disordered vintage punched cards under a single hanging lamp, more punched cards pinned to a stained wall and connected with red string like an obsessive investigation board, dust particles in the light, eerie silence.",
+        alt: "Tarjetas perforadas en una bandeja y clavadas en la pared unidas con hilo rojo." },
+      { cara: "Tomás", titulo: "Galería 2 · La PROCEDURE DIVISION", idea: "El hermano Tomás, con hábito y rosario, sentado ante el terminal verde, se gira hacia la cámara con una calma inquietante.",
+        prompt: REFERENCIA("Brother Tomás") + "Brother Tomás, wearing a 1970s brown monk's habit with a wooden rosary, sits at a green phosphor computer terminal in a dark abandoned hospital room, the screen filled with glowing abstract unreadable lines of code, his face lit only by the green glow as he turns to look over his shoulder at the camera with an eerie calm expression, a cold cup of coffee and stacks of punched cards on the desk. Psychological horror, no gore.",
+        alt: "El hermano Tomás, con hábito de monje, sentado ante un terminal de pantalla verde." },
+      { titulo: "Galería 3 · Antes de que se apague la luz", idea: "Pasillo largo con una sola luz, una camisa de fuerza colgada y una puerta al fondo con teclado numérico.",
+        prompt: "A long abandoned hospital corridor where only the last light still works, a straitjacket hanging from a coat hook, wheelchair left in the middle of the hallway, a heavy door at the far end with a glowing keypad lock, deep shadows, psychological horror atmosphere, no gore.",
+        alt: "Pasillo de hospital abandonado con una sola luz y una puerta con teclado al fondo." }
+    ]
+  },
+  {
+    slug: "el-despertar-del-perro", nombre: "El despertar del Perro", tema: "Humor", datos: ["Dificultad 2", "60 min", "2–5 jugadores", "+8"], parodia: true,
+    lema: "Manual de resistencia: 60 minutos para seguir en el sillón.",
+    nota: "Sin personas: el Presidente es la cama de perro junto al sillón. Ábalos, Koldo y Santos Cerdán son siluetas de cartón sin cara; la mujer y el hermano, objetos (la cátedra y la partitura).",
+    imagenes: [
+      { tipo: "principal", titulo: "Imagen principal", idea: "Un despacho presidencial pomposo al amanecer: el sillón de cuero iluminado como un trono, una cama de perro deshecha al lado, rosas rojas, un reloj marcando las 11 y las piezas de un puzle gigante (el plan) por el suelo.",
+        prompt: "Escape room set of a grand and slightly ridiculous presidential palace office at dawn: an oversized luxurious leather armchair lit by a spotlight like a throne, a cozy dog bed with a rumpled blanket right next to it, a large wooden desk, a vase of red roses, a wall clock showing eleven o'clock, gilded frames with empty canvases, pieces of a giant jigsaw puzzle scattered on the carpet, comedic political satire mood.",
+        alt: "Despacho presidencial con un gran sillón iluminado y una cama de perro al lado." },
+      { titulo: "Galería 1 · ¿Dónde está el equipo?", idea: "Tres siluetas de cartón a tamaño real, sin cara, escondidas en los pasillos: una con maletín, otra con traje de escolta y pinganillo, otra con un montón de carpetas.",
+        prompt: "Three life-size flat cardboard cut-out silhouettes with completely blank featureless heads hidden along an ornate palace corridor: one holding a briefcase, one dressed as a bodyguard with an earpiece, one carrying a tall stack of folders, red carpet, chandeliers, comedic hide-and-seek mood." + SIN_GENTE,
+        alt: "Tres siluetas de cartón sin cara escondidas en un pasillo de palacio." },
+      { titulo: "Galería 2 · La prueba de la cátedra", idea: "Un rincón de aula universitaria dentro del palacio: atril, birrete, diplomas en blanco y una pizarra con un candado.",
+        prompt: "A corner of a palace room turned into a small university lecture space: a wooden lectern, an academic mortarboard cap, framed blank diplomas on the wall, a chalkboard with chalk drawings of arrows and a padlock symbol, stacks of old books, warm library light.",
+        alt: "Rincón con atril, birrete y diplomas enmarcados." },
+      { titulo: "Galería 3 · La partitura del hermano músico", idea: "Un piano de cola con una partitura cuyas notas esconden un código y una batuta encima.",
+        prompt: "A grand piano in an ornate palace salon, a music stand holding sheet music where some notes are highlighted in lime green as a hidden code, a conductor's baton lying on the keys, empty orchestra chairs in the background, soft spotlight.",
+        alt: "Piano de cola con una partitura con notas marcadas en verde." }
+    ]
+  },
+  {
+    slug: "operacion-david", nombre: "Operación David", tema: "Espionaje", datos: ["Dificultad 4", "75 min", "3–6 jugadores", "+14"],
+    lema: "Un proyecto. Un profesor. Ni un solo localhost.",
+    imagenes: [
+      { tipo: "principal", cara: "David", titulo: "Imagen principal", idea: "El agente David, de traje oscuro y pinganillo, de brazos cruzados detrás de la mesa de operaciones: maletín con la USB cifrada, pared de monitores con barras de despliegue, cuenta atrás roja y láseres en el suelo.",
+        prompt: REFERENCIA("Agent David") + "Spy thriller escape room set: Agent David stands behind the central table in a sharp dark suit with an earpiece, arms crossed, stern and demanding expression, looking straight at the camera. A secret operations room with an open hard-shell briefcase holding an encrypted USB stick in foam, a wall of monitors showing progress bars and glowing green terminal graphs, a red digital countdown clock, a server rack with blinking lights, red laser beams crossing the floor, a corkboard mission map linked with red string, tense cinematic mood.",
+        alt: "El agente David, de brazos cruzados, en una sala de operaciones con monitores y láseres rojos." },
+      { titulo: "Galería 1 · La USB cifrada", idea: "La memoria USB dentro de una caja fuerte pequeña con rueda de combinación y lector de huellas.",
+        prompt: "Macro shot of a small steel safe with a combination dial and a fingerprint scanner glowing lime green, the door slightly open revealing a USB stick on a velvet cushion, dark background, spy movie lighting.",
+        alt: "Caja fuerte pequeña entreabierta con una memoria USB dentro." },
+      { titulo: "Galería 2 · Desplegar sin localhost", idea: "Sala de servidores con una gran palanca de despliegue verde neón. La broma: una casita de juguete (el localhost) tachada con cinta roja.",
+        prompt: "A server room inside a spy escape room, bundles of network cables, a big industrial lever switch glowing neon green ready to be pulled, next to it a small toy house model crossed out with red warning tape, blinking server lights, cool blue and green tones.",
+        alt: "Sala de servidores con una palanca verde y una casita de juguete tachada con cinta roja." },
+      { cara: "David", titulo: "Galería 3 · La documentación", idea: "El agente David revisa el dosier de la entrega con un bolígrafo rojo delante de un esquema de la API dibujado en un cristal con rotulador neón.",
+        prompt: REFERENCIA("Agent David") + "Agent David, in a dark suit, sits at a desk reviewing a confidential dossier with a red pen, one eyebrow raised, unimpressed. Behind him a glass board covered in a hand-drawn diagram of boxes and arrows in neon green marker, a rubber stamp, a magnifying glass and a laptop with a glowing screen on the desk, spy agency atmosphere.",
+        alt: "El agente David revisa un dosier con un bolígrafo rojo delante de una pizarra de cristal." }
+    ]
+  },
+  {
+    slug: "el-camarote-del-capitan-eduardo-el-panzas", nombre: "El camarote del capitán Eduardo \"El Panzas\"", tema: "Aventura", datos: ["Dificultad 1", "45 min", "2–4 jugadores", "+6", "Activa"],
+    lema: "El barco se hunde. La llave está en la despensa. La despensa está vacía.",
+    nota: "Sala familiar: tono cálido y gracioso, nada de miedo. Edu es el capitán Eduardo \"El Panzas\": algo pasado de peso, con barriga redonda que le tensa los botones del abrigo, sombrero de tres picos y cara de pena ante la despensa vacía. Gracioso y entrañable, nunca grotesco.",
+    imagenes: [
+      { tipo: "principal", cara: "Edu", titulo: "Imagen principal", idea: "El capitán Eduardo, algo pasado de peso y con la barriga tensando el abrigo de capitán, con sombrero de tres picos, en su camarote inclinado que se hunde, sujetando una lata de galletas vacía con cara de drama.",
+        prompt: REFERENCIA("Captain Eduardo") + "Family-friendly escape room set of an old wooden ship captain's cabin tilted as if the ship is sinking. Captain Eduardo, a slightly overweight man with a round belly that strains the brass buttons of his long captain's coat, stands in the middle wearing a tricorn hat, holding an empty biscuit tin with a comically dramatic, heartbroken expression. Water seeping between the floorboards, a round porthole showing a stormy sea, a swinging oil lamp, a treasure chest with a brass combination lock, a nautical map on the wall, an open pantry cupboard completely empty except for crumbs, warm adventurous and humorous mood, affectionate and never mocking.",
+        alt: "El capitán Eduardo, algo pasado de peso, con abrigo y sombrero de capitán, sujeta una lata de galletas vacía en su camarote." },
+      { titulo: "Galería 1 · El cuaderno de bitácora", idea: "Bitácora abierta con brújula, pluma y un mapa con una ruta marcada.",
+        prompt: "An open leather-bound ship's logbook on a wooden desk with a brass compass, a quill and inkwell, a rolled nautical chart with a dotted route, oil lamp light, salt stains, cozy adventure mood.",
+        alt: "Cuaderno de bitácora abierto con una brújula y una pluma." },
+      { titulo: "Galería 2 · El baúl", idea: "El baúl del capitán con candado de combinación de latón, con agua alrededor.",
+        prompt: "Close-up of a weathered wooden pirate-style chest with iron bands and a brass combination padlock, sea water puddles around it, a lime-green glow coming from the keyhole, ship cabin background.",
+        alt: "Baúl de madera con candado de combinación de latón." },
+      { cara: "Edu", titulo: "Galería 3 · La despensa vacía", idea: "El capitán Eduardo, con su barriga, asoma la cabeza dentro de la despensa vacía con una vela en la mano, sin ver la llave del bote que cuelga detrás de la puerta.",
+        prompt: REFERENCIA("Captain Eduardo") + "Captain Eduardo, a slightly overweight man with a round belly straining the buttons of his captain's coat, in his tricorn hat, leans forward and peeks into an open ship pantry cupboard holding a candle, shocked to find completely empty wooden shelves with only crumbs, an empty biscuit tin lying on its side and an empty jar, while a small lifeboat key hangs hidden behind the cupboard door unnoticed, funny, warm and affectionate (never mocking), warm lantern light.",
+        alt: "El capitán Eduardo mira asombrado la despensa vacía; detrás de la puerta cuelga la llave del bote." }
+    ]
+  }
+];
+
+const WEB = [
+  { archivo: "img/portada.webp", titulo: "Portada · la puerta del pasillo", donde: "index.html, detrás de la frase que se ilumina al bajar (\"Se cierra la puerta. Se apaga la luz…\"). Sustituye a la foto de galería que hay ahora. Se oscurece mucho y se ve casi en blanco y negro.", formato: ["21:9", "2560 × 1100 px"], prioridad: "Alta",
+    idea: "Una puerta de acero pesada entreabierta al fondo de un pasillo oscuro; por la rendija y la cerradura sale una luz verdosa. Tiene que parecer una foto de verdad, no una ilustración: paredes con desconchones, suelo mojado, grano.",
+    prompt: "A heavy steel door slightly ajar at the far end of a long dark industrial corridor, a thin beam of pale lime-green light leaking through the gap and the keyhole onto a wet concrete floor, peeling paint and water stains on the walls, a single flickering fluorescent tube halfway down the corridor, dust in the air, centered symmetrical composition with plenty of dark empty space around it for text, shot on 35mm film, natural film grain, slightly underexposed, imperfect real-world textures, documentary photo look.",
+    alt: "" , altNota: "Decorativa: alt vacío." },
+  { archivo: "img/salida-grupo.webp", cara: "cada persona del grupo", titulo: "Portada · el grupo que escapa", donde: "index.html, banda \"Regalad sesenta minutos de miedo\" (bonos regalo). Sustituye a la foto de Operación David que hay ahora. El texto va a la izquierda.", formato: ["21:9", "2560 × 1100 px"], prioridad: "Alta",
+    idea: "Gente que conocemos (con su permiso) saliendo por la puerta de una sala, riéndose y aliviados, con la sala oscura detrás y la luz del pasillo en la cara. Miedo y diversión a la vez: es lo que se regala. Subid una foto de frente por persona (de 3 a 5 funciona mejor) y cambiad el número del prompt si hace falta.",
+    prompt: "Use the attached photos as face references: each photo is one different person of the group, and every one of them must appear exactly once, with the face clearly recognizable and natural, matching the photographic style and lighting of the scene. Do not add any other people. The group bursts out through the open door of a dark escape room, laughing and relieved, one raising both arms, another still holding a flashlight, the dark room with padlocks and chains behind them, warm corridor light on their faces and a faint lime-green glow from inside the room, candid moment, slight motion blur on the arms, the group placed on the right half of the frame with dark empty space on the left for text, shot on 35mm film, natural film grain, natural skin texture, documentary photo look, not posed.",
+    alt: "", altNota: "Decorativa: alt vacío (el texto de la banda ya lo explica)." },
+  { archivo: "img/salas-cabecera.webp", titulo: "Página de salas · banda superior", donde: "salas.html, banda fina sobre los filtros.", formato: ["4:1", "2400 × 600 px"], prioridad: "Media",
+    idea: "Pared llena de candados de todo tipo, uno abierto y brillando en verde.",
+    prompt: "A wide wall completely covered with dozens of different padlocks, combination locks and keys hanging on hooks, one single padlock open and glowing lime green, very dark moody background, panoramic composition.",
+    alt: "", altNota: "Decorativa: alt vacío." },
+  { archivo: "img/sobre-nosotros-local.webp", titulo: "Sobre nosotros · el local", donde: "sobre-nosotros.html, junto a la presentación. El texto dice que es una antigua imprenta de 400 m² en Madrid.", formato: ["3:2", "1800 × 1200 px"], prioridad: "Alta",
+    idea: "Recepción del local en una imprenta antigua: ladrillo visto, una prensa de imprenta restaurada, zona de espera con juegos de mesa y detalles verde neón.",
+    prompt: "Reception and waiting area of an escape room business inside a converted old printing house: exposed brick walls, a restored antique printing press as a centerpiece, industrial pendant lights, a long wooden table with board games, a neon green sign shape on the wall with no letters, inviting and modern.",
+    alt: "Recepción de NoExitRooms en una antigua imprenta con una prensa restaurada y mesas de juegos." },
+  { archivo: "img/sobre-nosotros-taller.webp", titulo: "Sobre nosotros · el taller", donde: "sobre-nosotros.html, junto a \"Diseñadas y construidas por nosotros\".", formato: ["3:2", "1800 × 1200 px"], prioridad: "Baja",
+    idea: "El taller donde se fabrican las salas: mesa de trabajo con candados desmontados, planos, herramientas y piezas de decorado.",
+    prompt: "A workshop where escape room sets are built: a workbench with disassembled padlocks, wiring, a soldering iron and an Arduino board, set design blueprints pinned on the wall, half-painted props, sawdust, warm work lights.",
+    alt: "Taller con candados desmontados, planos y piezas de decorado." },
+  { archivo: "img/acceso.webp", titulo: "Login y registro · panel lateral", donde: "login.html y registro.html, la mitad de la marca (detrás del logo).", formato: ["4:5", "1200 × 1500 px"], prioridad: "Media",
+    idea: "Una mano girando una llave antigua en una cerradura que brilla en verde.",
+    prompt: "Close-up of a hand turning an antique key in a keyhole of a dark wooden door, lime-green light glowing from inside the keyhole, extremely dark background, vertical composition with empty space at the top for a logo.",
+    alt: "", altNota: "Decorativa: alt vacío." },
+  { archivo: "img/contacto.webp", titulo: "Contacto · cabecera", donde: "contacto.html, encima del formulario o al lado.", formato: ["16:9", "1600 × 900 px"], prioridad: "Baja",
+    idea: "Mostrador de recepción con un timbre, una tablet de reservas y el reloj de cuenta atrás de fondo.",
+    prompt: "A reception desk of an escape room venue with a brass service bell, a tablet showing a booking calendar, a small plant, and behind it a large wall-mounted digital countdown clock glowing lime green, friendly welcoming atmosphere.",
+    alt: "Mostrador de recepción con un timbre y un reloj de cuenta atrás." },
+  { archivo: "img/ayuda-game-master.webp", titulo: "Ayuda · la sala de control", donde: "ayuda.html, junto a las preguntas sobre pistas y \"¿qué pasa si no escapamos?\".", formato: ["3:2", "1800 × 1200 px"], prioridad: "Baja",
+    idea: "La sala de control del game master: monitores con las cámaras de las salas, un micrófono y un botón de pista.",
+    prompt: "The game master control room of an escape room venue: a desk with several monitors showing security camera views of themed rooms, a microphone, a big round hint button glowing lime green, a walkie-talkie, a mug of coffee, dark room lit by screens.",
+    alt: "Sala de control con monitores que muestran las cámaras de las salas." },
+  { archivo: "img/404.webp", titulo: "Error 404 (opcional)", donde: "404.html. Ahora usa el icono de la puerta; esta foto lo sustituiría o iría detrás.", formato: ["16:9", "1600 × 900 px"], prioridad: "Opcional",
+    idea: "Una sala vacía con la puerta abierta de par en par y nadie dentro: esta página se ha escapado.",
+    prompt: "An empty escape room with all the padlocks open on the floor, the exit door wide open with bright lime-green light pouring in, nobody inside, a single chair knocked over, humorous feeling that everyone already escaped.",
+    alt: "", altNota: "Decorativa: alt vacío." },
+  { archivo: "img/compartir.jpg", titulo: "Imagen para compartir (Open Graph)", donde: "Etiqueta <meta property=\"og:image\"> de todas las páginas: la que sale al pegar el enlace en WhatsApp o redes. El logo se añade después en Figma o Canva.", formato: ["1.91:1", "1200 × 630 px", "JPG"], prioridad: "Media",
+    idea: "La misma puerta de la portada, centrada, con hueco para poner el logo encima.",
+    prompt: "A heavy steel door slightly ajar in a dark corridor with lime-green light leaking through the gap, centered symmetrical composition, large empty dark area in the center top for a logo, minimal and bold.",
+    alt: "", altNota: "No lleva alt (es una metaetiqueta)." }
+];
+
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const textos = {};
+let n = 0;
+
+function ficha(img, opciones) {
+  const id = "p" + (n++);
+  const completo = img.prompt + " " + ESTILO;
+  textos[id] = completo;
+  const hecha = HECHAS.has(opciones.archivo);
+  const proporcion = opciones.formato[0].includes(":") ? opciones.formato[0].replace(":", " / ") : "16 / 9";
+  return `<article class="ficha ${opciones.principal ? "principal" : ""} ${hecha ? "hecha" : ""}">
+    <div class="marco" style="aspect-ratio:${proporcion}" aria-hidden="true">${hecha ? "✓ Hecha" : esc(opciones.formato.join(" · "))}</div>
+    <div class="ficha-cuerpo">
+      <h3>${esc(img.titulo)}</h3>
+      <div class="meta">${hecha ? `<span class="chip hecha">✓ Hecha</span>` : `<span class="chip falta">Falta</span>`}${img.cara ? `<span class="chip neon">Foto de ${esc(img.cara)}</span>` : ""}${opciones.formato.map((f, i) => `<span class="chip ${i === 0 && !img.cara ? "neon" : ""}">${esc(f)}</span>`).join("")}<span class="chip">${esc(opciones.archivo)}</span></div>
+      ${img.cara ? `<p class="linea-aviso" style="border-left-color:var(--neon)"><b style="color:var(--neon)">ADJUNTAR</b> · Sube la foto de la cara de ${esc(img.cara)} junto con este prompt.</p>` : ""}
+      <p class="suave"><b style="color:var(--texto)">Dónde va:</b> ${esc(opciones.donde)}</p>
+      <p>${esc(img.idea)}</p>
+      <div class="prompt"><div class="consola" id="${id}">${esc(completo)}</div></div>
+      <div class="acciones"><button type="button" data-copiar="${id}">Copiar prompt</button></div>
+      <p class="alt"><b>Texto alternativo:</b> ${img.alt ? esc(img.alt) : esc(img.altNota)}</p>
+    </div>
+  </article>`;
+}
+
+const filas = [];
+$("#salas").innerHTML = SALAS.map((s) => {
+  const fichas = s.imagenes.map((img, i) => {
+    const principal = img.tipo === "principal";
+    const archivo = `img/salas/${s.slug}/${principal ? "principal" : "galeria-" + i}.webp`;
+    const formato = principal ? ["16:9", "1920 × 1080 px"] : ["3:2", "1500 × 1000 px"];
+    const donde = principal
+      ? "Tarjeta de la sala en portada y en salas.html (recorte 16:9) y cabecera de sala.html (recorte panorámico). Su ruta va en rooms.image_url."
+      : "Galería de sala.html, debajo de \"Lo que os espera\".";
+    filas.push([archivo, principal ? "Tarjeta + sala.html" : "sala.html (galería)", formato[1], principal ? "Alta" : "Media", img.cara || "—"]);
+    return ficha(img, { principal, archivo, formato, donde });
+  }).join("");
+  return `<section class="sala" id="${s.slug}">
+    <div class="sala-cabecera">
+      <span class="etiqueta">${esc(s.tema)}</span>
+      <h2>${esc(s.nombre)}</h2>
+      <p class="lema">${esc(s.lema)}</p>
+      <div class="datos">${s.datos.map((d) => `<span>${esc(d)}</span>`).join("")}</div>
+      ${s.nota ? `<p class="suave lectura" style="margin-top:6px">${esc(s.nota)}</p>` : ""}
+    </div>
+    <div class="fichas">${fichas}</div>
+  </section>`;
+}).join("");
+
+$("#indice-salas").innerHTML = SALAS.map((s) => `<a href="#${s.slug}">${esc(s.nombre.replace(/ "El Panzas"/, ""))}</a>`).join("");
+
+$("#fichas-web").innerHTML = WEB.map((w) => {
+  filas.push([w.archivo, w.archivo.endsWith(".jpg") ? "Todas (og:image)" : w.donde.match(/[\w-]+\.html/)[0], w.formato[1], w.prioridad, w.cara || "—"]);
+  return ficha(w, { archivo: w.archivo, formato: w.formato, donde: w.donde, principal: false });
+}).join("");
+
+$("#tabla-resumen").innerHTML = filas.map((f) => `<tr class="${HECHAS.has(f[0]) ? "hecha" : ""}"><td><code>${esc(f[0])}</code></td><td>${esc(f[1])}</td><td style="white-space:nowrap">${esc(f[2])}</td><td>${esc(f[3])}</td><td>${esc(f[4])}</td><td>${HECHAS.has(f[0]) ? `<span class="chip hecha">✓ Hecha</span>` : `<span class="chip falta">Falta</span>`}</td></tr>`).join("");
+
+const total = filas.length, hechas = filas.filter((f) => HECHAS.has(f[0])).length;
+$("#progreso-texto").textContent = `${hechas} de ${total} fotos hechas · faltan ${total - hechas}`;
+$("#progreso-relleno").style.width = `${(hechas / total) * 100}%`;
+$("#ver-pendientes").addEventListener("click", (e) => {
+  const activo = document.body.classList.toggle("solo-pendientes");
+  e.currentTarget.setAttribute("aria-pressed", activo);
+  e.currentTarget.textContent = activo ? "Ver todas" : "Ver solo las que faltan";
+});
+
+$("#estilo-comun").textContent = ESTILO;
+$("#negativo-comun").textContent = NEGATIVO;
+textos["negativo-comun"] = NEGATIVO;
+
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-copiar]");
+  if (!b) return;
+  const id = b.dataset.copiar;
+  const original = b.textContent;
+  try {
+    await navigator.clipboard.writeText(textos[id]);
+    b.textContent = "Copiado";
+  } catch {
+    const r = document.createRange();
+    r.selectNodeContents(document.getElementById(id));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    b.textContent = "Seleccionado: pulsa Ctrl+C";
+  }
+  b.classList.add("hecho");
+  setTimeout(() => { b.textContent = original; b.classList.remove("hecho"); }, 1800);
+});
+</script>

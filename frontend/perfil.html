@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi perfil · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/paginas/perfil.js" defer></script>
+</head>
+<body class="tema-claro" data-zona="cliente" data-pagina="perfil" data-rol="cliente">
+<main>
+  <div class="cabecera-pagina">
+    <div class="fila"><span class="avatar" id="avatar-perfil" style="width:56px;height:56px;font-size:1.2rem"></span><h1 style="font-size:2rem">Mi perfil</h1></div>
+  </div>
+  <div class="ficha" style="gap:24px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+    <form class="tarjeta formulario" id="form-datos" novalidate>
+      <h2 class="tarjeta-titulo">Datos personales</h2>
+      <div class="campo"><label for="name">Nombre y apellidos</label><input id="name" name="name" autocomplete="name" maxlength="100"></div>
+      <div class="campo"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" maxlength="150"></div>
+      <div class="fila" style="justify-content:flex-end"><button class="boton boton-primario" type="submit">Guardar cambios</button></div>
+    </form>
+    <form class="tarjeta formulario" id="form-password" novalidate>
+      <h2 class="tarjeta-titulo">Cambiar contraseña</h2>
+      <div class="campo"><label for="actual">Contraseña actual</label><input id="actual" name="actual" type="password" autocomplete="current-password"></div>
+      <div class="campo"><label for="nueva">Nueva contraseña</label><input id="nueva" name="nueva" type="password" autocomplete="new-password"><span class="ayuda">Mínimo 8 caracteres y al menos un número.</span></div>
+      <div class="campo"><label for="repetir">Repite la nueva contraseña</label><input id="repetir" name="repetir" type="password" autocomplete="new-password"></div>
+      <div class="fila" style="justify-content:flex-end"><button class="boton boton-primario" type="submit">Cambiar contraseña</button></div>
+    </form>
+  </div>
+</main>
+</body>
+</html>

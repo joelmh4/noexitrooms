@@ -1,0 +1,75 @@
+/* =====================================================================
+   Portada: escenas de debajo de la linterna (js/inicio-escenas.js)
+   ===================================================================== */
+
+/* ---------- 1) Manifiesto: la frase se ilumina al bajar ---------- */
+.manifiesto { position: relative; isolation: isolate; overflow: hidden; padding: 28vh 0; background: #08090A; }
+.manifiesto-fondo { position: absolute; inset: 0; z-index: -1; opacity: .3; will-change: opacity, transform; }
+.manifiesto-fondo img { width: 100%; height: 100%; max-width: none; object-fit: cover; filter: grayscale(.35) contrast(1.1) brightness(.6); }
+.manifiesto-fondo::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 0%, #08090A 75%), linear-gradient(#08090A, transparent 25%, transparent 75%, #08090A); }
+.manifiesto-texto { font-family: var(--font-titulos); font-weight: 700; font-size: clamp(1.9rem, 4.6vw, 4rem); line-height: 1.12; letter-spacing: -0.025em; color: #F1F3EE; max-width: 20ch; margin: 0 auto; text-align: center; text-wrap: balance; }
+.manifiesto-texto span { transition: opacity .25s linear; }
+.manifiesto-estatico .manifiesto-fondo { opacity: .45; }
+
+/* ---------- 2) Medidor de miedo ---------- */
+.medidor-rejilla { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--esp-12); align-items: center; }
+.medidor-control { display: flex; flex-direction: column; gap: var(--esp-4); }
+.medidor-palanca { display: block; margin-top: var(--esp-6); }
+.medidor-palanca input { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; cursor: pointer; margin: 0; }
+.medidor-palanca input::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #C9CEC6 0 var(--relleno, 50%), #3A3F44 var(--relleno, 50%)); }
+.medidor-palanca input::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #C9CEC6 0 var(--relleno, 50%), #3A3F44 var(--relleno, 50%)); }
+.medidor-palanca input::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 40px; margin-top: -17px; border-radius: 6px; background: linear-gradient(#5A6066, #2A2E32); border: 1px solid #70777D; box-shadow: 0 4px 12px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.2); }
+.medidor-palanca input::-moz-range-thumb { width: 26px; height: 40px; border-radius: 6px; background: linear-gradient(#5A6066, #2A2E32); border: 1px solid #70777D; box-shadow: 0 4px 12px rgba(0,0,0,.6); }
+.medidor-palanca input:focus-visible { outline: 2px solid var(--color-neon); outline-offset: 6px; border-radius: 6px; }
+.medidor-marcas { list-style: none; margin: 0; padding: 0; display: flex; justify-content: space-between; font-family: var(--font-codigo); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-suave); }
+.medidor-marcas li:last-child { color: #E05555; }
+
+.medidor-sala { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: var(--radio-lg); overflow: hidden; color: #fff; text-decoration: none; background: #060708; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); }
+.medidor-foto, .medidor-foto img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+.medidor-foto img { filter: saturate(.8) contrast(1.08); transition: transform 1.2s cubic-bezier(.2,.8,.2,1); }
+.medidor-sala:hover .medidor-foto img { transform: scale(1.04); }
+.medidor-foto::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(6,7,8,.75) 100%), linear-gradient(to top, rgba(6,7,8,.92), transparent 55%); }
+.medidor-sala[data-nivel="5"] .medidor-foto::after { background: radial-gradient(ellipse at 50% 40%, rgba(120,0,0,.1) 20%, rgba(30,0,0,.8) 100%), linear-gradient(to top, rgba(10,2,2,.95), transparent 55%); }
+.medidor-info { position: absolute; left: 0; right: 0; bottom: 0; padding: var(--esp-8); display: flex; flex-direction: column; gap: 8px; }
+.medidor-nombre { font-family: var(--font-titulos); font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.2rem); letter-spacing: -0.02em; line-height: 1.1; }
+.medidor-lema { color: #C9CEC6; max-width: 46ch; }
+.medidor-ir { margin-top: 6px; font-weight: 600; color: var(--color-neon); }
+/* Al cambiar de sala la luz parpadea como un fluorescente viejo */
+.medidor-sala.cambiando .medidor-foto, .medidor-sala.cambiando .medidor-info { animation: fluorescente .6s steps(1) both; }
+@keyframes fluorescente { 0% { opacity: 0; } 15% { opacity: .8; } 25% { opacity: .1; } 40% { opacity: 1; } 55% { opacity: .4; } 70%, 100% { opacity: 1; } }
+
+/* ---------- 3) Normas de la casa: un papel clavado en la puerta ---------- */
+.normas-rejilla { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: var(--esp-12); align-items: center; }
+.aviso-papel { position: relative; padding: 44px 40px 32px; color: #2A2622; transform: rotate(-1.2deg);
+  background:
+    radial-gradient(ellipse at 85% 10%, rgba(120,90,40,.18), transparent 40%),
+    radial-gradient(ellipse at 10% 90%, rgba(90,70,30,.2), transparent 45%),
+    linear-gradient(#E9E3D3, #DDD5C1);
+  box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 24px 50px -12px rgba(0,0,0,.75), 0 4px 8px rgba(0,0,0,.4); }
+.aviso-papel h3 { font-family: var(--font-codigo); font-size: 1.05rem; letter-spacing: .14em; color: #2A2622; border-bottom: 2px solid #2A2622; padding-bottom: 10px; margin-bottom: 16px; }
+.aviso-papel ol { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-codigo); font-size: .92rem; line-height: 1.5; }
+.aviso-papel li::marker { font-weight: 700; }
+.aviso-papel li:last-child { color: #8A1C1C; }
+.aviso-papel .firma { margin: 18px 0 0; text-align: right; font-style: italic; color: #5A524A; }
+.chincheta { position: absolute; top: 14px; left: 50%; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #E26B6B, #8E1E1E 70%); box-shadow: 2px 3px 4px rgba(0,0,0,.45); }
+
+/* ---------- 4) Bono regalo ---------- */
+.regalo { position: relative; display: flex; align-items: center; min-height: 440px; border-radius: var(--radio-lg); overflow: hidden; isolation: isolate; color: #fff; text-decoration: none; }
+.regalo img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 80% 12%; filter: saturate(.7) brightness(.8); transition: transform 1.4s cubic-bezier(.2,.8,.2,1); }
+.regalo::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(8,9,10,.94) 0%, rgba(8,9,10,.7) 45%, rgba(8,9,10,.2) 100%); }
+.regalo:hover img { transform: scale(1.04); }
+.regalo-texto { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: var(--esp-12); max-width: 560px; }
+.regalo-titulo { font-family: var(--font-titulos); font-weight: 700; font-size: clamp(1.8rem, 3.6vw, 3rem); letter-spacing: -0.03em; line-height: 1.05; }
+.regalo .boton { margin-top: 8px; }
+
+@media (max-width: 860px) {
+  .medidor-rejilla, .normas-rejilla { grid-template-columns: 1fr; gap: var(--esp-8); }
+  .aviso-papel { padding: 40px 22px 24px; transform: rotate(-.6deg); }
+  .regalo-texto { padding: var(--esp-8) var(--esp-6); }
+  .regalo::before { background: linear-gradient(to top, rgba(8,9,10,.95) 30%, rgba(8,9,10,.5)); }
+  .regalo { align-items: flex-end; min-height: 420px; }
+  .medidor-info { padding: var(--esp-6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .medidor-sala.cambiando .medidor-foto, .medidor-sala.cambiando .medidor-info { animation: none; }
+}

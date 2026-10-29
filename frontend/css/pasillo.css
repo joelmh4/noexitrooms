@@ -1,0 +1,67 @@
+/* =====================================================================
+   El pasillo de la página de Salas. Lo mueve js/pasillo.js.
+   --luz (0..1) la pone el JS en cada puerta según lo cerca que está
+   del centro: con 1 está encendida, con 0 en penumbra.
+   ===================================================================== */
+
+.pasillo { position: relative; background: #070809; }
+.pasillo-fijo { height: var(--pasillo-alto, 400vh); }
+.pasillo-escena { position: relative; overflow: hidden; padding: calc(72px + var(--esp-8)) 0 var(--esp-8); display: flex; flex-direction: column; gap: var(--esp-8); }
+.pasillo-fijo .pasillo-escena { position: sticky; top: 0; height: 100svh; justify-content: center; }
+
+/* Suelo y techo del pasillo: un degradado muy sutil y una luz al fondo */
+.pasillo-escena::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 40% at 50% 55%, rgba(200,210,190,.06), transparent 70%), linear-gradient(#070809, #0D0F10 50%, #070809); }
+
+.pasillo-cabecera { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--esp-6); flex-wrap: wrap; }
+.pasillo-cabecera h1 { font-size: clamp(2.2rem, 5vw, 4rem); color: #fff; }
+.pasillo-cabecera p { color: #C9CEC6; max-width: 44ch; margin-top: 8px; }
+.pasillo-cabecera .pila { gap: 8px; }
+.pasillo-guia { display: flex; align-items: center; gap: var(--esp-4); font-family: var(--font-codigo); font-size: .8rem; letter-spacing: .1em; color: #9AA29A; }
+.pasillo-barra { width: 120px; height: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+.pasillo-barra span { display: block; height: 100%; background: #E8EBE6; transform-origin: left; transform: scaleX(0); }
+#pasillo-contador { color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pasillo-guia a { white-space: nowrap; }
+
+/* La fila de puertas */
+.pasillo-pista { position: relative; z-index: 1; display: flex; gap: clamp(24px, 4vw, 64px); padding: 0 calc(50vw - min(36vw, 440px)); will-change: transform; }
+.puerta { --luz: 0; flex: none; width: min(72vw, 880px); display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--esp-8); align-items: center; }
+.puerta-foto { position: relative; display: block; aspect-ratio: 4 / 5; border-radius: 4px; overflow: hidden; background: #000; box-shadow: 0 40px 80px -30px rgba(0,0,0,.9);
+  outline: 1px solid rgba(255,255,255,calc(.04 + var(--luz) * .1)); outline-offset: 10px; }
+.puerta-foto img { position: absolute; inset: -4% -10%; width: 120%; height: 108%; max-width: none; object-fit: cover;
+  transform: translateX(var(--desplazar, 0)) scale(calc(1.08 - var(--luz) * .06));
+  filter: brightness(calc(.22 + var(--luz) * .78)) saturate(calc(.25 + var(--luz) * .55)) contrast(1.08); }
+/* Viñeteado y un tubo de luz arriba */
+.puerta-foto::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 50% 35%, transparent 30%, rgba(4,5,6,.8) 100%); }
+.puerta-foto::before { content: ""; position: absolute; z-index: 1; top: 0; left: 18%; right: 18%; height: 3px; border-radius: 0 0 3px 3px; pointer-events: none;
+  background: #F2F6EC; opacity: calc(var(--luz) * .9); box-shadow: 0 0 30px 8px rgba(230,240,220,calc(var(--luz) * .35)); }
+.puerta.encendida .puerta-foto::before, .puerta.encendida .puerta-foto img { animation: tubo .7s steps(1) both; }
+@keyframes tubo { 0% { opacity: .2; } 12% { opacity: 1; } 22% { opacity: .1; } 34% { opacity: .9; } 46% { opacity: .3; } 60%, 100% { opacity: 1; } }
+
+.puerta-texto { display: flex; flex-direction: column; gap: var(--esp-3); opacity: calc(.25 + var(--luz) * .75); transform: translateY(calc((1 - var(--luz)) * 18px)); }
+.puerta-numero { font-family: var(--font-codigo); font-weight: 700; font-size: clamp(3rem, 6vw, 5.5rem); line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.35); }
+.puerta-texto .etiqueta-superior { color: #B9C0B5; }
+.puerta-texto h2 { font-size: clamp(1.7rem, 3vw, 2.6rem); color: #fff; line-height: 1.05; }
+.puerta-texto p { color: #C9CEC6; }
+.puerta-pie { display: flex; flex-direction: column; align-items: flex-start; gap: var(--esp-4); margin-top: var(--esp-2); }
+.puerta-nivel { font-family: var(--font-codigo); font-size: .8rem; letter-spacing: .12em; color: #E8EBE6; }
+.puerta-nivel i { font-style: normal; color: #3A3F44; }
+
+/* Móvil, táctil o menos movimiento: carrusel que se desliza */
+.pasillo-libre .pasillo-pista { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: var(--esp-4); overscroll-behavior-x: contain; }
+.pasillo-libre .pasillo-pista::-webkit-scrollbar { display: none; }
+.pasillo-libre .puerta { scroll-snap-align: center; }
+@media (max-width: 899px) {
+  .pasillo-pista { padding: 0 7.5vw; gap: 16px; }
+  .puerta { width: 85vw; grid-template-columns: 1fr; gap: var(--esp-4); }
+  .puerta-foto { aspect-ratio: 4 / 3; outline-offset: 6px; }
+  .puerta-numero { font-size: 2.6rem; }
+  .pasillo-guia { width: 100%; }
+  .pasillo-guia .pasillo-barra { flex: 1; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .puerta.encendida .puerta-foto::before, .puerta.encendida .puerta-foto img { animation: none; }
+  .puerta-texto { transform: none; }
+}
+#catalogo { scroll-margin-top: 72px; }

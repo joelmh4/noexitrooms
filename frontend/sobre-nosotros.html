@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sobre nosotros · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/equipo.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/puerta.js" defer></script>
+  <script src="js/paginas/estatica.js" defer></script>
+</head>
+<body class="tema-oscuro" data-zona="publica" data-pagina="sobre-nosotros">
+<main>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="pila" style="gap:8px;max-width:760px">
+        <span class="etiqueta-superior">Sobre nosotros</span>
+        <h1>Encerramos gente por diversión</h1>
+        <p class="texto-suave" style="font-size:1.15rem">NoExitRooms nace en Madrid con seis salas en las que el humor, el terror y un poco de mala leche conviven con enigmas de verdad. Nada de candados al azar: cada prueba cuenta parte de la historia.</p>
+      </div>
+      <div class="pasos" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <div class="paso"><i data-lucide="map-pin"></i><h3>El local</h3><p>Una antigua imprenta de 400 m² en Madrid con seis salas insonorizadas y una zona de espera con juegos de mesa.</p></div>
+        <div class="paso"><i data-lucide="puzzle"></i><h3>Las salas</h3><p>Diseñadas y construidas por nosotros. Cada temporada renovamos al menos una.</p></div>
+        <div class="paso"><i data-lucide="accessibility"></i><h3>Para todos</h3><p>Tres salas accesibles en silla de ruedas y versiones para familias con niños.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="pila" style="gap:8px"><span class="etiqueta-superior">El equipo</span><h2>Los sospechosos habituales</h2></div>
+      <div class="equipo-policial">
+        <article class="ficha-policial">
+          <div class="ficha-policial-foto" style="--altura:62%">
+            <img src="img/equipo/joel.webp" alt="Foto de Joel" loading="lazy" onerror="this.remove()">
+            <div class="ficha-policial-cartel"><span>NOEXIT ROOMS · MADRID</span><b>JOEL</b><span>2026-0001 · 28.10.26</span></div>
+          </div>
+          <div class="ficha-policial-datos">
+            <h3>Joel</h3>
+            <p class="texto-suave">Diseño de la interfaz y frontend.</p>
+            <p class="ficha-policial-cargos-titulo">Cargos</p>
+            <ul class="ficha-policial-cargos"><li>Esconder números en la oscuridad de la portada.</li><li>Pedir «hazlo todo» a las diez y media de la noche.</li></ul>
+          </div>
+        </article>
+        <article class="ficha-policial">
+          <div class="ficha-policial-foto" style="--altura:58%">
+            <img src="img/equipo/edu.webp" alt="Foto de Edu" loading="lazy" onerror="this.remove()">
+            <div class="ficha-policial-cartel"><span>NOEXIT ROOMS · MADRID</span><b>EDU</b><span>2026-0002 · 28.10.26</span></div>
+          </div>
+          <div class="ficha-policial-datos">
+            <h3>Edu</h3>
+            <p class="texto-suave">Backend y API. Capitán honorífico de su propio camarote.</p>
+            <p class="ficha-policial-cargos-titulo">Cargos</p>
+            <ul class="ficha-policial-cargos"><li>Vaciar la despensa del barco.</li><li>Negar haber visto las galletas.</li></ul>
+          </div>
+        </article>
+        <article class="ficha-policial">
+          <div class="ficha-policial-foto" style="--altura:64%">
+            <img src="img/equipo/ivan.webp" alt="Foto de Iván" loading="lazy" onerror="this.remove()">
+            <div class="ficha-policial-cartel"><span>NOEXIT ROOMS · MADRID</span><b>IVÁN</b><span>2026-0003 · 28.10.26</span></div>
+          </div>
+          <div class="ficha-policial-datos">
+            <h3>Iván</h3>
+            <p class="texto-suave">Base de datos y despliegue.</p>
+            <p class="ficha-policial-cargos-titulo">Cargos</p>
+            <ul class="ficha-policial-cargos"><li>Encerrar los datos en MySQL y perder la llave.</li><li>Normalizar hasta la lista de la compra.</li></ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="tarjeta">
+        <span class="etiqueta-superior">Sobre el proyecto</span>
+        <h2>Proyecto trimestral de DAW</h2>
+        <p class="texto-suave">Esta web es el proyecto trimestral del ciclo de Desarrollo de Aplicaciones Web. Une una web pública de escape rooms con un sistema de soporte por tickets con tres roles (cliente, agente y administrador).</p>
+        <div class="fila">
+          <span class="pastilla pastilla-inactiva">HTML</span><span class="pastilla pastilla-inactiva">CSS</span><span class="pastilla pastilla-inactiva">JavaScript</span>
+          <span class="pastilla pastilla-inactiva">Node.js + Express</span><span class="pastilla pastilla-inactiva">MySQL</span><span class="pastilla pastilla-inactiva">JWT</span><span class="pastilla pastilla-inactiva">Swagger</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

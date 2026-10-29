@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Categorías · Administración · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/paginas/admin-categorias.js" defer></script>
+</head>
+<body class="tema-claro" data-zona="panel" data-pagina="admin-categorias" data-rol="admin">
+<main>
+  <div class="cabecera-pagina"><h1 style="font-size:2rem">Categorías de tickets</h1></div>
+  <form class="tarjeta fila" id="form-nueva" novalidate style="align-items:end">
+    <div class="campo" style="flex:1;min-width:240px"><label for="nombre">Nueva categoría</label><input id="nombre" name="nombre" maxlength="80" placeholder="Por ejemplo: Accesibilidad"></div>
+    <button class="boton boton-primario" type="submit"><i data-lucide="plus"></i> Añadir</button>
+  </form>
+  <div class="pila" id="lista"></div>
+  <dialog id="dialogo-renombrar" aria-labelledby="titulo-renombrar">
+    <form class="contenido-dialogo formulario" id="form-renombrar" novalidate>
+      <h2 id="titulo-renombrar" style="font-size:1.4rem">Renombrar categoría</h2>
+      <div class="campo"><label for="r-nombre">Nombre</label><input id="r-nombre" name="nombre" maxlength="80"></div>
+      <div class="fila" style="justify-content:flex-end">
+        <button class="boton boton-secundario" type="button" id="cancelar-renombrar">Cancelar</button>
+        <button class="boton boton-primario" type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+</main>
+</body>
+</html>
