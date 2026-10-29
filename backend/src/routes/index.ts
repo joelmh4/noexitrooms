@@ -3,6 +3,8 @@ import { Router } from "express";
 import { salud } from "../controllers/salud.controller";
 import { rutasAuth } from "./auth.routes";
 import { rutasCategorias } from "./categorias.routes";
+import { rutasReservas } from "./reservas.routes";
+import { rutasSalas } from "./salas.routes";
 import { rutasTickets } from "./tickets.routes";
 import { rutasUsuarios } from "./usuarios.routes";
 
@@ -13,3 +15,5 @@ rutas.use("/auth", rutasAuth);
 rutas.use("/users", rutasUsuarios);
 rutas.use("/categories", rutasCategorias);
 rutas.use("/tickets", rutasTickets);
+rutas.use("/rooms", rutasSalas);
+rutas.use("/bookings", rutasReservas);

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: NoExitRooms API
-  version: 0.2.0
+  version: 0.3.0
   description: |
     API REST de NoExitRooms: salas de escape, reservas y soporte por tickets.
     Las rutas con candado necesitan la cabecera `Authorization: Bearer <token>`,
@@ -23,6 +23,12 @@ tags:
       Admin: todos. Un ticket que no puedes ver responde 404, aunque exista.
   - name: Categorías
     description: Tipos de ticket (lectura pública, gestión del administrador)
+  - name: Salas
+    description: Catálogo de salas (lectura pública con buscador, CRUD del administrador)
+  - name: Reservas
+    description: |
+      Horarios y reservas. Las horas son de Madrid y van sin zona horaria: `AAAA-MM-DDTHH:MM:SS`.
+      Una reserva nace `pendiente` hasta que la confirma el equipo.
 components:
   securitySchemes:
     token:
@@ -48,6 +54,57 @@ components:
   parameters:
     IdTicket: { name: id, in: path, required: true, schema: { type: integer, example: 4 } }
   schemas:
+    Sala:
+      type: object
+      properties:
+        id: { type: integer, example: 3 }
+        name: { type: string, example: El manicomio de San Tomás }
+        slug: { type: string, example: el-manicomio-de-san-tomas }
+        theme: { type: string, example: Terror }
+        difficulty: { type: integer, minimum: 1, maximum: 5 }
+        duration_min: { type: integer, minimum: 15, maximum: 180, example: 150 }
+        min_players: { type: integer, example: 3 }
+        max_players: { type: integer, example: 7 }
+        price_per_person: { type: number, example: 26 }
+        description: { type: string }
+        tagline: { type: string, nullable: true }
+        min_age: { type: integer, example: 18 }
+        image_url: { type: string, nullable: true, example: img/salas/el-manicomio-de-san-tomas/principal.webp }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    DatosSala:
+      type: object
+      required: [name, theme, difficulty, duration_min, min_players, max_players, price_per_person, description]
+      properties:
+        name: { type: string, minLength: 3, maxLength: 100, example: La cripta }
+        theme: { type: string, minLength: 3, maxLength: 50, example: Misterio }
+        difficulty: { type: integer, minimum: 1, maximum: 5, example: 3 }
+        duration_min: { type: integer, minimum: 15, maximum: 180, example: 60 }
+        min_players: { type: integer, minimum: 1, maximum: 20, example: 2 }
+        max_players: { type: integer, minimum: 1, maximum: 20, example: 6, description: No puede ser menor que min_players }
+        price_per_person: { type: number, minimum: 0, example: 20 }
+        description: { type: string, minLength: 20, maxLength: 5000 }
+        tagline: { type: string, maxLength: 150, nullable: true }
+        min_age: { type: integer, minimum: 0, maximum: 99, default: 0 }
+        image_url: { type: string, nullable: true, description: "Si no se envía: img/salas/<slug>/principal.webp al crear, la que tenía al editar" }
+        is_active: { type: boolean, default: true }
+    Reserva:
+      type: object
+      properties:
+        id: { type: integer }
+        customer_id: { type: integer }
+        room_id: { type: integer }
+        starts_at: { type: string, example: "2026-10-31T18:00:00" }
+        players: { type: integer, example: 5 }
+        status: { type: string, enum: [pendiente, confirmada, cancelada] }
+        created_at: { type: string, format: date-time }
+        sala:
+          type: object
+          properties: { id: { type: integer }, name: { type: string }, slug: { type: string }, image_url: { type: string, nullable: true } }
+        cliente:
+          type: object
+          properties: { id: { type: integer }, name: { type: string } }
     Rol:
       type: string
       enum: [cliente, agente, admin]
@@ -503,6 +560,178 @@ paths:
                 is_active: { type: boolean }
       responses:
         "200": { description: Actualizada, content: { application/json: { schema: { $ref: "#/components/schemas/Categoria" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /rooms:
+    get:
+      tags: [Salas]
+      summary: Catálogo de salas
+      description: Pública, solo las activas. Con `?all=1` también las desactivadas (solo admin, con token).
+      security: []
+      parameters:
+        - { name: q, in: query, schema: { type: string }, description: "Busca en nombre, frase y descripción" }
+        - { name: theme, in: query, schema: { type: string, example: Humor } }
+        - { name: difficulty, in: query, schema: { type: integer, minimum: 1, maximum: 5 } }
+        - { name: players, in: query, schema: { type: integer }, description: Salas en las que cabe ese número de jugadores }
+        - { name: orden, in: query, schema: { type: string, enum: [nombre, dificultad, precio, duracion], default: nombre } }
+        - { name: all, in: query, schema: { type: string, enum: ["1"] } }
+      responses:
+        "200": { description: Salas, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Sala" } } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Salas]
+      summary: Crear una sala
+      description: Solo admin. El slug se genera a partir del nombre.
+      security: [{ token: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/DatosSala" } } } }
+      responses:
+        "201": { description: Sala creada, content: { application/json: { schema: { $ref: "#/components/schemas/Sala" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /rooms/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, example: el-manicomio-de-san-tomas }, description: "Id numérico. En GET también vale el slug." }
+    get:
+      tags: [Salas]
+      summary: Ver una sala activa
+      description: Pública. Acepta el slug (`el-manicomio-de-san-tomas`) o el id.
+      security: []
+      responses:
+        "200": { description: Sala, content: { application/json: { schema: { $ref: "#/components/schemas/Sala" } } } }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+    put:
+      tags: [Salas]
+      summary: Editar una sala
+      description: Solo admin. Se envían todos los datos de la sala (también sirve para desactivarla con `is_active false`).
+      security: [{ token: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/DatosSala" } } } }
+      responses:
+        "200": { description: Sala guardada, content: { application/json: { schema: { $ref: "#/components/schemas/Sala" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+    delete:
+      tags: [Salas]
+      summary: Borrar una sala
+      description: Solo admin. Si tiene tickets o reservas responde 409 y hay que desactivarla.
+      security: [{ token: [] }]
+      responses:
+        "204": { description: Sala borrada }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /rooms/{id}/slots:
+    get:
+      tags: [Reservas]
+      summary: Horarios de una sala con su disponibilidad
+      description: |
+        Pública. No dice quién ha reservado, solo `libre`, `ocupada` o `pasada`. Si se envía el token de un cliente,
+        sus reservas salen como `tuya`. Pases: 10, 12, 16, 18, 20 y 22 h; las salas de más de 2 h, 10, 16 y 19:30.
+      security: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: from, in: query, schema: { type: string, example: "2026-10-31" }, description: "Primer día (por defecto, hoy en Madrid)" }
+        - { name: days, in: query, schema: { type: integer, minimum: 1, maximum: 31, default: 7 } }
+      responses:
+        "200":
+          description: Días con sus horas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    fecha: { type: string, example: "2026-10-31" }
+                    horas:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          hora: { type: string, example: "18:00" }
+                          starts_at: { type: string, example: "2026-10-31T18:00:00" }
+                          estado: { type: string, enum: [libre, ocupada, tuya, pasada] }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+  /bookings:
+    get:
+      tags: [Reservas]
+      summary: Todas las reservas (equipo)
+      description: Agente o admin.
+      security: [{ token: [] }]
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [pendiente, confirmada, cancelada] } }
+        - { name: room_id, in: query, schema: { type: integer } }
+        - { name: from, in: query, schema: { type: string, example: "2026-10-29" } }
+      responses:
+        "200": { description: Reservas, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Reserva" } } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+    post:
+      tags: [Reservas]
+      summary: Reservar una sala
+      description: |
+        Solo cliente. La hora tiene que ser un pase de la sala y no haber pasado, y los jugadores tienen que caber.
+        Si otra persona tiene ese hueco responde 409.
+      security: [{ token: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [room_id, starts_at, players]
+              properties:
+                room_id: { type: integer, example: 1 }
+                starts_at: { type: string, example: "2026-11-07T18:00" }
+                players: { type: integer, example: 4 }
+      responses:
+        "201": { description: Reserva creada (pendiente), content: { application/json: { schema: { $ref: "#/components/schemas/Reserva" } } } }
+        "400": { $ref: "#/components/responses/DatosInvalidos" }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+        "409": { $ref: "#/components/responses/Conflicto" }
+  /bookings/me:
+    get:
+      tags: [Reservas]
+      summary: Mis reservas
+      description: Solo cliente. De la más lejana a la más antigua.
+      security: [{ token: [] }]
+      responses:
+        "200": { description: Reservas, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Reserva" } } } } }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
+  /bookings/{id}/status:
+    patch:
+      tags: [Reservas]
+      summary: Confirmar o cancelar una reserva
+      description: |
+        Agente o admin: confirmar o cancelar. Cliente: solo cancelar una suya que no haya empezado (las de otros dan 404).
+        Una reserva cancelada no se recupera; su hueco queda libre para otra reserva.
+      security: [{ token: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [pendiente, confirmada, cancelada] }
+      responses:
+        "200": { description: Reserva actualizada, content: { application/json: { schema: { $ref: "#/components/schemas/Reserva" } } } }
         "400": { $ref: "#/components/responses/DatosInvalidos" }
         "401": { $ref: "#/components/responses/SinSesion" }
         "403": { $ref: "#/components/responses/Prohibido" }
