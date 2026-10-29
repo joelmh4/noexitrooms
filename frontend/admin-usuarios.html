@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usuarios · Administración · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/paginas/admin-usuarios.js" defer></script>
+</head>
+<body class="tema-claro" data-zona="panel" data-pagina="admin-usuarios" data-rol="admin">
+<main>
+  <div class="cabecera-pagina"><h1 style="font-size:2rem">Usuarios</h1><span class="texto-suave" id="contador" aria-live="polite"></span></div>
+  <form class="fila" id="filtros" role="search" aria-label="Filtrar usuarios">
+    <div class="campo" style="flex:1;min-width:220px"><label class="solo-lectores" for="buscar">Buscar</label><input id="buscar" name="buscar" type="search" placeholder="Nombre o email"></div>
+    <div class="campo" style="min-width:180px"><label class="solo-lectores" for="rol">Rol</label>
+      <select id="rol" name="rol"><option value="">Todos los roles</option><option value="cliente">Clientes</option><option value="agente">Agentes</option><option value="admin">Administradores</option></select>
+    </div>
+  </form>
+  <div id="lista"></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nuevo ticket · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/paginas/nuevo-ticket.js" defer></script>
+</head>
+<body class="tema-claro" data-zona="cliente" data-pagina="nuevo-ticket" data-rol="cliente">
+<main>
+  <div class="cabecera-pagina"><h1 style="font-size:2rem">Nuevo ticket</h1></div>
+  <form class="tarjeta formulario" id="form-ticket" novalidate style="max-width:760px">
+    <div class="campo">
+      <label for="subject">Asunto</label>
+      <input id="subject" name="subject" maxlength="150" required>
+      <span class="ayuda">Resume tu consulta en una frase.</span>
+    </div>
+    <div class="fila" style="align-items:start">
+      <div class="campo" style="flex:1;min-width:220px">
+        <label for="category_id">Categoría</label>
+        <select id="category_id" name="category_id" required></select>
+      </div>
+      <div class="campo" style="flex:1;min-width:220px">
+        <label for="room_id">Sala (opcional)</label>
+        <select id="room_id" name="room_id"></select>
+      </div>
+    </div>
+    <fieldset class="campo" style="border:0;padding:0;margin:0">
+      <legend class="etiqueta" style="margin-bottom:6px">Prioridad</legend>
+      <div class="grupo-botones">
+        <input type="radio" id="p-baja" name="priority" value="baja"><label class="boton boton-secundario boton-pequeno" for="p-baja">Baja</label>
+        <input type="radio" id="p-media" name="priority" value="media" checked><label class="boton boton-secundario boton-pequeno" for="p-media">Media</label>
+        <input type="radio" id="p-alta" name="priority" value="alta"><label class="boton boton-secundario boton-pequeno" for="p-alta">Alta</label>
+      </div>
+    </fieldset>
+    <div class="campo">
+      <label for="description">Descripción</label>
+      <textarea id="description" name="description" maxlength="2000" required placeholder="Cuéntanos qué necesitas: fecha, número de personas, código del bono…"></textarea>
+      <span class="ayuda" id="contador-descripcion">0 / 2000</span>
+    </div>
+    <div class="fila" style="justify-content:flex-end">
+      <a class="boton boton-secundario" href="mis-tickets.html">Cancelar</a>
+      <button class="boton boton-primario" type="submit">Enviar ticket</button>
+    </div>
+  </form>
+</main>
+</body>
+</html>

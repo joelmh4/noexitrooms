@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ayuda · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/puerta.js" defer></script>
+  <script src="js/paginas/estatica.js" defer></script>
+</head>
+<body class="tema-oscuro" data-zona="publica" data-pagina="ayuda">
+<main>
+  <section class="seccion">
+    <div class="contenedor" style="max-width:880px">
+      <div class="pila" style="gap:8px"><span class="etiqueta-superior">Ayuda</span><h1>Preguntas frecuentes</h1></div>
+      <figure class="foto-banda">
+        <img src="img/ayuda-game-master.webp" alt="Sala de control con monitores que muestran las cámaras de las salas." loading="lazy" width="1800" height="1005">
+        <figcaption>La sala de control. Desde aquí el game master os ve, os escucha y os manda las pistas.</figcaption>
+      </figure>
+      <div class="faq">
+        <details open><summary>¿Cuánto antes tenemos que llegar?</summary><p>15 minutos antes de la hora. Os explicamos las normas y guardamos vuestras cosas en taquillas.</p></details>
+        <details><summary>¿Hay edad mínima?</summary><p>Depende de la sala: desde 6 años en El camarote del capitán Eduardo hasta 18 en El manicomio de San Tomás. Los menores de 14 juegan con un adulto. La edad mínima aparece en la ficha de cada sala.</p></details>
+        <details><summary>¿Puedo cambiar la fecha o cancelar?</summary><p>Sí, gratis hasta 48 horas antes. Abre un ticket en la categoría "Reservas y cambios de fecha" y te lo cambiamos.</p></details>
+        <details><summary>¿Cómo funcionan los bonos regalo?</summary><p>Valen para cualquier sala durante 12 meses. Si el código no funciona, abre un ticket en "Bonos y tarjetas regalo" con una foto del bono.</p></details>
+        <details><summary>¿Las salas son accesibles?</summary><p>La acampada de Sol, El despertar del Perro y Operación David son accesibles en silla de ruedas. Avísanos al reservar y lo preparamos.</p></details>
+        <details><summary>¿Qué pasa si no escapamos a tiempo?</summary><p>Nadie se queda dentro de verdad. El game master os enseña la solución y os hacemos la foto igualmente.</p></details>
+        <details><summary>Me he dejado algo en la sala</summary><p>Abre un ticket en "Objetos perdidos" diciendo la sala y la hora. Guardamos los objetos 30 días en recepción.</p></details>
+      </div>
+      <div class="tarjeta fila-entre">
+        <div class="pila" style="gap:4px"><h3>¿No encuentras tu respuesta?</h3><p class="texto-suave">Abre un ticket y te contestamos desde tu área de cliente.</p></div>
+        <a class="boton boton-primario" href="nuevo-ticket.html">Abrir un ticket</a>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

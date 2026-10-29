@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/acceso.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/puerta.js" defer></script>
+  <script src="js/acceso-escena.js" defer></script>
+  <script src="js/paginas/login.js" defer></script>
+</head>
+<body class="tema-oscuro" data-zona="acceso" data-pagina="login">
+<main>
+  <div class="acceso">
+    <div class="acceso-marca con-foto">
+      <img class="acceso-fondo" src="img/acceso.webp" alt="" width="1200" height="2150">
+      <a class="logo" href="index.html"><img src="img/logo-candado-oscuro.png" alt="" width="36" height="36">NoExit<span>Rooms</span></a>
+      <div class="pila">
+        <img src="img/logo-cerradura-oscuro.png" alt="" width="96" height="96">
+        <h1 style="font-size:2.4rem">Bienvenido de nuevo</h1>
+        <p>Entra para seguir tus tickets o, si eres del equipo, para atender a los clientes.</p>
+      </div>
+      <small style="color:#9AA29A">Calle del Candado 13, Madrid</small>
+    </div>
+    <div class="acceso-formulario">
+      <form class="formulario" id="form-login" novalidate>
+        <h2>Iniciar sesión</h2>
+        <div id="aviso-login" aria-live="polite"></div>
+        <div class="campo">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="campo">
+          <label for="password">Contraseña</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="boton boton-primario boton-bloque" type="submit">Entrar</button>
+        <p class="texto-suave">¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
+        <div class="demo-rapida">
+          <span class="subtexto">Boceto: entrar con una cuenta de prueba (contraseña Demo1234!)</span>
+          <div class="fila">
+            <button class="boton boton-secundario boton-pequeno" type="button" data-demo="lucia@ejemplo.test">Cliente (Lucía)</button>
+            <button class="boton boton-secundario boton-pequeno" type="button" data-demo="marta@noexitrooms.test">Agente (Marta)</button>
+            <button class="boton boton-secundario boton-pequeno" type="button" data-demo="admin@noexitrooms.test">Administrador</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+</body>
+</html>

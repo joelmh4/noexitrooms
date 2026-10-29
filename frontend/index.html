@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NoExitRooms · Escape rooms en Madrid</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/linterna.css">
+  <link rel="stylesheet" href="css/inicio.css">
+  <link rel="stylesheet" href="css/mosaico.css">
+  <link rel="stylesheet" href="css/cerradura.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/puerta.js" defer></script>
+  <script src="js/sonido.js" defer></script>
+  <script src="js/linterna.js" defer></script>
+  <script src="js/candado.js" defer></script>
+  <script src="js/inicio-escenas.js" defer></script>
+  <script src="js/zoom-salas.js" defer></script>
+  <script src="js/escena-cerradura.js" defer></script>
+  <script src="js/paginas/inicio.js" defer></script>
+</head>
+<body class="tema-oscuro" data-zona="publica" data-pagina="inicio">
+<main>
+  <section class="portada">
+    <div class="contenedor">
+      <div class="portada-texto">
+        <span class="etiqueta-superior">Escape rooms en Madrid</span>
+        <h1>No hay salida.<br>Hasta que la encuentras.</h1>
+        <p>Seis salas, sesenta minutos (o ciento cincuenta, si os atrevéis con San Tomás) y un equipo que sale por la puerta o se queda dentro para siempre.</p>
+        <div class="fila">
+          <a class="boton boton-primario" href="salas.html">Ver las salas</a>
+          <a class="boton boton-secundario" href="ayuda.html">¿Cómo funciona?</a>
+        </div>
+        <div class="mosaico-salas" id="mosaico" aria-label="Todas las salas"></div>
+      </div>
+    </div>
+  </section>
+  <section class="cerradura" id="cerradura" aria-label="Qué pasa cuando se cierra la puerta">
+    <div class="cerradura-escena">
+      <div class="cerradura-foto" aria-hidden="true"><img src="img/portada.webp" alt="" loading="lazy"></div>
+      <svg class="cerradura-silueta" viewBox="0 0 100 160" aria-hidden="true"><path d="M50 13a32 32 0 0 1 17 59l9 76H24l9-76A32 32 0 0 1 50 13z"/></svg>
+      <div class="contenedor">
+        <p class="cerradura-texto">
+          <span class="linea">Se cierra la puerta.</span>
+          <span class="linea">Se apaga la luz.</span>
+          <span class="linea">Alguien estuvo aquí antes que vosotros y dejó las pistas a medias.</span>
+          <span class="linea linea-final">Tenéis sesenta minutos para terminar lo que él no pudo.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="fila-entre">
+        <div class="pila" style="gap:8px"><span class="etiqueta-superior">Salas destacadas</span><h2>Elegid vuestra pesadilla</h2></div>
+        <a href="salas.html">Ver todas las salas →</a>
+      </div>
+      <div class="rejilla-salas tres" id="destacadas"><p class="cargando" role="status"><img src="img/reloj-arena-oscuro.png" alt="">Cargando salas…</p></div>
+    </div>
+  </section>
+  <section class="seccion medidor" aria-labelledby="titulo-miedo">
+    <div class="contenedor">
+      <div class="medidor-rejilla">
+        <div class="medidor-control">
+          <span class="etiqueta-superior">Antes de reservar</span>
+          <h2 id="titulo-miedo">¿Cuánto aguantáis?</h2>
+          <p class="texto-suave">Mueve la palanca y te decimos qué puerta abrir.</p>
+          <label class="medidor-palanca" for="nivel-miedo">
+            <span class="solo-lectores">Nivel de dificultad que buscáis</span>
+            <input type="range" id="nivel-miedo" min="1" max="5" step="1" value="3" aria-valuetext="Lo justo">
+          </label>
+          <ol class="medidor-marcas" aria-hidden="true"><li>Nada</li><li>Un poco</li><li>Lo justo</li><li>Mucho</li><li>Sin límite</li></ol>
+        </div>
+        <a class="medidor-sala" id="medidor-sala" href="salas.html" aria-live="polite">
+          <span class="medidor-foto"><img alt="" id="medidor-foto"></span>
+          <span class="medidor-info" id="medidor-info"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="pila" style="gap:8px"><span class="etiqueta-superior">Cómo funciona</span><h2>Seis pasos para escapar</h2></div>
+      <div class="pasos pasos-seis">
+        <div class="paso"><img src="img/iconos/candado.png" alt=""><h3>1. Elige sala</h3><p>Filtra por temática, dificultad y número de jugadores.</p></div>
+        <div class="paso"><img src="img/iconos/grupo.png" alt=""><h3>2. Reúne al grupo</h3><p>De 2 a 7 personas según la sala. Cuantos más cerebros, mejor.</p></div>
+        <div class="paso"><img src="img/iconos/calendario.png" alt=""><h3>3. Reserva</h3><p>Elige día y hora y te lo confirmamos por ticket desde tu área.</p></div>
+        <div class="paso"><img src="img/iconos/idea.png" alt=""><h3>4. Resuelve</h3><p>Enigmas, candados y pistas escondidas que cuentan la historia.</p></div>
+        <div class="paso"><img src="img/iconos/reloj.png" alt=""><h3>5. Contra el reloj</h3><p>60 minutos (o 150 en San Tomás). El reloj no espera a nadie.</p></div>
+        <div class="paso"><img src="img/iconos/salida.png" alt=""><h3>6. Escapa</h3><p>Abrid la última puerta y salid a por la foto de grupo.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="seccion normas-seccion" aria-labelledby="titulo-normas">
+    <div class="contenedor">
+      <div class="normas-rejilla">
+        <div class="pila" style="gap:12px">
+          <span class="etiqueta-superior">Antes de entrar</span>
+          <h2 id="titulo-normas">Normas de la casa</h2>
+          <p class="texto-suave">Las encontraréis clavadas en la puerta de cada sala. Leedlas: alguna os sacará de un apuro.</p>
+        </div>
+        <div class="aviso-papel">
+          <span class="chincheta" aria-hidden="true"></span>
+          <h3>AVISO A LOS JUGADORES</h3>
+          <ol>
+            <li>Llegad 15 minutos antes. La puerta se cierra a la hora en punto.</li>
+            <li>Los móviles se quedan en la taquilla. Aquí dentro no hay cobertura (ni la busquéis).</li>
+            <li>Nada se fuerza. Si tenéis que romper algo, no es la solución.</li>
+            <li>Tenéis tres pistas. La cuarta tiene un precio.</li>
+            <li>San Tomás solo para mayores de 18. Lo decimos en serio.</li>
+            <li>La salida de emergencia siempre está abierta. Siempre. Aunque no lo parezca.</li>
+          </ol>
+          <p class="firma">— La dirección</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="seccion">
+    <div class="contenedor">
+      <a class="regalo" href="nuevo-ticket.html?regalo=1">
+        <img src="img/salida-grupo.webp" alt="" loading="lazy">
+        <span class="regalo-texto">
+          <span class="etiqueta-superior">Bonos regalo</span>
+          <span class="regalo-titulo">Regalad sesenta minutos de miedo</span>
+          <span class="texto-suave">Para cualquier sala, válido un año. Pedidlo con un ticket y os lo preparamos.</span>
+          <span class="boton boton-primario">Pedir un bono</span>
+        </span>
+      </a>
+    </div>
+  </section>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="tarjeta fila-entre" style="padding:32px">
+        <div class="pila" style="gap:8px"><h2>¿Grupo grande, cumpleaños o empresa?</h2><p class="texto-suave">Cuéntanos qué buscáis y os preparamos un plan a medida.</p></div>
+        <a class="boton boton-primario" href="nuevo-ticket.html">Abrir un ticket</a>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

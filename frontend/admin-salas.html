@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salas · Administración · NoExitRooms</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/favicon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/datos-demo.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/movimiento.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/paginas/admin-salas.js" defer></script>
+</head>
+<body class="tema-claro" data-zona="panel" data-pagina="admin-salas" data-rol="admin">
+<main>
+  <div class="cabecera-pagina"><h1 style="font-size:2rem">Salas</h1><button class="boton boton-primario" id="nueva-sala" type="button"><i data-lucide="plus"></i> Nueva sala</button></div>
+  <div id="lista"></div>
+  <dialog id="dialogo-sala" aria-labelledby="titulo-dialogo" style="width:min(720px,calc(100% - 32px))">
+    <form class="contenido-dialogo formulario" id="form-sala" novalidate>
+      <h2 id="titulo-dialogo" style="font-size:1.4rem">Nueva sala</h2>
+      <div class="campo"><label for="s-name">Nombre</label><input id="s-name" name="name" maxlength="100"></div>
+      <div class="campo"><label for="s-tagline">Lema</label><input id="s-tagline" name="tagline" maxlength="150"></div>
+      <div class="fila" style="align-items:start">
+        <div class="campo" style="flex:1"><label for="s-theme">Temática</label><select id="s-theme" name="theme"></select></div>
+        <div class="campo" style="flex:1"><label for="s-difficulty">Dificultad</label><select id="s-difficulty" name="difficulty"></select></div>
+      </div>
+      <div class="fila" style="align-items:start">
+        <div class="campo" style="flex:1"><label for="s-duration">Duración (min)</label><input id="s-duration" name="duration_min" type="number" min="15" max="180"></div>
+        <div class="campo" style="flex:1"><label for="s-min">Jugadores mín.</label><input id="s-min" name="min_players" type="number" min="1"></div>
+        <div class="campo" style="flex:1"><label for="s-max">Jugadores máx.</label><input id="s-max" name="max_players" type="number" min="1"></div>
+      </div>
+      <div class="fila" style="align-items:start">
+        <div class="campo" style="flex:1"><label for="s-price">Precio por persona (€)</label><input id="s-price" name="price_per_person" type="number" min="0" step="0.5"></div>
+        <div class="campo" style="flex:1"><label for="s-age">Edad mínima</label><input id="s-age" name="min_age" type="number" min="0" max="99" value="0"></div>
+      </div>
+      <div class="campo"><label for="s-description">Descripción</label><textarea id="s-description" name="description"></textarea></div>
+      <label class="casilla"><input type="checkbox" name="is_active" checked> Sala activa (sale en el catálogo)</label>
+      <div class="fila" style="justify-content:flex-end">
+        <button class="boton boton-secundario" type="button" id="cancelar-sala">Cancelar</button>
+        <button class="boton boton-primario" type="submit">Guardar sala</button>
+      </div>
+    </form>
+  </dialog>
+</main>
+</body>
+</html>

@@ -1,0 +1,28 @@
+/* =====================================================================
+   Sobre nosotros: el equipo en ficha policial.
+   Las fotos van en img/equipo/joel.webp, edu.webp e ivan.webp
+   (de frente, fondo liso, 4:5). Si falta una, se ve una silueta.
+   ===================================================================== */
+.equipo-policial { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-8); }
+.ficha-policial { display: flex; flex-direction: column; gap: var(--esp-4); }
+.ficha-policial:nth-child(2) { transform: translateY(24px); }
+.ficha-policial-foto { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 4px; background-color: #CFCBC2;
+  /* La regla de alturas de la pared, con una silueta debajo por si falta la foto */
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0 23px, rgba(30,30,30,.45) 23px 24px),
+    repeating-linear-gradient(to bottom, transparent 0 119px, rgba(30,30,30,.8) 119px 121px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'%3E%3Ccircle cx='50' cy='42' r='20' fill='%23312E2A'/%3E%3Cpath d='M12 120c0-26 17-44 38-44s38 18 38 44z' fill='%23312E2A'/%3E%3C/svg%3E");
+  background-repeat: repeat, repeat, no-repeat;
+  background-position: 0 0, 0 0, 50% 100%;
+  background-size: auto, auto, 72% auto;
+  box-shadow: 0 24px 50px -16px rgba(0,0,0,.8); filter: contrast(1.05); }
+.ficha-policial-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; filter: grayscale(.25) contrast(1.1); }
+.ficha-policial-cartel { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%) rotate(-1deg); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 16px; background: #121314; color: #E8EBE6; font-family: var(--font-codigo); font-size: .66rem; letter-spacing: .14em; border: 2px solid #E8EBE6; box-shadow: 0 6px 14px rgba(0,0,0,.5); white-space: nowrap; }
+.ficha-policial-cartel b { font-size: 1.2rem; letter-spacing: .2em; color: #fff; }
+.ficha-policial-datos h3 { font-size: 1.4rem; }
+.ficha-policial-cargos-titulo { margin: 8px 0 0; font-family: var(--font-codigo); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: #E05555; }
+.ficha-policial-cargos { margin: 0; padding-left: 1.1em; color: #C9CEC6; display: flex; flex-direction: column; gap: 4px; }
+@media (max-width: 860px) {
+  .equipo-policial { grid-template-columns: 1fr; max-width: 420px; }
+  .ficha-policial:nth-child(2) { transform: none; }
+}
