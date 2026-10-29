@@ -9,7 +9,8 @@ Primer boceto de la web en **HTML, CSS y JavaScript** (sin frameworks). Tiene la
 
 ## Estructura
 ```
-css/estilos.css        Una sola hoja de estilos (variables de la guía de estilo arriba del todo)
+css/estilos.css        Hoja de estilos principal (variables de la guía de estilo arriba del todo)
+css/panel.css          Paneles de cliente, soporte y admin ("sala de control"): menú lateral, monitores y tablas que pasan a tarjetas en el móvil
 js/datos-demo.js       Datos de ejemplo (los mismos que el script SQL)
 js/api.js              Capa de datos: todas las páginas piden los datos aquí
 js/ui.js               Utilidades: escapar texto, chips de estado, cabecera, pie, menús y protección por rol

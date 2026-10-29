@@ -415,6 +415,59 @@ const apiDemo = {
     }
   },
 
+  // GET /stats (agente o admin): las mismas cuentas que hace el backend con SQL
+  async estadisticas() {
+    const yo = exigirRol("agente", "admin");
+    const mios = yo.role === "agente" ? bd.tickets.filter(t => t.agent_id === yo.id) : bd.tickets;
+    const activo = t => !["resuelto", "cerrado"].includes(t.status);
+    const contar = (claves, lista, campo) => Object.fromEntries(claves.map(k => [k, lista.filter(t => t[campo] === k).length]));
+    const libres = bd.tickets.filter(t => t.agent_id === null && t.status !== "cerrado");
+    // Horas desde que se abre hasta que se marca resuelto por primera vez
+    const horas = mios.map(t => {
+      const resuelto = bd.historial.filter(h => h.ticket_id === t.id && h.new_status === "resuelto").map(h => h.changed_at).sort()[0];
+      return resuelto ? (new Date(resuelto) - new Date(t.created_at)) / 36e5 : null;
+    }).filter(h => h !== null);
+    const hace7 = new Date();
+    hace7.setDate(hace7.getDate() - 6);
+    const desde = diaIso(hace7);
+    const dias = {};
+    mios.filter(t => t.created_at.slice(0, 10) >= desde).forEach(t => { dias[t.created_at.slice(0, 10)] = (dias[t.created_at.slice(0, 10)] || 0) + 1; });
+    const porEstado = contar(Object.keys(ESTADOS), mios, "status");
+    const base = {
+      tickets: {
+        total: mios.length,
+        activos: mios.filter(activo).length,
+        por_estado: porEstado,
+        activos_por_prioridad: contar(Object.keys(PRIORIDADES), mios.filter(activo), "priority"),
+        por_categoria: bd.categorias.map(c => ({ id: c.id, name: c.name, n: mios.filter(t => t.category_id === c.id).length }))
+          .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)),
+        sin_asignar: { total: libres.length, alta: libres.filter(t => t.priority === "alta").length },
+        horas_medias_hasta_resolver: horas.length ? Math.round(horas.reduce((a, b) => a + b, 0) / horas.length * 10) / 10 : null,
+        creados_ultimos_7_dias: Object.keys(dias).sort().map(dia => ({ dia, n: dias[dia] }))
+      }
+    };
+    if (yo.role === "agente") return respuesta(base);
+    const ahoraMismo = minutoLocal();
+    const en7 = new Date();
+    en7.setDate(en7.getDate() + 7);
+    return respuesta({
+      ...base,
+      agentes: bd.usuarios.filter(u => u.role === "agente" && u.is_active).map(u => {
+        const suyos = bd.tickets.filter(t => t.agent_id === u.id);
+        return {
+          id: u.id, name: u.name,
+          activos: suyos.filter(activo).length,
+          pendientes_cliente: suyos.filter(t => t.status === "pendiente_cliente").length,
+          resueltos: suyos.filter(t => !activo(t)).length
+        };
+      }).sort((a, b) => b.activos - a.activos || a.name.localeCompare(b.name)),
+      reservas: {
+        pendientes_de_confirmar: bd.reservas.filter(r => r.status === "pendiente").length,
+        proximos_7_dias: bd.reservas.filter(r => r.status !== "cancelada" && r.starts_at.slice(0, 16) >= ahoraMismo && r.starts_at.slice(0, 10) < diaIso(en7)).length
+      }
+    });
+  },
+
   reiniciarDemo,
   modoDemo: true
 };

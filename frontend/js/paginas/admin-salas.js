@@ -15,7 +15,7 @@ iniciar(async () => {
           <tbody>
             ${salas.map(s => `
               <tr>
-                <td><strong>${esc(s.name)}</strong><div class="subtexto">/${esc(s.slug)}</div></td>
+                <td class="celda-principal"><strong>${esc(s.name)}</strong><div class="subtexto">/${esc(s.slug)}</div></td>
                 <td>${esc(s.theme)}</td>
                 <td>${puntosDificultad(s.difficulty)}</td>
                 <td>${s.duration_min} min</td>
