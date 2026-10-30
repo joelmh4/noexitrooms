@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: NoExitRooms API
-  version: 0.3.0
+  version: 0.4.0
   description: |
     API REST de NoExitRooms: salas de escape, reservas y soporte por tickets.
     Las rutas con candado necesitan la cabecera `Authorization: Bearer <token>`,
@@ -23,6 +23,8 @@ tags:
       Admin: todos. Un ticket que no puedes ver responde 404, aunque exista.
   - name: Categorías
     description: Tipos de ticket (lectura pública, gestión del administrador)
+  - name: Panel
+    description: Métricas para los paneles del agente y del administrador
   - name: Salas
     description: Catálogo de salas (lectura pública con buscador, CRUD del administrador)
   - name: Reservas
@@ -737,3 +739,66 @@ paths:
         "403": { $ref: "#/components/responses/Prohibido" }
         "404": { $ref: "#/components/responses/NoEncontrado" }
         "409": { $ref: "#/components/responses/Conflicto" }
+  /stats:
+    get:
+      tags: [Panel]
+      summary: Métricas del panel
+      description: |
+        Agente: las de sus tickets (más el número de tickets sin asignar). Admin: las de todo el equipo,
+        con la carga de cada agente y las reservas. Cliente: 403.
+        `activos` son los tickets abiertos, en curso o pendientes del cliente.
+      security: [{ token: [] }]
+      responses:
+        "200":
+          description: Métricas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tickets:
+                    type: object
+                    properties:
+                      total: { type: integer, example: 5 }
+                      activos: { type: integer, example: 3 }
+                      por_estado:
+                        type: object
+                        properties:
+                          abierto: { type: integer }
+                          en_curso: { type: integer }
+                          pendiente_cliente: { type: integer }
+                          resuelto: { type: integer }
+                          cerrado: { type: integer }
+                      activos_por_prioridad:
+                        type: object
+                        properties: { baja: { type: integer }, media: { type: integer }, alta: { type: integer } }
+                      por_categoria:
+                        type: array
+                        items: { type: object, properties: { id: { type: integer }, name: { type: string }, n: { type: integer } } }
+                      sin_asignar:
+                        type: object
+                        description: Tickets sin agente que no están cerrados (de todo el equipo)
+                        properties: { total: { type: integer }, alta: { type: integer } }
+                      horas_medias_hasta_resolver: { type: number, nullable: true, example: 2.2, description: Desde que se abre hasta el primer «resuelto» }
+                      creados_ultimos_7_dias:
+                        type: array
+                        items: { type: object, properties: { dia: { type: string, example: "2026-10-27" }, n: { type: integer } } }
+                  agentes:
+                    type: array
+                    description: Solo admin
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        activos: { type: integer }
+                        pendientes_cliente: { type: integer }
+                        resueltos: { type: integer }
+                  reservas:
+                    type: object
+                    description: Solo admin
+                    properties:
+                      pendientes_de_confirmar: { type: integer }
+                      proximos_7_dias: { type: integer }
+        "401": { $ref: "#/components/responses/SinSesion" }
+        "403": { $ref: "#/components/responses/Prohibido" }
