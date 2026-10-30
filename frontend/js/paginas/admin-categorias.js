@@ -12,7 +12,7 @@ iniciar(async () => {
           <tbody>
             ${categorias.map(c => `
               <tr>
-                <td><strong>${esc(c.name)}</strong></td>
+                <td class="celda-principal"><strong>${esc(c.name)}</strong></td>
                 <td>${tickets.filter(t => t.category_id === c.id).length}</td>
                 <td><span class="pastilla ${c.is_active ? "pastilla-activa" : "pastilla-inactiva"}">${c.is_active ? "Activa" : "Inactiva"}</span></td>
                 <td><div class="acciones">

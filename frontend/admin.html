@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
   <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/panel.css">
   <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
   <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
   <script src="js/datos-demo.js" defer></script>
@@ -20,16 +21,35 @@
 </head>
 <body class="tema-claro" data-zona="panel" data-pagina="admin" data-rol="admin">
 <main>
-  <div class="cabecera-pagina"><h1 style="font-size:2rem">Dashboard</h1><a class="boton boton-secundario" href="admin-tickets.html">Ver todos los tickets</a></div>
-  <div class="metricas" id="metricas"></div>
-  <div class="detalle">
-    <section class="pila">
-      <h2 style="font-size:1.3rem">Tickets sin asignar</h2>
+  <div class="cabecera-pagina">
+    <div class="pila" style="gap:4px"><p class="sobretitulo" id="fecha-hoy"></p><h1 class="titulo-panel">Dashboard</h1></div>
+    <a class="boton boton-secundario" href="admin-tickets.html">Ver todos los tickets</a>
+  </div>
+  <div class="monitores" id="monitores"><p class="cargando" role="status"><img src="img/reloj-arena-oscuro.png" alt="">Cargando métricas…</p></div>
+  <div class="rejilla-panel">
+    <section class="modulo modulo-ancho" aria-labelledby="t-cola">
+      <h2 class="modulo-titulo" id="t-cola">Cola de tickets</h2>
+      <div id="cola"></div>
+    </section>
+    <section class="modulo" aria-labelledby="t-prioridad">
+      <h2 class="modulo-titulo" id="t-prioridad">Activos por prioridad</h2>
+      <div id="prioridades"></div>
+    </section>
+    <section class="modulo modulo-ancho" aria-labelledby="t-libres">
+      <div class="fila-entre"><h2 class="modulo-titulo" id="t-libres">Sin asignar</h2><span class="subtexto">Elige un agente y se le asigna al momento</span></div>
       <div id="sin-asignar"></div>
     </section>
-    <section class="tarjeta">
-      <h2 class="tarjeta-titulo">Carga de los agentes</h2>
+    <section class="modulo" aria-labelledby="t-carga">
+      <h2 class="modulo-titulo" id="t-carga">Carga de los agentes</h2>
       <div class="pila" id="carga"></div>
+    </section>
+    <section class="modulo modulo-ancho" aria-labelledby="t-categorias">
+      <h2 class="modulo-titulo" id="t-categorias">Tickets por categoría</h2>
+      <div id="categorias"></div>
+    </section>
+    <section class="modulo" aria-labelledby="t-semana">
+      <h2 class="modulo-titulo" id="t-semana">Creados esta semana</h2>
+      <div id="semana"></div>
     </section>
   </div>
 </main>
