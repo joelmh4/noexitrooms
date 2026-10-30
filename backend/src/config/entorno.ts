@@ -17,7 +17,10 @@ export const entorno = {
     user: obligatoria("DB_USER"),
     password: process.env.DB_PASSWORD ?? "",
     database: obligatoria("DB_NAME"),
-    ssl: process.env.DB_SSL === "true"
+    ssl: process.env.DB_SSL === "true",
+    // Certificado de la autoridad del proveedor (Aiven lo da en su panel). Se pega entero en la variable;
+    // si el servicio guarda los saltos de línea como \n, se convierten aquí.
+    ca: process.env.DB_SSL_CA?.replace(/\\n/g, "\n") || undefined
   },
   jwt: {
     secreto: obligatoria("JWT_SECRET"),

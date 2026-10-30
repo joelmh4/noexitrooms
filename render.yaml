@@ -1,0 +1,38 @@
+# Blueprint de Render: crea la API como servicio web a partir de este repositorio.
+# En Render: New > Blueprint > elegir el repo. Los valores marcados con sync: false se rellenan en el panel.
+services:
+  - type: web
+    name: noexitrooms-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: DB_SSL_CA
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES
+        value: 8h
+      - key: CORS_ORIGIN
+        value: https://joelmh4.github.io

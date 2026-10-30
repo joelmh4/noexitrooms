@@ -4,7 +4,7 @@ Web de escape rooms en Madrid con catálogo de salas, reservas y atención al cl
 
 | Carpeta | Qué hay |
 | --- | --- |
-| [`frontend/`](frontend) | Web en HTML, CSS y JavaScript. Por ahora usa datos de ejemplo en el navegador (`js/api.js`); se conectará a la API. |
+| [`frontend/`](frontend) | Web en HTML, CSS y JavaScript. Habla con la API desde `js/api.js`; sin API configurada funciona en modo demo con datos del navegador. |
 | [`backend/`](backend) | API REST en Node, Express y TypeScript sobre MySQL, con documentación Swagger. |
 | [`docs/`](docs) | Ficha inicial, mapa de páginas, guía de estilo, wireframes, modelo entidad-relación y script SQL. |
 
@@ -19,7 +19,7 @@ Frontend → API (Express) → MySQL. El frontend nunca habla con la base de dat
 
 ## URLs públicas
 
-Pendientes de despliegue.
+Pendientes de despliegue. Los pasos están en [`docs/despliegue.md`](docs/despliegue.md): MySQL en Aiven, API en Render (`render.yaml`) y web en GitHub Pages (`.github/workflows/web.yml`).
 
 ## Usuarios de prueba (ficticios)
 
