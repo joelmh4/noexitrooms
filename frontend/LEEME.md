@@ -19,10 +19,12 @@ img/                   Logo
 ```
 Cada HTML indica su zona y rol en `<body data-zona="..." data-pagina="..." data-rol="...">` y `ui.js` pinta la cabecera, el pie o el menú lateral.
 
-## Pasar al backend real
-1. Cambiar `API_URL` en `js/api.js` por la URL del backend desplegado (nunca localhost en la entrega).
-2. Poner `MODO_DEMO = false` y cambiar el cuerpo de cada función por un `fetch()` a la ruta que indica su comentario, enviando el token en la cabecera `Authorization: Bearer ...`.
-3. Las páginas no hay que tocarlas.
+## Conexión con el backend
+`js/api.js` tiene dos versiones con las mismas funciones: `apiReal` (hace `fetch()` a la API con el token en `Authorization: Bearer ...`) y `apiDemo` (datos de ejemplo en el navegador). Las páginas usan `api` y no saben cuál hay detrás.
+
+- Mientras `API_URL_PUBLICA` sea la de ejemplo (`.example`), la web funciona en modo demo. Al desplegar el backend, se pone ahí su URL (nunca localhost) y ya usa la API real.
+- Para probar con el backend en tu ordenador: arranca la API (`npm run dev` en `backend/`, con `CORS_ORIGIN` igual a la dirección de la web) y abre cualquier página con `?api=http://localhost:3000/api`. El navegador lo recuerda. Con `?api=publica` vuelve a la URL normal y con `?api=demo` fuerza los datos de ejemplo.
+- Con la API real, el pie no muestra "Reiniciar datos de demo". Las "pruebas" de cada sala solo existen en los datos de ejemplo (la tabla `rooms` no las tiene), así que con la API real no salen en la ficha.
 
 **Importante:** las comprobaciones de rol que hace el navegador son solo para que la web se vea bien. La seguridad de verdad la hace el backend (401/403/404).
 
