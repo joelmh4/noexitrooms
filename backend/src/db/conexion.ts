@@ -9,7 +9,7 @@ export const pool = mysql.createPool({
   user: entorno.db.user,
   password: entorno.db.password,
   database: entorno.db.database,
-  ssl: entorno.db.ssl ? { rejectUnauthorized: true } : undefined,
+  ssl: entorno.db.ssl ? { rejectUnauthorized: true, ca: entorno.db.ca } : undefined,
   connectionLimit: 10,
   // Las fechas se tratan en UTC y se devuelven como texto ISO
   timezone: "Z",
