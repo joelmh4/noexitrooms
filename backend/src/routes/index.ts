@@ -1,6 +1,9 @@
 // Todas las rutas de la API cuelgan de /api. Cada módulo tiene su archivo.
 import { Router } from "express";
+import { estadisticas } from "../controllers/estadisticas.controller";
 import { salud } from "../controllers/salud.controller";
+import { autenticar } from "../middleware/autenticar";
+import { permitir } from "../middleware/permitir";
 import { rutasAuth } from "./auth.routes";
 import { rutasCategorias } from "./categorias.routes";
 import { rutasReservas } from "./reservas.routes";
@@ -17,3 +20,4 @@ rutas.use("/categories", rutasCategorias);
 rutas.use("/tickets", rutasTickets);
 rutas.use("/rooms", rutasSalas);
 rutas.use("/bookings", rutasReservas);
+rutas.get("/stats", autenticar, permitir("agente", "admin"), estadisticas);

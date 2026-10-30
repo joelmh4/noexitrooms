@@ -16,6 +16,9 @@ export const pool = mysql.createPool({
   dateStrings: false
 });
 
+// Que la base de datos también trabaje en UTC (CURRENT_TIMESTAMP, NOW()), sea cual sea la zona del servidor
+pool.on("connection", con => { con.query("SET time_zone = '+00:00'"); });
+
 type Valor = string | number | boolean | Date | null;
 
 // SELECT: devuelve las filas ya tipadas
