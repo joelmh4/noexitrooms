@@ -169,7 +169,7 @@ function tablaTickets(lista, { enlace, columnas }) {
   };
   const celda = {
     codigo: t => `<td class="codigo-ticket">${codigoTicket(t.id)}</td>`,
-    asunto: t => `<td><a href="${enlace}?id=${t.id}">${esc(t.subject)}</a><div class="subtexto">${esc(t.categoria)}</div></td>`,
+    asunto: t => `<td class="celda-principal"><a href="${enlace}?id=${t.id}">${esc(t.subject)}</a><div class="subtexto">${esc(t.categoria)}</div></td>`,
     cliente: t => `<td>${esc(t.cliente.name)}</td>`,
     agente: t => `<td>${t.agente ? esc(t.agente.name) : '<span class="subtexto">Sin asignar</span>'}</td>`,
     categoria: t => `<td>${esc(t.categoria)}</td>`,
@@ -319,31 +319,117 @@ function piePagina() {
     </footer>`;
 }
 
-function menuCliente(pagina) {
+function menuCliente(pagina, yo) {
   return `
     <nav class="menu-cuenta" aria-label="Mi cuenta">
+      <div class="tarjeta-usuario"><span class="avatar">${esc(iniciales(yo.name))}</span><span><b>${esc(yo.name)}</b><small>${esc(yo.email)}</small></span></div>
       ${MENU_CLIENTE.map(([id, href, ic, texto]) => `<a href="${href}"${id === pagina ? ' aria-current="page"' : ""}>${icono(ic)}${texto}</a>`).join("")}
       <button class="boton-enlace cerrar-sesion" data-cerrar-sesion type="button">${PUERTA(false)}Cerrar sesión</button>
     </nav>`;
 }
 
+// Panel de soporte y admin: la "sala de control" del game master
 function menuLateral(pagina, yo) {
   const enlaces = yo.role === "admin" ? MENU_ADMIN : MENU_AGENTE;
   // La gestión de un ticket marca como activa la lista de la que viene
   const activa = pagina === "gestion-ticket" ? (yo.role === "admin" ? "admin-tickets" : "soporte") : pagina;
   return `
-    <aside class="menu-lateral">
-      ${logo(true)}
-      <p class="titulo-menu">${yo.role === "admin" ? "Administración" : "Soporte"}</p>
+    <aside class="menu-lateral" id="menu-lateral" aria-label="Menú del panel">
+      <div class="menu-lateral-cabeza">
+        ${logo(true)}
+        <button class="boton-icono solo-movil-panel" data-cerrar-menu type="button">${icono("x")}<span class="solo-lectores">Cerrar menú</span></button>
+      </div>
+      <p class="titulo-menu">Sala de control · ${yo.role === "admin" ? "Administración" : "Soporte"}</p>
       <nav class="pila" style="gap:4px" aria-label="Panel">
-        ${enlaces.map(([id, href, ic, texto]) => `<a href="${href}"${id === activa ? ' aria-current="page"' : ""}>${icono(ic)}${texto}</a>`).join("")}
+        ${enlaces.map(([id, href, ic, texto]) => `<a href="${href}" data-menu="${id}"${id === activa ? ' aria-current="page"' : ""}>${icono(ic)}<span>${texto}</span><span class="contador-menu" hidden></span></a>`).join("")}
       </nav>
       <div class="pie-menu">
-        <span>${esc(yo.name)} · ${ROLES[yo.role]}</span>
-        <a href="index.html" style="padding:0;color:#9AA29A">Ver la web</a>
-        <button class="boton-enlace cerrar-sesion" data-cerrar-sesion type="button">${PUERTA(true)}Cerrar sesión</button>
+        <div class="tarjeta-usuario"><span class="avatar">${esc(iniciales(yo.name))}</span><span><b>${esc(yo.name)}</b><small>${ROLES[yo.role]}</small></span></div>
+        <a class="enlace-menu" href="index.html">${icono("globe")}Ver la web</a>
+        <button class="enlace-menu cerrar-sesion" data-cerrar-sesion type="button">${PUERTA(true)}Cerrar sesión</button>
       </div>
-    </aside>`;
+    </aside>
+    <div class="velo-menu" data-cerrar-menu></div>`;
+}
+
+// Barra superior del panel: dónde estás, si hay conexión con la API y la hora de Madrid
+function barraPanel(yo) {
+  const seccion = document.querySelector("main h1")?.textContent.trim() || document.title.split(" · ")[0];
+  return `
+    <div class="barra-panel">
+      <button class="boton-icono boton-menu-panel" type="button" aria-expanded="false" aria-controls="menu-lateral">${icono("menu")}<span class="solo-lectores">Menú</span></button>
+      <p class="ruta"><span>${yo.role === "admin" ? "Admin" : "Soporte"}</span><span aria-hidden="true">/</span><b>${esc(seccion)}</b></p>
+      <p class="estado-sistema"><span class="piloto${api.modoDemo ? " piloto-demo" : ""}" aria-hidden="true"></span>${api.modoDemo ? "Modo demo" : "Conectado"}<time id="reloj-panel"></time></p>
+    </div>`;
+}
+function horaMadrid() {
+  return new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Madrid" });
+}
+
+// Números junto al menú: lo que está esperando a alguien del equipo
+async function contadoresMenu(yo) {
+  try {
+    const tickets = await api.tickets.listar();
+    const libres = tickets.filter(t => t.agent_id === null && t.status !== "cerrado").length;
+    const mios = tickets.filter(t => t.agent_id === yo.id && ["abierto", "en_curso"].includes(t.status)).length;
+    const poner = (id, n, titulo) => {
+      const el = document.querySelector(`[data-menu="${id}"] .contador-menu`);
+      if (!el || !n) return;
+      el.hidden = false;
+      el.textContent = n;
+      el.title = titulo;
+    };
+    if (yo.role === "admin") poner("admin-tickets", libres, `${libres} sin asignar`);
+    else poner("soporte", mios + libres, `${mios} tuyos por atender y ${libres} sin asignar`);
+  } catch { /* el menú funciona igual sin los números */ }
+}
+
+// En el móvil el menú lateral es un cajón que entra desde la izquierda.
+// Como el menú público: se puede interrumpir a medias y cerrar arrastrándolo.
+function montarMenuPanel() {
+  const capa = document.querySelector(".panel-admin");
+  const menu = document.getElementById("menu-lateral");
+  const boton = document.querySelector(".boton-menu-panel");
+  if (!capa || !menu || !boton) return;
+  const esMovil = matchMedia("(max-width: 860px)");
+  let progreso = 0;
+  const muelle = crearMuelle(0, p => {
+    progreso = p;
+    if (!esMovil.matches) return;
+    menu.style.transform = `translateX(${(Math.min(p, 1) - 1) * 100}%)`;
+    capa.style.setProperty("--velo", String(Math.max(0, Math.min(1, p))));
+    capa.classList.toggle("menu-abierto", p > 0.01);
+  }, MUELLE_CAJON);
+  const abrir = (abierto, velocidad) => {
+    boton.setAttribute("aria-expanded", abierto);
+    muelle.ir(abierto ? 1 : 0, { velocidad, opciones: MUELLE_CAJON });
+    if (abierto) menu.querySelector("[aria-current]")?.focus({ preventScroll: true });
+  };
+  boton.addEventListener("click", () => abrir(true));
+  capa.querySelectorAll("[data-cerrar-menu]").forEach(el => el.addEventListener("click", () => abrir(false)));
+  addEventListener("keydown", e => { if (e.key === "Escape" && progreso > 0.5) { abrir(false); boton.focus(); } });
+  arrastrable(menu, {
+    eje: "x",
+    alMover: d => muelle.fijar(d <= 0 ? 1 + d / menu.offsetWidth : 1 + goma(d, menu.offsetWidth) / menu.offsetWidth),
+    alSoltar: v => abrir(progreso + proyectar(v, 0.99) / menu.offsetWidth > 0.5, v / menu.offsetWidth)
+  });
+  const reiniciar = () => {
+    menu.style.transform = "";
+    capa.classList.remove("menu-abierto");
+    boton.setAttribute("aria-expanded", "false");
+    muelle.fijar(0);
+  };
+  esMovil.addEventListener("change", reiniciar);
+}
+
+// En el móvil las tablas se ven como tarjetas: cada celda lleva el nombre de su columna
+function etiquetarTablas(raiz) {
+  raiz.querySelectorAll("table").forEach(tabla => {
+    const nombres = [...tabla.querySelectorAll("thead th")].map(th => th.textContent.trim());
+    tabla.querySelectorAll("tbody tr").forEach(fila => {
+      [...fila.children].forEach((celda, i) => { if (nombres[i] && !celda.dataset.etiqueta) celda.dataset.etiqueta = nombres[i]; });
+    });
+  });
 }
 
 // Pinta la estructura y devuelve el usuario (o null). Si la página exige
@@ -375,10 +461,14 @@ function montarPagina() {
     const capa = document.createElement("div");
     capa.className = "panel-layout";
     main.replaceWith(capa);
-    capa.innerHTML = menuCliente(pagina);
+    capa.innerHTML = menuCliente(pagina, yo);
     capa.append(main);
     main.classList.add("contenido-panel");
     capa.insertAdjacentHTML("afterend", piePagina());
+  } else if (zona === "panel" && yo && main.dataset.bloqueada) {
+    // Sin permiso: ni menú del panel ni barra, solo el aviso con la cabecera normal
+    main.insertAdjacentHTML("beforebegin", cabeceraPublica(null, yo));
+    main.insertAdjacentHTML("afterend", piePagina());
   } else if (zona === "panel" && yo) {
     const capa = document.createElement("div");
     capa.className = "panel-admin";
@@ -386,6 +476,17 @@ function montarPagina() {
     capa.innerHTML = menuLateral(pagina, yo);
     capa.append(main);
     main.classList.add("contenido-admin");
+    main.insertAdjacentHTML("afterbegin", barraPanel(yo));
+    const reloj = document.getElementById("reloj-panel");
+    const pintarHora = () => { reloj.textContent = horaMadrid(); };
+    pintarHora();
+    setInterval(pintarHora, 15000);
+    montarMenuPanel();
+    if (!main.dataset.bloqueada) contadoresMenu(yo);
+  }
+  if (zona !== "publica") {
+    etiquetarTablas(main);
+    new MutationObserver(() => etiquetarTablas(main)).observe(main, { childList: true, subtree: true });
   }
 
   // Eventos comunes
