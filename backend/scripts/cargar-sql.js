@@ -13,7 +13,9 @@ const mysql = require("mysql2/promise");
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: true } : undefined,
+    ssl: process.env.DB_SSL === "true"
+      ? { rejectUnauthorized: true, ca: process.env.DB_SSL_CA?.replace(/\\n/g, "\n") || undefined }
+      : undefined,
     multipleStatements: true
   });
   await con.query(sql);
