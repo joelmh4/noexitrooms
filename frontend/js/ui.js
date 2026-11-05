@@ -67,45 +67,23 @@ function parametro(nombre) {
 }
 
 /* ---------- Notificación flotante ---------- */
-// Entra desde abajo con un muelle, se puede arrastrar hacia abajo para
-// descartarla (con la velocidad del gesto) y se va por el mismo camino.
+// Aparece abajo, se va sola a los 4 segundos y se puede cerrar con la X.
 let toastActual = null;
 function toast(tipo, texto) {
-  toastActual?.quitar(true);
+  toastActual?.remove();
   const caja = document.createElement("div");
   caja.className = "toast";
-  caja.innerHTML = aviso(tipo, texto);
+  caja.innerHTML = `${aviso(tipo, texto)}<button class="toast-cerrar" type="button" aria-label="Cerrar aviso">×</button>`;
   document.body.append(caja);
-
-  const salida = caja.offsetHeight + 40;
-  let y = salida;
-  const muelle = crearMuelle(y, v => { y = v; caja.style.transform = `translateY(${v}px)`; caja.style.opacity = String(Math.max(0, 1 - v / salida)); });
-  muelle.ir(0);
-
-  let temporizador = null;
-  const programar = () => { clearTimeout(temporizador); temporizador = setTimeout(() => quitar(), 3500); };
-  function quitar(inmediato = false, velocidad = 0) {
-    clearTimeout(temporizador);
-    if (toastActual?.caja === caja) toastActual = null;
-    if (inmediato) { caja.remove(); return; }
-    muelle.ir(salida, { velocidad, terminar: () => caja.remove() });
-  }
-  // Mientras el ratón o el dedo están encima, no se va sola
-  caja.addEventListener("pointerenter", () => clearTimeout(temporizador));
-  caja.addEventListener("pointerleave", programar);
-  arrastrable(caja, {
-    eje: "y",
-    alEmpezar: () => clearTimeout(temporizador),
-    // Hacia abajo sigue al dedo; hacia arriba se resiste como una goma
-    alMover: d => muelle.fijar(d >= 0 ? d : goma(d, caja.offsetHeight)),
-    alSoltar: v => {
-      // Se decide con la proyección del gesto, no solo con dónde se soltó
-      if (y + proyectar(v, 0.99) > caja.offsetHeight / 2) quitar(false, v);
-      else { muelle.ir(0, { velocidad: v }); programar(); }
-    }
-  });
-  programar();
-  toastActual = { caja, quitar };
+  toastActual = caja;
+  // La clase "visible" se pone un instante después para que la transición de CSS se vea
+  setTimeout(() => caja.classList.add("visible"), 10);
+  const quitar = () => {
+    caja.classList.remove("visible");
+    setTimeout(() => caja.remove(), 300);
+  };
+  caja.querySelector(".toast-cerrar").addEventListener("click", quitar);
+  setTimeout(quitar, 4000);
 }
 
 /* ---------- Diálogo de confirmación (devuelve true o false) ---------- */
@@ -177,12 +155,13 @@ function tablaTickets(lista, { enlace, columnas }) {
     prioridad: t => `<td>${chipPrioridad(t.priority)}</td>`,
     fecha: t => `<td class="subtexto">${fechaHora(t.updated_at)}</td>`
   };
+  // data-etiqueta: en el móvil cada fila se ve como una tarjeta y la celda enseña el nombre de su columna (css/panel.css)
   return `
     <div class="tabla-envoltorio">
       <table>
         <thead><tr>${columnas.map(c => `<th scope="col">${cab[c]}</th>`).join("")}</tr></thead>
         <tbody>
-          ${lista.map(t => `<tr class="clicable" data-href="${enlace}?id=${t.id}">${columnas.map(c => celda[c](t)).join("")}</tr>`).join("")}
+          ${lista.map(t => `<tr class="clicable" data-href="${enlace}?id=${t.id}">${columnas.map(c => celda[c](t).replace("<td", `<td data-etiqueta="${cab[c]}"`)).join("")}</tr>`).join("")}
         </tbody>
       </table>
     </div>`;
@@ -384,52 +363,18 @@ async function contadoresMenu(yo) {
   } catch { /* el menú funciona igual sin los números */ }
 }
 
-// En el móvil el menú lateral es un cajón que entra desde la izquierda.
-// Como el menú público: se puede interrumpir a medias y cerrar arrastrándolo.
+// En el móvil el menú lateral es un cajón que entra desde la izquierda (la animación es una transición de CSS)
 function montarMenuPanel() {
   const capa = document.querySelector(".panel-admin");
-  const menu = document.getElementById("menu-lateral");
   const boton = document.querySelector(".boton-menu-panel");
-  if (!capa || !menu || !boton) return;
-  const esMovil = matchMedia("(max-width: 860px)");
-  let progreso = 0;
-  const muelle = crearMuelle(0, p => {
-    progreso = p;
-    if (!esMovil.matches) return;
-    menu.style.transform = `translateX(${(Math.min(p, 1) - 1) * 100}%)`;
-    capa.style.setProperty("--velo", String(Math.max(0, Math.min(1, p))));
-    capa.classList.toggle("menu-abierto", p > 0.01);
-  }, MUELLE_CAJON);
-  const abrir = (abierto, velocidad) => {
+  if (!capa || !boton) return;
+  const abrir = abierto => {
+    capa.classList.toggle("menu-abierto", abierto);
     boton.setAttribute("aria-expanded", abierto);
-    muelle.ir(abierto ? 1 : 0, { velocidad, opciones: MUELLE_CAJON });
-    if (abierto) menu.querySelector("[aria-current]")?.focus({ preventScroll: true });
   };
   boton.addEventListener("click", () => abrir(true));
   capa.querySelectorAll("[data-cerrar-menu]").forEach(el => el.addEventListener("click", () => abrir(false)));
-  addEventListener("keydown", e => { if (e.key === "Escape" && progreso > 0.5) { abrir(false); boton.focus(); } });
-  arrastrable(menu, {
-    eje: "x",
-    alMover: d => muelle.fijar(d <= 0 ? 1 + d / menu.offsetWidth : 1 + goma(d, menu.offsetWidth) / menu.offsetWidth),
-    alSoltar: v => abrir(progreso + proyectar(v, 0.99) / menu.offsetWidth > 0.5, v / menu.offsetWidth)
-  });
-  const reiniciar = () => {
-    menu.style.transform = "";
-    capa.classList.remove("menu-abierto");
-    boton.setAttribute("aria-expanded", "false");
-    muelle.fijar(0);
-  };
-  esMovil.addEventListener("change", reiniciar);
-}
-
-// En el móvil las tablas se ven como tarjetas: cada celda lleva el nombre de su columna
-function etiquetarTablas(raiz) {
-  raiz.querySelectorAll("table").forEach(tabla => {
-    const nombres = [...tabla.querySelectorAll("thead th")].map(th => th.textContent.trim());
-    tabla.querySelectorAll("tbody tr").forEach(fila => {
-      [...fila.children].forEach((celda, i) => { if (nombres[i] && !celda.dataset.etiqueta) celda.dataset.etiqueta = nombres[i]; });
-    });
-  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") abrir(false); });
 }
 
 // Pinta la estructura y devuelve el usuario (o null). Si la página exige
@@ -484,10 +429,6 @@ function montarPagina() {
     montarMenuPanel();
     if (!main.dataset.bloqueada) contadoresMenu(yo);
   }
-  if (zona !== "publica") {
-    etiquetarTablas(main);
-    new MutationObserver(() => etiquetarTablas(main)).observe(main, { childList: true, subtree: true });
-  }
 
   // Eventos comunes
   montarMenuMovil();
@@ -514,42 +455,14 @@ function montarPagina() {
   return main.dataset.bloqueada ? null : (yo || "invitado");
 }
 
-/* ---------- Menú del móvil: baja desde la cabecera con un muelle ---------- */
-// Se puede abrir y cerrar a mitad de animación (siempre parte de donde está)
-// y cerrar arrastrándolo hacia arriba.
+/* ---------- Menú del móvil: el botón abre y cierra la lista de enlaces ---------- */
 function montarMenuMovil() {
   const boton = document.querySelector(".boton-menu");
   const menu = document.getElementById("menu-principal");
   if (!boton || !menu) return;
-  const esMovil = matchMedia("(max-width: 860px)");
-  let progreso = 0;
-  const muelle = crearMuelle(0, p => {
-    progreso = p;
-    if (!esMovil.matches) return;
-    menu.style.transform = `translateY(${(p - 1) * 24}px)`;
-    menu.style.opacity = String(Math.max(0, Math.min(1, p)));
-    menu.classList.toggle("abierto", p > 0.01);
-  }, MUELLE_CAJON);
-  const abrir = (abierto, velocidad) => {
+  boton.addEventListener("click", () => {
+    const abierto = menu.classList.toggle("abierto");
     boton.setAttribute("aria-expanded", abierto);
-    muelle.ir(abierto ? 1 : 0, { velocidad, opciones: MUELLE_CAJON });
-  };
-  boton.addEventListener("click", () => abrir(boton.getAttribute("aria-expanded") !== "true"));
-  arrastrable(menu, {
-    eje: "y",
-    alMover: d => muelle.fijar(d <= 0 ? 1 + d / menu.offsetHeight : 1 + goma(d, menu.offsetHeight) / menu.offsetHeight),
-    alSoltar: v => {
-      const vel = v / menu.offsetHeight;
-      const final = progreso + proyectar(v, 0.99) / menu.offsetHeight;
-      abrir(final > 0.5, vel);
-    }
-  });
-  // Al pasar a escritorio el menú vuelve a ser una barra normal
-  esMovil.addEventListener("change", () => {
-    menu.style.transform = menu.style.opacity = "";
-    menu.classList.remove("abierto");
-    boton.setAttribute("aria-expanded", "false");
-    muelle.fijar(0);
   });
 }
 

@@ -12,10 +12,10 @@ iniciar(async () => {
           <tbody>
             ${categorias.map(c => `
               <tr>
-                <td class="celda-principal"><strong>${esc(c.name)}</strong></td>
-                <td>${tickets.filter(t => t.category_id === c.id).length}</td>
-                <td><span class="pastilla ${c.is_active ? "pastilla-activa" : "pastilla-inactiva"}">${c.is_active ? "Activa" : "Inactiva"}</span></td>
-                <td><div class="acciones">
+                <td data-etiqueta="Categoría" class="celda-principal"><strong>${esc(c.name)}</strong></td>
+                <td data-etiqueta="Tickets">${tickets.filter(t => t.category_id === c.id).length}</td>
+                <td data-etiqueta="Estado"><span class="pastilla ${c.is_active ? "pastilla-activa" : "pastilla-inactiva"}">${c.is_active ? "Activa" : "Inactiva"}</span></td>
+                <td class="celda-acciones"><div class="acciones">
                   <button class="boton boton-secundario boton-pequeno" data-renombrar="${c.id}" data-nombre="${esc(c.name)}">Renombrar</button>
                   <button class="boton boton-secundario boton-pequeno" data-activar="${c.id}" data-activa="${c.is_active}">${c.is_active ? "Desactivar" : "Activar"}</button>
                 </div></td>
