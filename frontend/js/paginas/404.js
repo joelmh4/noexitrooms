@@ -1,2 +1,2 @@
-// 404: la página está a oscuras y la salida solo se ve con la linterna (js/linterna.js)
-iniciar(() => montarLinternaSimple(document.querySelector(".error-pagina")));
+// 404: página estática, no necesita lógica propia (iniciar monta la cabecera y el pie)
+iniciar(() => {});

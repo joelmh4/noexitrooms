@@ -15,14 +15,14 @@ iniciar(async () => {
           <tbody>
             ${salas.map(s => `
               <tr>
-                <td class="celda-principal"><strong>${esc(s.name)}</strong><div class="subtexto">/${esc(s.slug)}</div></td>
-                <td>${esc(s.theme)}</td>
-                <td>${puntosDificultad(s.difficulty)}</td>
-                <td>${s.duration_min} min</td>
-                <td>${s.min_players}-${s.max_players}</td>
-                <td>${precio(s.price_per_person)}</td>
-                <td><span class="pastilla ${s.is_active ? "pastilla-activa" : "pastilla-inactiva"}">${s.is_active ? "Activa" : "Inactiva"}</span></td>
-                <td><div class="acciones">
+                <td data-etiqueta="Sala" class="celda-principal"><strong>${esc(s.name)}</strong><div class="subtexto">/${esc(s.slug)}</div></td>
+                <td data-etiqueta="Temática">${esc(s.theme)}</td>
+                <td data-etiqueta="Dificultad">${puntosDificultad(s.difficulty)}</td>
+                <td data-etiqueta="Duración">${s.duration_min} min</td>
+                <td data-etiqueta="Jugadores">${s.min_players}-${s.max_players}</td>
+                <td data-etiqueta="Precio">${precio(s.price_per_person)}</td>
+                <td data-etiqueta="Estado"><span class="pastilla ${s.is_active ? "pastilla-activa" : "pastilla-inactiva"}">${s.is_active ? "Activa" : "Inactiva"}</span></td>
+                <td class="celda-acciones"><div class="acciones">
                   <button class="boton boton-secundario boton-pequeno" data-editar="${s.id}">Editar</button>
                   <button class="boton boton-secundario boton-pequeno" data-activar="${s.id}">${s.is_active ? "Desactivar" : "Activar"}</button>
                   <button class="boton boton-peligro boton-pequeno" data-borrar="${s.id}" aria-label="Borrar ${esc(s.name)}">${icono("trash-2")}</button>

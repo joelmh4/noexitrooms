@@ -1,7 +1,6 @@
 // Catálogo: buscador, filtros por temática, dificultad y jugadores, y orden
 iniciar(async () => {
   const salas = await api.salas.listar();
-  montarPasillo(salas);   // el pasillo de puertas que avanza con el scroll (js/pasillo.js)
   const form = document.getElementById("filtros");
   const rejilla = document.getElementById("rejilla");
   const contador = document.getElementById("contador");
@@ -37,13 +36,10 @@ iniciar(async () => {
     lista.sort(comparar[orden]);
 
     contador.textContent = lista.length === 1 ? "1 sala" : `${lista.length} salas`;
-    // Las tarjetas que se quedan se deslizan a su nuevo sitio con un muelle
-    const antes = fotografiar(rejilla);
     rejilla.innerHTML = lista.length
       ? lista.map(tarjetaSala).join("")
       : `<div class="tarjeta vacio" style="grid-column:1/-1">Ninguna sala coincide con esos filtros. <button class="boton-enlace" type="reset" form="filtros">Quitar filtros</button></div>`;
     pintarIconos();
-    animarCambios(rejilla, antes);
   }
 
   form.addEventListener("input", pintar);

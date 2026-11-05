@@ -9,16 +9,9 @@
 
 /* ---------- 1. Variables ---------- */
 :root {
-  /* Muelles (springs) de Apple convertidos a curvas CSS.
-     muelle: amortiguación 1, respuesta 0,4 s (sin rebote, para casi todo)
-     muelle-rapido: amortiguación 1, respuesta 0,3 s
-     muelle-rebote: amortiguación 0,8, respuesta 0,4 s (solo tras un gesto con impulso) */
-  --muelle: linear(0, 0.019, 0.068, 0.133, 0.207, 0.285, 0.362, 0.435, 0.504, 0.567, 0.624, 0.675, 0.72, 0.76, 0.794, 0.825, 0.851, 0.873, 0.893, 0.909, 0.924, 0.936, 0.946, 0.955, 0.962, 0.968, 0.973, 0.978, 0.981, 0.984, 0.987, 0.989, 0.991, 0.993, 0.994, 0.995, 0.996, 0.996, 0.997, 0.998, 1);
-  --dur-muelle: 540ms;
-  --muelle-rapido: var(--muelle);
-  --dur-muelle-rapido: 400ms;
-  --muelle-rebote: linear(0, 0.018, 0.065, 0.131, 0.208, 0.291, 0.376, 0.459, 0.538, 0.611, 0.677, 0.736, 0.788, 0.833, 0.871, 0.903, 0.93, 0.952, 0.969, 0.983, 0.994, 1.001, 1.007, 1.011, 1.013, 1.015, 1.015, 1.015, 1.014, 1.013, 1.012, 1.011, 1.01, 1.008, 1.007, 1.006, 1.005, 1.004, 1.003, 1.003, 1);
-  --dur-muelle-rebote: 510ms;
+  /* Transiciones: una curva suave y una duración comunes para toda la web */
+  --curva: cubic-bezier(.2, .8, .2, 1);
+  --dur: 300ms;
 
   /* Marca */
   --color-neon: #98FC02;
@@ -135,9 +128,9 @@ svg.lucide { width: 18px; height: 18px; flex: none; }
 .tema-claro .logo span { color: var(--color-bosque); }
 
 /* Cabecera pública y del área de cliente */
-/* Cabecera translúcida: el contenido pasa por debajo (material de Apple) */
-.cabecera { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--fondo) 72%, transparent); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 1px 0 transparent; transition: box-shadow var(--dur-muelle) var(--muelle); view-transition-name: cabecera; }
-.tema-claro .cabecera { background: color-mix(in srgb, var(--superficie) 72%, transparent); }
+/* Cabecera translúcida: el contenido pasa por debajo con un desenfoque */
+.cabecera { position: sticky; top: 0; z-index: 20; background: rgba(28, 31, 34, .8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: box-shadow var(--dur) ease; }
+.tema-claro .cabecera { background: rgba(255, 255, 255, .85); }
 /* En vez de una raya fija, una sombra suave solo cuando hay contenido debajo */
 .cabecera.desplazada { box-shadow: 0 1px 0 var(--borde), 0 8px 24px -12px rgba(0, 0, 0, .35); }
 .cabecera .contenedor { display: flex; align-items: center; gap: var(--esp-6); min-height: 72px; }
@@ -333,9 +326,12 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 .paginacion { display: flex; gap: var(--esp-2); justify-content: center; }
 
 /* Notificación flotante */
-.toast { position: fixed; bottom: 24px; right: 24px; z-index: 100; max-width: 420px; touch-action: none; cursor: grab; user-select: none; will-change: transform, opacity; }
-.toast:active { cursor: grabbing; }
-@keyframes aparecer { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+.toast { position: fixed; bottom: 24px; right: 24px; z-index: 100; max-width: 420px; display: flex; align-items: flex-start; gap: 8px;
+  opacity: 0; transform: translateY(10px); transition: opacity var(--dur) ease, transform var(--dur) ease; }
+.toast.visible { opacity: 1; transform: none; }
+.toast .aviso { flex: 1; box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .55); }
+.toast-cerrar { border: 0; background: none; color: var(--texto-suave); font-size: 1.4rem; line-height: 1; cursor: pointer; padding: 4px 6px; }
+@media (max-width: 560px) { .toast { left: 16px; right: 16px; bottom: 16px; max-width: none; } }
 
 /* ---------- 5. Páginas ---------- */
 
@@ -353,7 +349,7 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 .paso { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: var(--esp-6); display: flex; flex-direction: column; gap: var(--esp-3); }
 .paso svg { color: var(--color-neon); width: 30px; height: 30px; }
 .paso h3 { font-size: 1.1rem; }
-.paso p { font-size: .92rem; color: var(--texto-suave); }
+.paso p { font-size: .92rem; color: var(--texto-suave); overflow-wrap: anywhere; }
 
 /* Catálogo */
 .catalogo { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: var(--esp-8); align-items: start; }
@@ -378,11 +374,11 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 .foto-sala { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .tarjeta-sala .imagen::after, .ficha-cabecera::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(17, 19, 21, .7), transparent 45%); pointer-events: none; }
 .tarjeta-sala .tema-tag, .ficha-cabecera .tema-tag { position: relative; z-index: 1; }
-.tarjeta-sala .foto-sala { transition: transform var(--dur-muelle) var(--muelle); }
+.tarjeta-sala .foto-sala { transition: transform var(--dur) var(--curva); }
 .tarjeta-sala:hover .foto-sala { transform: scale(1.04); }
 .galeria-sala { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-3); margin-top: var(--esp-2); }
 .galeria-sala a { display: block; border-radius: var(--radio-md, 8px); overflow: hidden; border: 1px solid var(--borde); }
-.galeria-sala img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; transition: transform var(--dur-muelle) var(--muelle); }
+.galeria-sala img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; transition: transform var(--dur) var(--curva); }
 .galeria-sala a:hover img, .galeria-sala a:focus-visible img { transform: scale(1.05); }
 @media (max-width: 560px) { .galeria-sala { grid-template-columns: 1fr 1fr; } }
 
@@ -496,117 +492,54 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 @media (max-width: 560px) { .pasos-seis { grid-template-columns: 1fr; } .logo-portada { width: 88px; height: 88px; } }
 
 
-/* ---------- 8. Diseño fluido (pautas de Apple) ---------- */
+/* ---------- 8. Transiciones e interacción ---------- */
 
-/* Respuesta inmediata: sin retraso de toque y reacción al PULSAR, no al soltar */
-a, button, label, summary, select, input[type="checkbox"], input[type="radio"] { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-.boton {
-  transition: transform var(--dur-muelle) var(--muelle), background-color .15s, border-color .15s, color .15s, box-shadow var(--dur-muelle) var(--muelle);
-}
-.boton:active:not([disabled]) { transform: scale(0.96); transition-duration: 80ms, .15s, .15s, .15s, 80ms; }
-.boton-primario:hover { box-shadow: 0 6px 20px -8px color-mix(in srgb, var(--color-neon) 70%, transparent); }
-.boton-enlace:active, .menu-cuenta a:active, .menu-lateral a:active, .menu-principal a:active { opacity: .6; }
-.menu-cuenta a, .menu-lateral a { transition: background-color .15s, color .15s, transform var(--dur-muelle) var(--muelle); }
-.menu-cuenta a:active, .menu-lateral a:active { transform: scale(0.98); }
+/* Botones: se hunden un poco al pulsar */
+.boton { transition: transform .1s ease, background-color .15s, border-color .15s, color .15s, box-shadow .2s; }
+.boton:active:not([disabled]) { transform: scale(.96); }
+.boton-primario:hover { box-shadow: 0 6px 20px -8px rgba(152, 252, 2, .7); }
+.menu-cuenta a, .menu-lateral a { transition: background-color .15s, color .15s; }
 
-/* Foco visible que aparece con suavidad */
-:focus-visible { outline: 3px solid #2F6FED; outline-offset: 2px; transition: outline-offset var(--dur-muelle-rapido) var(--muelle); }
-.campo input, .campo select, .campo textarea { transition: border-color .15s, box-shadow var(--dur-muelle) var(--muelle); }
-.campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--enlace); box-shadow: 0 0 0 4px color-mix(in srgb, var(--enlace) 22%, transparent); }
+/* Foco visible y campos */
+:focus-visible { outline: 3px solid #2F6FED; outline-offset: 2px; }
+.campo input, .campo select, .campo textarea { transition: border-color .15s, box-shadow .15s; }
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--enlace); box-shadow: 0 0 0 4px rgba(47, 111, 237, .2); }
 
-/* Tarjetas: se elevan hacia el puntero y se hunden al pulsar */
-.tarjeta-sala { transition: transform var(--dur-muelle) var(--muelle), box-shadow var(--dur-muelle) var(--muelle), border-color .2s; }
-.tarjeta-sala:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .6); border-color: #454B50; }
-.tarjeta-sala:active { transform: translateY(-1px) scale(0.99); transition-duration: 100ms; }
-.tarjeta-sala .imagen { transition: background-size var(--dur-muelle) var(--muelle); }
-.paso { transition: transform var(--dur-muelle) var(--muelle), border-color .2s; }
-.paso:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--color-neon) 35%, var(--borde)); }
-.paso img { transition: transform var(--dur-muelle-rebote) var(--muelle-rebote); }
-.paso:hover img { transform: scale(1.06) rotate(-2deg); }
+/* Tarjetas: se elevan al pasar el ratón */
+.tarjeta-sala { transition: transform var(--dur) var(--curva), box-shadow var(--dur) var(--curva); }
+.tarjeta-sala:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .6); }
+.paso { transition: transform var(--dur) var(--curva), border-color .2s; }
+.paso:hover { transform: translateY(-3px); border-color: rgba(152, 252, 2, .35); }
 
-/* Filtros: el botón elegido se ilumina con un muelle */
-.filtros-estado .boton { transition: background-color .2s, color .2s, border-color .2s, transform var(--dur-muelle) var(--muelle); }
-
-/* Filas de tabla clicables: respuesta al pulsar */
+/* Filas de tabla clicables */
 tbody tr.clicable { transition: background-color .12s; }
-tbody tr.clicable:active { background: color-mix(in srgb, var(--enlace) 10%, var(--superficie-2)); }
 
-/* Preguntas frecuentes: la flecha gira hacia donde se abre */
+/* Preguntas frecuentes: el + gira al abrir */
 .faq summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: var(--esp-4); }
 .faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: "+"; font-family: var(--font-codigo); color: var(--enlace); font-size: 1.3rem; transition: transform var(--dur-muelle) var(--muelle); }
+.faq summary::after { content: "+"; font-family: var(--font-codigo); color: var(--enlace); font-size: 1.3rem; transition: transform var(--dur) ease; }
 .faq details[open] summary::after { transform: rotate(45deg); }
-.faq details[open] p { animation: desplegar var(--dur-muelle) var(--muelle); }
-@keyframes desplegar { from { opacity: 0; transform: translateY(-6px); } }
 
-/* Diálogos: se "materializan" desde el botón que los abrió y se van por el mismo camino */
-dialog[open] { animation: materializar var(--dur-muelle) var(--muelle); }
-dialog[open]::backdrop { animation: oscurecer var(--dur-muelle) var(--muelle); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-dialog.cerrando { animation: desmaterializar 200ms cubic-bezier(.4, 0, 1, 1) forwards; }
-dialog.cerrando::backdrop { animation: aclarar 200ms ease-in forwards; }
-@keyframes materializar { from { opacity: 0; transform: scale(0.9); filter: blur(6px); } }
-@keyframes desmaterializar { to { opacity: 0; transform: scale(0.94); filter: blur(4px); } }
-@keyframes oscurecer { from { opacity: 0; } }
-@keyframes aclarar { to { opacity: 0; } }
+/* Diálogos: aparecen con un pequeño zoom */
+dialog[open] { animation: aparecer-dialogo var(--dur) var(--curva); }
+@keyframes aparecer-dialogo { from { opacity: 0; transform: scale(.95); } }
 
-/* Avisos flotantes: material oscuro con borde de luz arriba */
-.toast .aviso { box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .06); }
-
-/* Menú del móvil: hoja translúcida que baja desde la cabecera */
+/* Menú del móvil */
 @media (max-width: 860px) {
-  /* Material denso (casi sólido): dentro de la cabecera no se puede desenfocar otra vez y el texto de detrás no debe verse */
-  .menu-principal { background: var(--fondo); box-shadow: 0 24px 40px -24px rgba(0, 0, 0, .6); touch-action: none; will-change: transform, opacity; border-bottom: 0; border-radius: 0 0 var(--radio-lg) var(--radio-lg); }
+  .menu-principal { box-shadow: 0 24px 40px -24px rgba(0, 0, 0, .6); border-bottom: 0; border-radius: 0 0 var(--radio-lg) var(--radio-lg); }
   .menu-principal a { font-size: 1.15rem; }
 }
-
-/* Menús laterales translúcidos (material más denso: separa zonas) */
-.menu-cuenta { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-
-/* Transición entre páginas: la cabecera se queda y el contenido aparece */
-@view-transition { navigation: auto; }
-.menu-lateral { view-transition-name: menu-lateral; }
-::view-transition-old(root) { animation: 120ms ease-in both salir-pagina; }
-::view-transition-new(root) { animation: var(--dur-muelle) var(--muelle) both entrar-pagina; }
-@keyframes salir-pagina { to { opacity: 0; } }
-@keyframes entrar-pagina { from { opacity: 0; transform: translateY(8px); } }
-
-/* Mensaje recién enviado: sale desde la caja de respuesta (abajo) */
-.mensaje.recien { animation: llegar-mensaje var(--dur-muelle-rebote) var(--muelle-rebote); }
-@keyframes llegar-mensaje { from { opacity: 0; transform: translateY(24px) scale(0.97); } }
 
 /* Contador del reloj con números de ancho fijo */
 .reloj { font-variant-numeric: tabular-nums; }
 
-/* Navegadores sin curvas linear(): una curva suave equivalente */
-@supports not (transition-timing-function: linear(0, 1)) {
-  :root { --muelle: cubic-bezier(.2, .8, .2, 1); --muelle-rebote: cubic-bezier(.34, 1.3, .64, 1); }
-}
-
-/* Menos transparencia: materiales sólidos */
-@media (prefers-reduced-transparency: reduce) {
-  .cabecera, .menu-principal, .menu-cuenta, dialog::backdrop { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-  .cabecera { background: var(--fondo); }
-  .tema-claro .cabecera { background: var(--superficie); }
-  .menu-principal { background: var(--fondo) !important; }
-}
-
-/* Más contraste: fondos sólidos y bordes definidos */
-@media (prefers-contrast: more) {
-  .tema-oscuro { --texto-suave: #C9CFC4; --borde: #6B7278; }
-  .tema-claro { --texto-suave: #3E443E; --borde: #8A9186; }
-  .cabecera { background: var(--fondo); box-shadow: 0 1px 0 var(--borde); }
-  .tarjeta, .tarjeta-sala, .paso, .metrica { border-width: 2px; }
-}
-
-/* Sin "rebote" de la vista en las transiciones si se pide menos movimiento */
+/* Si el usuario pide menos movimiento, quitamos animaciones y transiciones */
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root), ::view-transition-new(root) { animation: 120ms ease both salir-pagina; }
-  ::view-transition-new(root) { animation-name: aparecer-suave; }
-  @keyframes aparecer-suave { from { opacity: 0; } }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
 /* =====================================================================
-   9. Rediseño visual estilo Apple: más aire, títulos grandes, formas
+   9. Rediseño visual: más aire, títulos grandes, formas
    redondeadas, fotos protagonistas y paneles de cristal
    ===================================================================== */
 :root {
@@ -670,23 +603,8 @@ dialog { border-radius: 28px; }
   .tarjeta-sala, .ficha-cabecera { border: 1px solid var(--texto); }
 }
 
-/* =====================================================================
-   10. Textura de película (solo web pública)
-   Un grano muy fino por encima de todo y fotos algo menos saturadas:
-   las imágenes de IA parecen menos "de plástico" y más fotografía.
-   ===================================================================== */
-.tema-oscuro::after {
-  content: ""; position: fixed; inset: -100px; z-index: 900; pointer-events: none; opacity: .07;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  animation: grano 1s steps(6) infinite;
-}
-@keyframes grano {
-  0% { transform: translate(0, 0); } 20% { transform: translate(-40px, 25px); } 40% { transform: translate(30px, -45px); }
-  60% { transform: translate(-25px, -20px); } 80% { transform: translate(45px, 35px); } 100% { transform: translate(0, 0); }
-}
-.tema-oscuro .foto-sala, .linterna-fondo img { filter: saturate(.82) contrast(1.06); }
-@media (prefers-reduced-motion: reduce) { .tema-oscuro::after { animation: none; } }
-@media (prefers-contrast: more) { .tema-oscuro::after { display: none; } }
+/* ---------- 10. Fotos de la web pública algo menos saturadas ---------- */
+.tema-oscuro .foto-sala { filter: saturate(.82) contrast(1.06); }
 
 /* Mis tickets: próximas reservas del cliente */
 .mis-reservas:empty { display: none; }
@@ -696,30 +614,7 @@ dialog { border-radius: 28px; }
 .reserva-mini span:first-of-type { color: var(--texto-suave); font-size: .9rem; }
 .reserva-mini:hover { border-color: var(--color-neon); }
 
-/* =====================================================================
-   11. Puerta entre páginas (js/puerta.js)
-   ===================================================================== */
-.puertas { position: fixed; inset: 0; z-index: 1000; pointer-events: none; display: flex; }
-.hoja { flex: 1; height: 100%; transform: translateX(-101%); position: relative;
-  background:
-    radial-gradient(circle at 18px 18px, rgba(255,255,255,.18) 2px, transparent 3px) 0 0 / 60px 60px,
-    linear-gradient(90deg, #1B1E21, #2A2E32 40%, #1E2124 70%, #15171A);
-  box-shadow: inset -2px 0 0 rgba(255,255,255,.06), inset 0 0 80px rgba(0,0,0,.7); }
-.hoja-derecha { transform: translateX(101%); box-shadow: inset 2px 0 0 rgba(255,255,255,.06), inset 0 0 80px rgba(0,0,0,.7); }
-/* Rendija de luz verde y cerradura en el centro */
-.hoja-izquierda::after { content: ""; position: absolute; top: 50%; right: 18px; width: 14px; height: 70px; margin-top: -35px; border-radius: 7px; background: #0C0D0E; box-shadow: 0 0 0 3px #3A3F44, 0 0 18px rgba(152,252,2,.35); }
-.hoja-derecha::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: rgba(152,252,2,.5); box-shadow: 0 0 12px 2px rgba(152,252,2,.35); opacity: 0; transition: opacity .2s; }
-.puertas.cerrando .hoja { transition: transform .42s cubic-bezier(.7,0,.9,.4); transform: none; }
-.puertas.cerrando { animation: portazo .5s .4s both; }
-.puertas.cerradas .hoja { transform: none; }
-.puertas.abriendo .hoja-izquierda { transition: transform .7s cubic-bezier(.3,.7,.2,1); transform: translateX(-101%); }
-.puertas.abriendo .hoja-derecha { transition: transform .7s cubic-bezier(.3,.7,.2,1); transform: translateX(101%); }
-.puertas.abriendo .hoja-derecha::before, .puertas.cerradas .hoja-derecha::before { opacity: 1; }
-@keyframes portazo { 0% { transform: translateX(0); } 20% { transform: translateX(-5px); } 45% { transform: translateX(4px); } 70% { transform: translateX(-2px); } 100% { transform: none; } }
-@media (prefers-reduced-motion: reduce) { .puertas { display: none; } }
-
-
-/* ===== 11. Fotos de las páginas públicas ===== */
+/* ---------- 11. Fotos de las páginas públicas ---------- */
 /* Banda con foto en ayuda, contacto y salas */
 .foto-banda { margin: 0; border-radius: var(--radio-lg); overflow: hidden; position: relative; background: #0B0C0D; box-shadow: var(--sombra-suave); }
 .foto-banda img { display: block; width: 100%; height: auto; aspect-ratio: 21 / 9; object-fit: cover; }

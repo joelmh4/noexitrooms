@@ -1,5 +1,5 @@
 // Ficha de sala: /sala.html?slug=...
-// Ambientación propia (js/ambiente.js), galería a oscuras con linterna y reserva con calendario
+// Texto de ambientación (js/ambiente.js), galería con visor a pantalla completa y reserva con calendario
 iniciar(async () => {
   let sala;
   try {
@@ -55,17 +55,10 @@ iniciar(async () => {
   pintarIconos();
 });
 
-/* ---------- Galería: a oscuras, la linterna sigue al ratón; al pulsar, pantalla completa ---------- */
+/* ---------- Galería: al pulsar una foto se abre en un <dialog> a pantalla completa ---------- */
 function montarGaleria(sala, fotos) {
   const galeria = document.getElementById("galeria");
   if (!galeria || !fotos.length) return;
-  galeria.addEventListener("pointermove", e => {
-    const b = e.target.closest(".galeria-foto");
-    if (!b) return;
-    const c = b.getBoundingClientRect();
-    b.style.setProperty("--mx", `${e.clientX - c.left}px`);
-    b.style.setProperty("--my", `${e.clientY - c.top}px`);
-  });
 
   const visor = document.createElement("dialog");
   visor.className = "visor";
@@ -87,7 +80,6 @@ function montarGaleria(sala, fotos) {
     img.src = visibles[actual].src;
     img.alt = visibles[actual].alt;
     pie.textContent = `${actual + 1} / ${visibles.length}`;
-    img.classList.remove("entrando"); void img.offsetWidth; img.classList.add("entrando");
   }
   galeria.addEventListener("click", e => {
     const b = e.target.closest(".galeria-foto");

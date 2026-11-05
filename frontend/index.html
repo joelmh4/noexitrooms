@@ -10,28 +10,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
   <link rel="stylesheet" href="css/estilos.css">
-  <link rel="stylesheet" href="css/linterna.css">
   <link rel="stylesheet" href="css/inicio.css">
-  <link rel="stylesheet" href="css/mosaico.css">
-  <link rel="stylesheet" href="css/cerradura.css">
-  <script>/* Transición entre páginas: si se cancela por navegar muy rápido, no es un error */addEventListener("pagereveal",e=>{const v=e.viewTransition;if(v)[v.ready,v.finished,v.updateCallbackDone].forEach(p=>p.catch(()=>{}))});</script>
   <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
   <script src="js/datos-demo.js" defer></script>
   <script src="js/api.js" defer></script>
-  <script src="js/movimiento.js" defer></script>
   <script src="js/ui.js" defer></script>
-  <script src="js/puerta.js" defer></script>
-  <script src="js/sonido.js" defer></script>
-  <script src="js/linterna.js" defer></script>
-  <script src="js/candado.js" defer></script>
   <script src="js/inicio-escenas.js" defer></script>
-  <script src="js/zoom-salas.js" defer></script>
-  <script src="js/escena-cerradura.js" defer></script>
   <script src="js/paginas/inicio.js" defer></script>
 </head>
 <body class="tema-oscuro" data-zona="publica" data-pagina="inicio">
 <main>
-  <section class="portada">
+  <section class="portada" id="portada">
     <div class="contenedor">
       <div class="portada-texto">
         <span class="etiqueta-superior">Escape rooms en Madrid</span>
@@ -41,22 +30,14 @@
           <a class="boton boton-primario" href="salas.html">Ver las salas</a>
           <a class="boton boton-secundario" href="ayuda.html">¿Cómo funciona?</a>
         </div>
-        <div class="mosaico-salas" id="mosaico" aria-label="Todas las salas"></div>
+        <p class="bono-portada">Primera visita: un 10 % menos con el código <a href="nuevo-ticket.html?bono=NOEXIT-1974"><code>NOEXIT-1974</code></a></p>
       </div>
     </div>
   </section>
-  <section class="cerradura" id="cerradura" aria-label="Qué pasa cuando se cierra la puerta">
-    <div class="cerradura-escena">
-      <div class="cerradura-foto" aria-hidden="true"><img src="img/portada.webp" alt="" loading="lazy"></div>
-      <svg class="cerradura-silueta" viewBox="0 0 100 160" aria-hidden="true"><path d="M50 13a32 32 0 0 1 17 59l9 76H24l9-76A32 32 0 0 1 50 13z"/></svg>
-      <div class="contenedor">
-        <p class="cerradura-texto">
-          <span class="linea">Se cierra la puerta.</span>
-          <span class="linea">Se apaga la luz.</span>
-          <span class="linea">Alguien estuvo aquí antes que vosotros y dejó las pistas a medias.</span>
-          <span class="linea linea-final">Tenéis sesenta minutos para terminar lo que él no pudo.</span>
-        </p>
-      </div>
+  <section class="manifiesto manifiesto-estatico" aria-label="Qué pasa cuando se cierra la puerta">
+    <div class="manifiesto-fondo" aria-hidden="true"><img src="img/portada.webp" alt="" loading="lazy"></div>
+    <div class="contenedor">
+      <p class="manifiesto-texto">Se cierra la puerta. Se apaga la luz. Alguien estuvo aquí antes que vosotros y dejó las pistas a medias. Tenéis sesenta minutos para terminar lo que él no pudo.</p>
     </div>
   </section>
   <section class="seccion">
