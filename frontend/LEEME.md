@@ -11,6 +11,11 @@ Primer boceto de la web en **HTML, CSS y JavaScript** (sin frameworks). Tiene la
 ```
 css/estilos.css        Hoja de estilos principal (variables de la guía de estilo arriba del todo)
 css/panel.css          Paneles de cliente, soporte y admin ("sala de control"): menú lateral, monitores y tablas que pasan a tarjetas en el móvil
+css/inicio.css         Portada: foco de luz, frase de entrada, medidor "¿Cuánto aguantáis?", normas y bonos
+css/sala.css           Ficha de sala: panel de ambientación, galería, visor de fotos y reserva con calendario
+css/equipo.css         Sobre nosotros: fichas del equipo
+js/ambiente.js         Texto de ambientación de cada sala (terminal, consola…)
+js/inicio-escenas.js   Medidor "¿Cuánto aguantáis?" de la portada (recomienda sala según la dificultad)
 js/datos-demo.js       Datos de ejemplo (los mismos que el script SQL)
 js/api.js              Capa de datos: todas las páginas piden los datos aquí
 js/ui.js               Utilidades: escapar texto, chips de estado, cabecera, pie, menús y protección por rol
@@ -43,12 +48,10 @@ Recortadas de los logos e ilustraciones del equipo, con fondo transparente. Las 
 - `puerta` → página 404 y "Cerrar sesión"
 - `reloj-arena` → indicador de "Cargando…"
 
-## Movimiento y diseño fluido (pautas de diseño de Apple)
-`js/movimiento.js` reúne lo que hace que la web se sienta "viva":
-- **Muelles (springs)** en vez de animaciones de duración fija. Se configuran como Apple: *respuesta* (0,3–0,4 s) y *amortiguación* (1 = sin rebote, 0,8 = un poco de rebote solo tras un gesto). En CSS están como curvas `--muelle` y `--muelle-rebote`.
-- **Se pueden interrumpir:** si abres y cierras el menú del móvil a mitad, vuelve desde donde está, sin saltos.
-- **Gestos:** los avisos flotantes se descartan arrastrándolos hacia abajo y el menú del móvil se cierra arrastrándolo hacia arriba. Al soltar se usa la velocidad del dedo para decidir y seguir el movimiento.
-- **Respuesta inmediata:** botones y tarjetas reaccionan al pulsar, no al soltar.
-- **Materiales:** cabecera translúcida con desenfoque y sombra solo cuando hay contenido debajo.
-- **Coherencia espacial:** los diálogos crecen desde el botón que los abre y se van por el mismo camino; el catálogo recoloca las tarjetas al filtrar u ordenar; el mensaje que envías llega desde la caja de respuesta.
-- **Accesibilidad:** respeta "reducir movimiento", "reducir transparencia" y "aumentar contraste" del sistema.
+## Animaciones
+Solo transiciones y animaciones de CSS (`transition`, `@keyframes`), con una curva común `--curva` y una duración `--dur` definidas en las variables de `estilos.css`:
+- Botones que se hunden un poco al pulsar y tarjetas que se elevan al pasar el ratón.
+- El menú del móvil y el cajón del panel se abren añadiendo una clase (`abierto` / `menu-abierto`) desde JavaScript; el movimiento lo hace la transición de CSS.
+- Los avisos flotantes (`toast()` en `ui.js`) aparecen con la clase `visible` y se van solos a los 4 segundos.
+- En la portada, un foco de luz sigue al ratón: `inicio.js` guarda la posición en dos variables CSS (`--foco-x`, `--foco-y`) y un `radial-gradient` las usa.
+- Si el sistema pide "reducir movimiento", una regla al final de la sección 8 de `estilos.css` desactiva las animaciones.

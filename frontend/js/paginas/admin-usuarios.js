@@ -18,16 +18,16 @@ iniciar(async yo => {
               const soyYo = u.id === yo.id;
               return `
               <tr>
-                <td class="celda-principal"><div class="fila"><span class="avatar">${esc(iniciales(u.name))}</span><div><strong>${esc(u.name)}</strong>${soyYo ? ' <span class="subtexto">(tú)</span>' : ""}<div class="subtexto">${esc(u.email)}</div></div></div></td>
-                <td>
+                <td data-etiqueta="Usuario" class="celda-principal"><div class="fila"><span class="avatar">${esc(iniciales(u.name))}</span><div><strong>${esc(u.name)}</strong>${soyYo ? ' <span class="subtexto">(tú)</span>' : ""}<div class="subtexto">${esc(u.email)}</div></div></div></td>
+                <td data-etiqueta="Rol">
                   <label class="solo-lectores" for="rol-${u.id}">Rol de ${esc(u.name)}</label>
                   <select id="rol-${u.id}" data-rol="${u.id}" class="boton boton-secundario boton-pequeno"${soyYo ? " disabled" : ""}>
                     ${Object.entries(ROLES).map(([v, t]) => `<option value="${v}"${v === u.role ? " selected" : ""}>${t}</option>`).join("")}
                   </select>
                 </td>
-                <td><span class="pastilla ${u.is_active ? "pastilla-activa" : "pastilla-inactiva"}">${u.is_active ? "Activa" : "Desactivada"}</span></td>
-                <td class="subtexto">${fecha(u.created_at)}</td>
-                <td><div class="acciones">${soyYo ? "" : `<button class="boton ${u.is_active ? "boton-secundario" : "boton-primario"} boton-pequeno" data-activar="${u.id}">${u.is_active ? "Desactivar" : "Activar"}</button>`}</div></td>
+                <td data-etiqueta="Estado"><span class="pastilla ${u.is_active ? "pastilla-activa" : "pastilla-inactiva"}">${u.is_active ? "Activa" : "Desactivada"}</span></td>
+                <td data-etiqueta="Alta" class="subtexto">${fecha(u.created_at)}</td>
+                <td class="celda-acciones"><div class="acciones">${soyYo ? "" : `<button class="boton ${u.is_active ? "boton-secundario" : "boton-primario"} boton-pequeno" data-activar="${u.id}">${u.is_active ? "Desactivar" : "Activar"}</button>`}</div></td>
               </tr>`;
             }).join("")}
           </tbody>

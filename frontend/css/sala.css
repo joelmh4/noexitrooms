@@ -1,5 +1,5 @@
 /* =====================================================================
-   Ficha de sala: ambientación, galería a oscuras, visor y reserva
+   Ficha de sala: ambientación, galería, visor y reserva
    ===================================================================== */
 
 /* ---------- Ambientación (js/ambiente.js) ---------- */
@@ -7,12 +7,10 @@
 .ambiente-titulo { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 16px; font-family: var(--font-codigo); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: #8A918A; border-bottom: 1px solid rgba(255,255,255,.06); }
 .ambiente-piloto { width: 8px; height: 8px; border-radius: 50%; background: #E05555; box-shadow: 0 0 8px #E05555; animation: piloto 1.6s steps(1) infinite; }
 @keyframes piloto { 50% { opacity: .25; } }
-.ambiente-pantalla { font-family: var(--font-codigo); font-size: .86rem; line-height: 1.55; padding: 16px; min-height: 230px; max-height: 300px; overflow: hidden; white-space: pre-wrap; color: #D5DAD1; }
+.ambiente-pantalla { font-family: var(--font-codigo); font-size: .86rem; line-height: 1.55; padding: 16px; min-height: 0; white-space: pre-wrap; color: #D5DAD1; }
 .ambiente .alarma { color: #FF6B6B; }
 .ambiente .bien { color: var(--color-neon); }
 .ambiente .apagado { color: #7C837C; }
-.ambiente-grande { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
-.ambiente-cursor { display: inline-block; width: .6em; height: 1.1em; margin-left: 1px; vertical-align: text-bottom; background: currentColor; animation: piloto 1s steps(1) infinite; }
 
 /* Fósforo verde (San Tomás): líneas de barrido y brillo */
 .ambiente-fosforo .ambiente-pantalla { color: #7DFF6A; text-shadow: 0 0 6px rgba(125,255,106,.55); background:
@@ -20,34 +18,18 @@
 .ambiente-fosforo .alarma { color: #C9FF5A; text-shadow: 0 0 8px rgba(201,255,90,.8); }
 /* Consola (David, almacén, Perro) */
 .ambiente-consola .ambiente-pantalla { background: #0B0D0F; }
-/* Acta (Sol, camarote): números grandes */
-.ambiente-acta .ambiente-pantalla { white-space: normal; display: flex; flex-direction: column; gap: 10px; }
-.acta-fila { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px dashed rgba(255,255,255,.1); padding-bottom: 8px; }
-.acta-fila span { color: #8A918A; }
-.acta-fila b { text-align: right; }
-.acta-votos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
-.acta-votos span { display: flex; flex-direction: column; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: #8A918A; }
-.acta-votos b { font-size: 1.5rem; color: #fff; font-variant-numeric: tabular-nums; }
 
-/* ---------- Galería a oscuras ---------- */
+/* ---------- Galería ---------- */
 .galeria-sala .galeria-foto { position: relative; display: block; padding: 0; border: 1px solid var(--borde); border-radius: var(--radio-md, 8px); overflow: hidden; background: #000; cursor: zoom-in; }
 .galeria-foto img { display: block; }
-.galeria-foto::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: rgba(4,5,6,.35); transition: background .3s; }
+.galeria-foto:hover img { opacity: .85; }
 .galeria-foto:focus-visible { outline: 2px solid var(--color-neon); outline-offset: 2px; }
-@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .galeria-foto::after { background: rgba(4,5,6,.82);
-    -webkit-mask-image: radial-gradient(circle 110px at var(--mx, -200px) var(--my, -200px), transparent 0, transparent 30%, #000 100%);
-            mask-image: radial-gradient(circle 110px at var(--mx, -200px) var(--my, -200px), transparent 0, transparent 30%, #000 100%); }
-  .galeria-foto:focus-visible::after { -webkit-mask-image: none; mask-image: none; background: rgba(4,5,6,.1); }
-}
 
 /* ---------- Visor a pantalla completa ---------- */
 .visor { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(4,5,6,.96); color: #fff; display: none; align-items: center; justify-content: center; }
 .visor[open] { display: flex; }
 .visor::backdrop { background: rgba(0,0,0,.6); }
 .visor img { max-width: min(92vw, 1600px); max-height: 82dvh; border-radius: 6px; box-shadow: 0 40px 100px rgba(0,0,0,.8); user-select: none; -webkit-user-drag: none; touch-action: pan-y; }
-.visor img.entrando { animation: visor-entra .35s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes visor-entra { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
 .visor-pie { position: absolute; bottom: max(20px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); margin: 0; font-family: var(--font-codigo); font-size: .8rem; letter-spacing: .1em; color: #C9CEC6; }
 .visor-boton { position: absolute; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); background: rgba(17,19,21,.6); color: #fff; cursor: pointer; }
 .visor-boton:hover, .visor-boton:focus-visible { border-color: var(--color-neon); outline: none; }
@@ -55,7 +37,7 @@
 .visor-anterior { left: 20px; top: 50%; transform: translateY(-50%); }
 .visor-siguiente { right: 20px; top: 50%; transform: translateY(-50%); }
 @media (max-width: 640px) { .visor-anterior, .visor-siguiente { top: auto; bottom: 12px; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .visor img.entrando, .ambiente-piloto, .ambiente-cursor { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ambiente-piloto { animation: none; } }
 
 /* ---------- Reserva con calendario ---------- */
 .reserva { margin-top: var(--esp-16); display: flex; flex-direction: column; gap: var(--esp-6); scroll-margin-top: 88px; }
