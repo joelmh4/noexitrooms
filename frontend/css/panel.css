@@ -187,7 +187,8 @@ a.monitor:active { transform: translateY(0) scale(.99); transition-duration: 100
   .monitores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) {
-  /* El menú lateral pasa a ser un cajón que entra desde la izquierda */
+  /* El menú lateral pasa a ser un cajón que entra desde la izquierda y el contenido ocupa todo el ancho */
+  .panel-admin { grid-template-columns: 1fr; }
   .menu-lateral { position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); height: 100dvh; flex-direction: column; flex-wrap: nowrap; align-items: stretch; transform: translateX(-100%); overflow-y: auto; }
   .menu-lateral .titulo-menu { display: block; }
   .menu-lateral .logo { margin: 0; }

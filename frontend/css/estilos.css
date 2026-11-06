@@ -353,7 +353,7 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 .paso { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: var(--esp-6); display: flex; flex-direction: column; gap: var(--esp-3); }
 .paso svg { color: var(--color-neon); width: 30px; height: 30px; }
 .paso h3 { font-size: 1.1rem; }
-.paso p { font-size: .92rem; color: var(--texto-suave); }
+.paso p { font-size: .92rem; color: var(--texto-suave); overflow-wrap: anywhere; }
 
 /* Catálogo */
 .catalogo { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: var(--esp-8); align-items: start; }
