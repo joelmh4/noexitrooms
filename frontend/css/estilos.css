@@ -390,7 +390,6 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 .acceso-marca svg { color: var(--color-neon); width: 56px; height: 56px; }
 .acceso-formulario { display: flex; align-items: center; justify-content: center; padding: var(--esp-12) var(--esp-6); }
 .acceso-formulario .formulario { width: 100%; max-width: 440px; }
-.demo-rapida { border-top: 1px dashed var(--borde); padding-top: var(--esp-4); display: flex; flex-direction: column; gap: var(--esp-2); }
 
 /* Detalle de ticket */
 .detalle { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--esp-6); align-items: start; }

@@ -42,7 +42,7 @@ iniciar(async () => {
     limpiarErrores(form);
     document.getElementById("titulo-dialogo").textContent = sala ? "Editar sala" : "Nueva sala";
     if (sala) {
-      for (const campo of ["name", "theme", "difficulty", "duration_min", "min_players", "max_players", "price_per_person", "min_age", "tagline", "description"]) {
+      for (const campo of ["name", "theme", "difficulty", "duration_min", "min_players", "max_players", "price_per_person", "min_age", "tagline", "challenges", "description"]) {
         form.elements[campo].value = sala[campo] ?? "";
       }
       form.elements.is_active.checked = sala.is_active;
@@ -90,6 +90,7 @@ iniciar(async () => {
       min_age: Number(f.min_age.value || 0),
       tagline: f.tagline.value.trim(),
       description: f.description.value.trim(),
+      challenges: f.challenges.value.trim(),
       is_active: f.is_active.checked
     };
     // Las mismas reglas que los CHECK de la tabla rooms

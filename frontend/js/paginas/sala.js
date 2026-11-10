@@ -12,6 +12,8 @@ iniciar(async () => {
   const esParodia = sala.description.includes("caricaturizados");
   const fotos = fotosGaleria(sala);
 
+  // Las pruebas llegan en un solo texto, una por línea
+  const pruebas = (sala.challenges || "").split("\n").map(p => p.trim()).filter(Boolean);
   document.getElementById("ficha").innerHTML = `
     <nav class="migas" aria-label="Migas de pan"><a href="salas.html">Salas</a> / ${esc(sala.name)}</nav>
     <div class="ficha-cabecera ${claseFondo(sala.theme)}"><img class="foto-sala" src="${esc(fotoSala(sala))}" alt="" ${QUITAR_SI_FALTA}><span class="tema-tag">${esc(sala.theme)}</span></div>
@@ -21,9 +23,9 @@ iniciar(async () => {
         <p class="lema">${esc(sala.tagline)}</p>
         <p>${esc(sala.description)}</p>
         <div id="ambiente"></div>
-        ${sala.pruebas?.length ? `
+        ${pruebas.length ? `
           <h2 style="font-size:1.3rem;margin-top:16px">Lo que os espera</h2>
-          <ul class="lista-pruebas">${sala.pruebas.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+          <ul class="lista-pruebas">${pruebas.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
         <div class="galeria-sala" id="galeria">
           ${fotos.map((src, i) => `
             <button type="button" class="galeria-foto" data-foto="${i}" aria-label="Ver la foto ${i + 1} a pantalla completa">

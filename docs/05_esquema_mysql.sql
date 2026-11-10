@@ -51,6 +51,7 @@ CREATE TABLE rooms (
   description      TEXT NOT NULL,
   tagline          VARCHAR(150) NULL,
   min_age          TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  challenges       TEXT NULL,          -- pruebas de la sala, una por línea
   image_url        VARCHAR(255) NULL,
   is_active        BOOLEAN NOT NULL DEFAULT TRUE,
   created_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -178,6 +179,14 @@ INSERT INTO rooms (id, name, slug, theme, difficulty, duration_min, min_players,
 
 -- Foto principal de cada sala (ruta relativa a la web; la galería sale del slug: galeria-1..3.webp)
 UPDATE rooms SET image_url = CONCAT('img/salas/', slug, '/principal.webp');
+
+-- Pruebas de cada sala (se enseñan en la ficha, una por línea)
+UPDATE rooms SET challenges = 'Conseguir el turno de palabra en una asamblea sin fin\nMontar la tienda de campaña con las instrucciones de otra tienda\nReunir los votos de todas las comisiones' WHERE slug = 'la-acampada-de-sol';
+UPDATE rooms SET challenges = 'Encontrar la caja buena entre cientos de cajas iguales\nCuadrar las facturas de la oficina de los archivadores\nDescifrar la agenda de llamadas antes de que suene el timbre' WHERE slug = 'el-almacen-de-las-mascarillas';
+UPDATE rooms SET challenges = 'Ordenar las tarjetas perforadas del programa del hermano Tomás\nEncontrar el punto que falta en la PROCEDURE DIVISION\nCompilar el programa SALIR antes de que se apague la luz' WHERE slug = 'el-manicomio-de-san-tomas';
+UPDATE rooms SET challenges = 'Encontrar a Ábalos, a Koldo y a Santos Cerdán por el palacio\nSuperar la prueba de la cátedra\nTocar la partitura del hermano músico' WHERE slug = 'el-despertar-del-perro';
+UPDATE rooms SET challenges = 'Recuperar el repositorio de una memoria USB cifrada\nDesplegar la web sin un solo localhost\nDocumentar la API con Swagger antes de la entrega' WHERE slug = 'operacion-david';
+UPDATE rooms SET challenges = 'Leer el cuaderno de bitácora del capitán\nAbrir el baúl con la combinación correcta\nEncontrar la llave del bote salvavidas' WHERE slug = 'el-camarote-del-capitan-eduardo-el-panzas';
 
 INSERT INTO ticket_categories (id, name) VALUES
   (1, 'Reservas y cambios de fecha'),

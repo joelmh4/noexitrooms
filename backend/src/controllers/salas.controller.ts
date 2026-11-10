@@ -53,6 +53,7 @@ function leerSala(cuerpo: Record<string, unknown> | undefined): salas.DatosSala 
     description: texto(errores, "description", b.description, { min: 20, max: 5000, nombre: "La descripción" }),
     tagline: typeof b.tagline === "string" && b.tagline.trim() ? texto(errores, "tagline", b.tagline, { max: 150, nombre: "La frase" }) : null,
     min_age: b.min_age === undefined || b.min_age === null ? 0 : entero(errores, "min_age", b.min_age, 0, 99, "Entre 0 y 99."),
+    challenges: typeof b.challenges === "string" && b.challenges.trim() ? texto(errores, "challenges", b.challenges, { max: 2000, nombre: "Las pruebas" }) : null,
     image_url: typeof b.image_url === "string" && b.image_url.trim() ? texto(errores, "image_url", b.image_url, { max: 255, nombre: "La ruta de la imagen" }) : null,
     is_active: b.is_active === undefined ? true : (b.is_active as boolean)
   };

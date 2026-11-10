@@ -38,6 +38,7 @@ export interface Sala {
   description: string;
   tagline: string | null;
   min_age: number;
+  challenges: string | null; // pruebas de la sala, una por línea
   image_url: string | null;
   is_active: boolean;
   created_at: Date;

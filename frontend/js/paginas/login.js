@@ -37,11 +37,4 @@ iniciar(async yo => {
       boton.textContent = "Entrar";
     }
   });
-
-  // Botones de acceso rápido del boceto
-  document.querySelectorAll("[data-demo]").forEach(b => b.addEventListener("click", () => {
-    form.elements.email.value = b.dataset.demo;
-    form.elements.password.value = "Demo1234!";
-    form.requestSubmit();
-  }));
 });

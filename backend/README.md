@@ -1,8 +1,8 @@
 # NoExitRooms · API (backend)
 
-API REST de NoExitRooms hecha con Node, Express y TypeScript sobre MySQL. Es la única parte que habla con la base de datos: el frontend (`../web`) solo le hace peticiones HTTP.
+API REST de NoExitRooms hecha con Node, Express y TypeScript sobre MySQL. Es la única parte que habla con la base de datos: el frontend (`../frontend`) solo le hace peticiones HTTP.
 
-Estado: funcionan `/api/health`, Swagger, el registro y login con roles (`/api/auth`, `/api/users`), los tickets (`/api/tickets`: crear, listar con filtros, responder, notas internas, estados con historial y asignación), las categorías (`/api/categories`), el CRUD de salas con buscador (`/api/rooms`) las reservas con horarios libres (`/api/rooms/:id/slots`, `/api/bookings`) y las métricas del panel (`/api/stats`). Falta el despliegue, que se añaden por semanas según el plan del enunciado (ver el documento de arquitectura).
+Rutas: `/api/health`, Swagger, registro y login con roles (`/api/auth`, `/api/users`), tickets (`/api/tickets`: crear, listar con filtros, responder, notas internas, estados con historial y asignación), categorías (`/api/categories`), CRUD de salas con buscador (`/api/rooms`), reservas con horarios libres (`/api/rooms/:id/slots`, `/api/bookings`) y métricas del panel (`/api/stats`). El despliegue en Render está explicado en [`../docs/despliegue.md`](../docs/despliegue.md).
 
 ## Requisitos
 
@@ -13,7 +13,7 @@ Estado: funcionan `/api/health`, Swagger, el registro y login con roles (`/api/a
 
 ```bash
 npm install
-cp .env.example .env      # y rellena los valores
+cp .env.example .env      # y rellena los valores (CORS_ORIGIN = dirección donde abres la web)
 npm run db:cargar         # crea las tablas y los datos de ejemplo (borra lo que hubiera)
 npm run dev               # arranca en http://localhost:3000/api con recarga automática
 ```
@@ -41,7 +41,7 @@ src/
   routes/         rutas por módulo, todas bajo /api
   controllers/    reciben la petición y responden
   services/       reglas de negocio
-  middleware/     errores (y, en el paso siguiente, autenticar y permitir)
+  middleware/     autenticar (401), permitir por rol (403), límite de intentos de login (429) y errores
   models/         tipos del dominio (Usuario, Sala, Ticket...)
   docs/           openapi.yaml
 sql/esquema.sql   tablas y datos de ejemplo

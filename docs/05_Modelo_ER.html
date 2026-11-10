@@ -93,6 +93,7 @@ erDiagram
     text description
     varchar tagline
     tinyint min_age
+    text challenges
     bool is_active
   }
   ticket_categories {
@@ -162,6 +163,7 @@ erDiagram
         <tr><td>min_players, max_players</td><td>TINYINT</td><td>CHECK: máximo ≥ mínimo</td></tr>
         <tr><td>price_per_person</td><td>DECIMAL(6,2)</td><td>Precio orientativo, sin pagos reales</td></tr>
         <tr><td>tagline, min_age</td><td>VARCHAR, TINYINT</td><td>Lema de la tarjeta y edad mínima (0 = sin mínimo)</td></tr>
+        <tr><td>challenges</td><td>TEXT</td><td>Pruebas de la sala que salen en su ficha, una por línea</td></tr>
         <tr><td>is_active</td><td>BOOLEAN</td><td>"Eliminar" desactiva si ya tiene tickets</td></tr>
       </table></div></div>
     <div class="tcard"><div class="thead"><h3>tickets</h3><span class="badge">Obligatoria</span></div>

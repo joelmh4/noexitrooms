@@ -5,7 +5,7 @@ import type { Sala } from "../models/tipos";
 
 export type DatosSala = Pick<Sala,
   "name" | "theme" | "difficulty" | "duration_min" | "min_players" | "max_players" |
-  "price_per_person" | "description" | "tagline" | "min_age" | "image_url" | "is_active">;
+  "price_per_person" | "description" | "tagline" | "min_age" | "challenges" | "image_url" | "is_active">;
 
 export interface FiltrosSalas {
   todas?: boolean;
@@ -55,10 +55,10 @@ export async function crear(d: DatosSala): Promise<Sala> {
   if (await nombreOcupado(slug, d.name)) throw ErrorApi.conflicto("Ya hay una sala con ese nombre.");
   const r = await ejecutar(
     `INSERT INTO rooms (name, slug, theme, difficulty, duration_min, min_players, max_players, price_per_person,
-                        description, tagline, min_age, image_url, is_active)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        description, tagline, min_age, challenges, image_url, is_active)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [d.name, slug, d.theme, d.difficulty, d.duration_min, d.min_players, d.max_players, d.price_per_person,
-      d.description, d.tagline, d.min_age, d.image_url ?? `img/salas/${slug}/principal.webp`, d.is_active]);
+      d.description, d.tagline, d.min_age, d.challenges, d.image_url ?? `img/salas/${slug}/principal.webp`, d.is_active]);
   return buscar(r.insertId, { soloActivas: false });
 }
 
@@ -68,10 +68,10 @@ export async function actualizar(id: number, d: DatosSala): Promise<Sala> {
   if (await nombreOcupado(slug, d.name, id)) throw ErrorApi.conflicto("Ya hay una sala con ese nombre.");
   await ejecutar(
     `UPDATE rooms SET name = ?, slug = ?, theme = ?, difficulty = ?, duration_min = ?, min_players = ?, max_players = ?,
-                      price_per_person = ?, description = ?, tagline = ?, min_age = ?, image_url = ?, is_active = ?
+                      price_per_person = ?, description = ?, tagline = ?, min_age = ?, challenges = ?, image_url = ?, is_active = ?
       WHERE id = ?`,
     [d.name, slug, d.theme, d.difficulty, d.duration_min, d.min_players, d.max_players, d.price_per_person,
-      d.description, d.tagline, d.min_age, d.image_url ?? actual.image_url, d.is_active, id]);
+      d.description, d.tagline, d.min_age, d.challenges, d.image_url ?? actual.image_url, d.is_active, id]);
   return buscar(id, { soloActivas: false });
 }
 

@@ -61,7 +61,6 @@
 /* Piloto: un punto de luz como los de un cuadro de mandos */
 .piloto { --c: var(--color-bosque); width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px rgba(0, 0, 0, .06); flex: none; display: inline-block; }
 .estado-sistema .piloto { animation: latido 2.4s ease-in-out infinite; }
-.piloto-demo { --c: #D9A800; }
 @keyframes latido { 50% { opacity: .4; } }
 
 .boton-icono {

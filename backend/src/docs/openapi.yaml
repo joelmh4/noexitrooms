@@ -71,6 +71,7 @@ components:
         description: { type: string }
         tagline: { type: string, nullable: true }
         min_age: { type: integer, example: 18 }
+        challenges: { type: string, nullable: true, description: Pruebas de la sala separadas por saltos de línea }
         image_url: { type: string, nullable: true, example: img/salas/el-manicomio-de-san-tomas/principal.webp }
         is_active: { type: boolean }
         created_at: { type: string, format: date-time }
@@ -89,6 +90,7 @@ components:
         description: { type: string, minLength: 20, maxLength: 5000 }
         tagline: { type: string, maxLength: 150, nullable: true }
         min_age: { type: integer, minimum: 0, maximum: 99, default: 0 }
+        challenges: { type: string, maxLength: 2000, nullable: true, description: Una prueba por línea }
         image_url: { type: string, nullable: true, description: "Si no se envía: img/salas/<slug>/principal.webp al crear, la que tenía al editar" }
         is_active: { type: boolean, default: true }
     Reserva:

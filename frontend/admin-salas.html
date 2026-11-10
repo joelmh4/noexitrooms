@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/panel.css">
   <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
-  <script src="js/datos-demo.js" defer></script>
   <script src="js/api.js" defer></script>
   <script src="js/ui.js" defer></script>
   <script src="js/paginas/admin-salas.js" defer></script>
@@ -40,6 +39,7 @@
         <div class="campo" style="flex:1"><label for="s-age">Edad mínima</label><input id="s-age" name="min_age" type="number" min="0" max="99" value="0"></div>
       </div>
       <div class="campo"><label for="s-description">Descripción</label><textarea id="s-description" name="description"></textarea></div>
+      <div class="campo"><label for="s-challenges">Pruebas de la sala (una por línea)</label><textarea id="s-challenges" name="challenges" rows="3" maxlength="2000"></textarea></div>
       <label class="casilla"><input type="checkbox" name="is_active" checked> Sala activa (sale en el catálogo)</label>
       <div class="fila" style="justify-content:flex-end">
         <button class="boton boton-secundario" type="button" id="cancelar-sala">Cancelar</button>

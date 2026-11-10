@@ -288,12 +288,6 @@ function piePagina() {
           <a href="contacto.html">Contacto</a>
           <a href="nuevo-ticket.html">Abrir ticket</a>
         </div>
-        ${api.modoDemo ? `
-        <div class="pila" style="gap:6px">
-          <h4>BOCETO</h4>
-          <small>Datos de ejemplo guardados en tu navegador.</small>
-          <button class="boton-enlace" id="reiniciar-demo" type="button">Reiniciar datos de demo</button>
-        </div>` : ""}
       </div>
     </footer>`;
 }
@@ -338,7 +332,7 @@ function barraPanel(yo) {
     <div class="barra-panel">
       <button class="boton-icono boton-menu-panel" type="button" aria-expanded="false" aria-controls="menu-lateral">${icono("menu")}<span class="solo-lectores">Menú</span></button>
       <p class="ruta"><span>${yo.role === "admin" ? "Admin" : "Soporte"}</span><span aria-hidden="true">/</span><b>${esc(seccion)}</b></p>
-      <p class="estado-sistema"><span class="piloto${api.modoDemo ? " piloto-demo" : ""}" aria-hidden="true"></span>${api.modoDemo ? "Modo demo" : "Conectado"}<time id="reloj-panel"></time></p>
+      <p class="estado-sistema"><span class="piloto" aria-hidden="true"></span>Conectado<time id="reloj-panel"></time></p>
     </div>`;
 }
 function horaMadrid() {
@@ -443,13 +437,6 @@ function montarPagina() {
     api.auth.cerrarSesion();
     location.href = "index.html";
   }));
-  document.getElementById("reiniciar-demo")?.addEventListener("click", async () => {
-    if (await confirmar("Reiniciar datos de demo", "Se borran los tickets, salas y cuentas que hayas creado en este navegador.", "Reiniciar", true)) {
-      api.reiniciarDemo();
-      api.auth.cerrarSesion();
-      location.href = "index.html";
-    }
-  });
 
   pintarIconos();
   return main.dataset.bloqueada ? null : (yo || "invitado");

@@ -53,7 +53,7 @@ Navegador ──► https://joelmh4.github.io/noexitrooms/  (GitHub Pages)
 
 ## 4. Conectar la web con la API
 
-En `frontend/js/api.js`, cambia `API_URL_PUBLICA` por la URL de Render terminada en `/api`. Mientras siga siendo la de ejemplo (`.example`), la web funciona en modo demo con datos del navegador.
+En `frontend/js/api.js`, `API_URL_PUBLICA` ya apunta a `https://noexitrooms-api.onrender.com/api`, que es la URL que Render da al servicio `noexitrooms-api`. Si Render os da otra (por ejemplo, porque el nombre ya estaba cogido), cambiadla ahí. La web siempre usa la API real: no hay datos de ejemplo en el navegador. Abierta en `localhost` usa el backend local (`http://localhost:3000/api`).
 
 ## 5. Comprobación final
 

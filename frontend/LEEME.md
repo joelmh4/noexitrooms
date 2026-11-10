@@ -1,11 +1,11 @@
-# NoExitRooms · Boceto del frontend
+# NoExitRooms · Frontend
 
-Primer boceto de la web en **HTML, CSS y JavaScript** (sin frameworks). Tiene las 20 páginas del mapa y funciona con datos de ejemplo guardados en el navegador.
+Web en **HTML, CSS y JavaScript** (sin frameworks). Tiene las 20 páginas del mapa y todos los datos los pide a la API del backend.
 
 ## Cómo abrirlo
-- Doble clic en `index.html`, o mejor con la extensión **Live Server** de VS Code (clic derecho en `index.html` → *Open with Live Server*).
-- Cuentas de prueba (contraseña `Demo1234!`): `lucia@ejemplo.test` (cliente), `marta@noexitrooms.test` (agente), `admin@noexitrooms.test` (administrador). En el login hay botones de acceso rápido.
-- En el pie, "Reiniciar datos de demo" deja los datos como al principio.
+- Publicada: https://joelmh4.github.io/noexitrooms/ (usa la API de Render).
+- En local: arranca el backend (`npm run dev` en `backend/`) y abre `index.html` con la extensión **Live Server** de VS Code. Abierta en `localhost` o `127.0.0.1`, la web usa la API local `http://localhost:3000/api`.
+- Cuentas de prueba (contraseña `Demo1234!`): `lucia@ejemplo.test` (cliente), `marta@noexitrooms.test` (agente), `admin@noexitrooms.test` (administrador).
 
 ## Estructura
 ```
@@ -16,7 +16,6 @@ css/sala.css           Ficha de sala: panel de ambientación, galería, visor de
 css/equipo.css         Sobre nosotros: fichas del equipo
 js/ambiente.js         Texto de ambientación de cada sala (terminal, consola…)
 js/inicio-escenas.js   Medidor "¿Cuánto aguantáis?" de la portada (recomienda sala según la dificultad)
-js/datos-demo.js       Datos de ejemplo (los mismos que el script SQL)
 js/api.js              Capa de datos: todas las páginas piden los datos aquí
 js/ui.js               Utilidades: escapar texto, chips de estado, cabecera, pie, menús y protección por rol
 js/paginas/*.js        Un archivo por página
@@ -26,11 +25,11 @@ img/                   Logo
 Cada HTML indica su zona y rol en `<body data-zona="..." data-pagina="..." data-rol="...">` y `ui.js` pinta la cabecera, el pie o el menú lateral.
 
 ## Conexión con el backend
-`js/api.js` tiene dos versiones con las mismas funciones: `apiReal` (hace `fetch()` a la API con el token en `Authorization: Bearer ...`) y `apiDemo` (datos de ejemplo en el navegador). Las páginas usan `api` y no saben cuál hay detrás.
+`js/api.js` hace `fetch()` a la API con el token en `Authorization: Bearer ...` y convierte los errores del backend (400, 401, 403, 404, 409, 429) en mensajes para la página. Las páginas solo usan `api` y nunca tocan la base de datos.
 
-- Mientras `API_URL_PUBLICA` sea la de ejemplo (`.example`), la web funciona en modo demo. Al desplegar el backend, se pone ahí su URL (nunca localhost) y ya usa la API real.
-- Para probar con el backend en tu ordenador: arranca la API (`npm run dev` en `backend/`, con `CORS_ORIGIN` igual a la dirección de la web) y abre cualquier página con `?api=http://localhost:3000/api`. El navegador lo recuerda. Con `?api=publica` vuelve a la URL normal y con `?api=demo` fuerza los datos de ejemplo.
-- Con la API real, el pie no muestra "Reiniciar datos de demo". Las "pruebas" de cada sala solo existen en los datos de ejemplo (la tabla `rooms` no las tiene), así que con la API real no salen en la ficha.
+- `API_URL_PUBLICA` es la URL de Render. Si la web se abre en `localhost` o con doble clic, usa `API_URL_LOCAL` (`http://localhost:3000/api`).
+- Para probar contra otra API, abre cualquier página con `?api=<url>`; el navegador lo recuerda. Con `?api=publica` vuelve a la normal.
+- En el navegador solo se guarda la sesión (token y datos del usuario). Al recibir un 401, la sesión se borra y la página manda al login.
 
 **Importante:** las comprobaciones de rol que hace el navegador son solo para que la web se vea bien. La seguridad de verdad la hace el backend (401/403/404).
 

@@ -11,6 +11,7 @@ const salaDePrueba = (extra: Record<string, unknown> = {}) => ({
   name: `Sala de prueba ${Date.now()} ${Math.floor(Math.random() * 1e4)}`,
   theme: "Misterio", difficulty: 3, duration_min: 60, min_players: 2, max_players: 6,
   price_per_person: 19.5, description: "Una sala creada por las pruebas automáticas de la API.", tagline: "Solo para pruebas",
+  challenges: "Abrir el primer candado\nSalir antes de una hora",
   ...extra
 });
 
@@ -40,6 +41,7 @@ test("07 · el admin crea, edita y borra una sala, y los cambios persisten", asy
   const leida = await pedir(`/rooms/${creada.datos.slug}`);
   assert.equal(leida.status, 200);
   assert.equal(leida.datos.name, datos.name);
+  assert.equal(leida.datos.challenges, "Abrir el primer candado\nSalir antes de una hora", "las pruebas se guardan una por línea");
 
   const editada = await pedir(`/rooms/${creada.datos.id}`, { metodo: "PUT", token: admin, cuerpo: { ...datos, difficulty: 5, price_per_person: 25 } });
   assert.equal(editada.status, 200);
