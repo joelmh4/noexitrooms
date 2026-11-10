@@ -1,4 +1,4 @@
-# Publica la carpeta frontend/ en GitHub Pages cada vez que cambia en main.
+# Compila la web de React (frontend/) con Vite y la publica en GitHub Pages cada vez que cambia en main.
 # Antes hay que activarlo una vez: Settings > Pages > Source: GitHub Actions.
 name: Publicar la web
 
@@ -23,11 +23,24 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.despliegue.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      # GitHub Pages no conoce las rutas de React Router (/salas, /admin…): con un 404.html igual
+      # que index.html, cualquier ruta carga la aplicación y React Router pinta la página correcta.
+      - run: cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend
+          path: frontend/dist
       - id: despliegue
         uses: actions/deploy-pages@v4

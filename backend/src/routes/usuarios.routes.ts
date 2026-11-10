@@ -12,5 +12,5 @@ rutasUsuarios.get("/me", c.yo);
 rutasUsuarios.put("/me", c.actualizarYo);
 rutasUsuarios.put("/me/password", c.cambiarMiPassword);
 
-rutasUsuarios.get("/", permitir("admin", "agente"), c.listar);
+rutasUsuarios.get("/", permitir("admin"), c.listar);
 rutasUsuarios.patch("/:id", permitir("admin"), c.actualizar);

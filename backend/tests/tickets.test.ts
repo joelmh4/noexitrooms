@@ -97,15 +97,18 @@ test("si el cliente contesta a un ticket pendiente, vuelve solo a En curso", asy
   assert.equal(r.datos.status, "en_curso");
 });
 
-test("el agente: no puede cerrar, no toca tickets de otro agente y solo se queda tickets libres", async () => {
+test("el agente: solo ve sus tickets, no asigna, no puede cerrar y no toca tickets de otro agente", async () => {
   const t = await abrirTicket();
-  const libre = await pedir(`/tickets/${t.id}`, { token: sergio });
-  assert.equal(libre.status, 200, "ve los tickets sin asignar");
+  assert.equal((await pedir(`/tickets/${t.id}`, { token: sergio })).status, 404, "no ve los tickets sin asignar");
+  assert.ok(!((await pedir("/tickets", { token: sergio })).datos as { id: number }[]).some(x => x.id === t.id));
   const responderSinAsignar = await pedir(`/tickets/${t.id}/messages`, { metodo: "POST", token: sergio, cuerpo: { body: "hola" } });
-  assert.equal(responderSinAsignar.status, 403, "primero tiene que asignárselo");
+  assert.equal(responderSinAsignar.status, 404);
 
+  // Asignar es solo del admin, también a uno mismo
+  assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: sergio, cuerpo: { agent_id: 3 } })).status, 403);
+  assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: admin, cuerpo: { agent_id: 3 } })).status, 200);
+  assert.equal((await pedir(`/tickets/${t.id}`, { token: sergio })).status, 200, "ya lo ve: es suyo");
   assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: sergio, cuerpo: { agent_id: MARTA } })).status, 403);
-  assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: sergio, cuerpo: { agent_id: 3 } })).status, 200);
 
   assert.equal((await pedir(`/tickets/${t.id}`, { token: marta })).status, 404, "Marta ya no lo ve: lo lleva Sergio");
   assert.equal((await pedir(`/tickets/${t.id}/status`, { metodo: "PATCH", token: sergio, cuerpo: { status: "cerrado" } })).status, 403);
