@@ -6,7 +6,7 @@ El enunciado pide que la entrega funcione en internet, sin `localhost`, y con la
 | --- | --- | --- |
 | Base de datos MySQL | Aiven for MySQL, plan gratuito | 0 € |
 | API (Node + Express) | Render, servicio web gratuito (`render.yaml`) | 0 € |
-| Web (HTML, CSS y JS) | GitHub Pages (`.github/workflows/web.yml`) | 0 € |
+| Web (React + Vite) | GitHub Pages (`.github/workflows/web.yml`) | 0 € |
 
 ```
 Navegador ──► https://joelmh4.github.io/noexitrooms/  (GitHub Pages)
@@ -48,12 +48,12 @@ Navegador ──► https://joelmh4.github.io/noexitrooms/  (GitHub Pages)
 ## 3. Web en GitHub Pages
 
 1. En GitHub, *Settings > Pages > Build and deployment > Source*: **GitHub Actions**.
-2. En la pestaña *Actions*, lanza **Publicar la web** (o haz cualquier cambio en `frontend/`). Después se publica sola con cada cambio en `main`.
+2. En la pestaña *Actions*, lanza **Publicar la web** (o haz cualquier cambio en `frontend/`). Después se publica sola con cada cambio en `main`: el flujo instala las dependencias, compila con `npm run build` y sube la carpeta `frontend/dist`. También copia `index.html` como `404.html` para que las rutas de React Router (`/salas`, `/admin`…) funcionen al recargar la página.
 3. La web queda en `https://joelmh4.github.io/noexitrooms/`.
 
 ## 4. Conectar la web con la API
 
-En `frontend/js/api.js`, `API_URL_PUBLICA` ya apunta a `https://noexitrooms-api.onrender.com/api`, que es la URL que Render da al servicio `noexitrooms-api`. Si Render os da otra (por ejemplo, porque el nombre ya estaba cogido), cambiadla ahí. La web siempre usa la API real: no hay datos de ejemplo en el navegador. Abierta en `localhost` usa el backend local (`http://localhost:3000/api`).
+En `frontend/src/api/api.js`, `API_URL_PUBLICA` ya apunta a `https://noexitrooms-api.onrender.com/api`, que es la URL que Render da al servicio `noexitrooms-api`. Si Render os da otra (por ejemplo, porque el nombre ya estaba cogido), cambiadla ahí. La web siempre usa la API real: no hay datos de ejemplo en el navegador. Abierta en `localhost` usa el backend local (`http://localhost:3000/api`).
 
 ## 5. Comprobación final
 

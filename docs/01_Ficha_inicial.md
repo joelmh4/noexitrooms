@@ -50,13 +50,13 @@ Roles: el **cliente** abre tickets y responde a los suyos; el **agente** es el g
 
 ## Tecnologías previstas
 
-- **Frontend:** HTML, CSS y JavaScript sin frameworks (el enunciado lo permite en el apartado 05). Varias páginas HTML que piden los datos a la API con `fetch` y async/await desde un único archivo (`js/api.js`). Maquetación con CSS propio, Flexbox y Grid, adaptable a móvil. Publicado en GitHub Pages.
+- **Frontend (material de clase):** React + Vite, React Router para la navegación y peticiones a la API con `fetch` y async/await desde un único archivo (`src/api/api.js`). Sesión en un contexto de React (`AuthContext`) y rutas protegidas por rol, como en la guía de clase. Maquetación con CSS propio, Flexbox y Grid, adaptable a móvil. Publicado en GitHub Pages.
 - **Diseño (Diseño de Interfaces):** wireframes, sitemap y mockups en Figma, con paleta de color, tipografía e iconografía definidas.
 - **Backend:** Node.js + Express + TypeScript, autenticación con JWT, contraseñas con bcrypt, validación de datos y documentación con Swagger (swagger-ui-express). Desplegado en Render.
 - **Base de datos:** MySQL alojado en Aiven, con script SQL de creación, claves primarias y foráneas, y datos semilla. Desde Express se accede con consultas parametrizadas (mysql2).
 - **Control de versiones:** Git y GitHub, con carpetas `frontend/` y `backend/` separadas y secretos en variables de entorno.
 
-*Nota: en clase se ha visto React + Vite, pero para la web hemos preferido HTML, CSS y JavaScript sin framework, que el enunciado admite y que podemos explicar línea a línea en la defensa. El backend de los ejemplos de clase es json-server, que sirve para practicar pero no cumple el enunciado (hace falta una base de datos relacional real, contraseñas con hash y permisos en el servidor). Por eso usamos Express + MySQL, con el mismo Node.js y TypeScript vistos en el Tema 3.*
+*Nota: el material de clase cubre el frontend (React + Vite) y el diseño (Figma, CSS). El backend de los ejemplos de clase es json-server, que sirve para practicar pero no cumple el enunciado (hace falta una base de datos relacional real, contraseñas con hash y permisos en el servidor). Por eso usamos Express + MySQL, con el mismo Node.js y TypeScript vistos en el Tema 3.*
 
 ## Reparto de responsabilidades
 

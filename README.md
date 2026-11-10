@@ -38,7 +38,7 @@ Los tickets siguen el ciclo Abierto → En curso → Pendiente del cliente → R
 ## Arquitectura
 
 ```
-Navegador ──► Web (HTML, CSS y JS) ──fetch + JWT──► API REST (Node, Express, TypeScript) ──► MySQL
+Navegador ──► Web (React + Vite) ──fetch + JWT──► API REST (Node, Express, TypeScript) ──► MySQL
               GitHub Pages                          Render                                    Aiven
 ```
 
@@ -46,7 +46,7 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 
 | Carpeta | Qué hay |
 | --- | --- |
-| [`frontend/`](frontend) | Web en HTML, CSS y JavaScript sin frameworks. Todas las páginas piden los datos a la API desde `js/api.js`. |
+| [`frontend/`](frontend) | Web en React con Vite y React Router. Todas las páginas piden los datos a la API desde `src/api/api.js`. |
 | [`backend/`](backend) | API REST con rutas, controladores, servicios y middleware, documentación Swagger y 40 pruebas automáticas. |
 | [`docs/`](docs) | Ficha inicial, mapa de páginas, guía de estilo, wireframes, modelo entidad-relación, script SQL, permisos, casos de prueba, capturas y guía de despliegue. |
 
@@ -54,7 +54,6 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 
 - Node 20 o posterior
 - MySQL 8 o MariaDB 10.11
-- Un navegador y cualquier servidor estático (por ejemplo, la extensión Live Server de VS Code)
 
 ## Instalación en local
 
@@ -64,12 +63,20 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
    ```bash
    cd backend
    npm install
-   cp .env.example .env     # rellena DB_*, JWT_SECRET y CORS_ORIGIN (la dirección donde abres la web, p. ej. http://127.0.0.1:5500)
+   cp .env.example .env     # rellena DB_*, JWT_SECRET y CORS_ORIGIN (la dirección de la web en local: http://localhost:5173)
    npm run db:cargar        # crea las tablas y carga los datos de ejemplo
    npm run dev              # API en http://localhost:3000/api
    ```
 
-3. Abre `frontend/index.html` con Live Server (o `python -m http.server 5500` dentro de `frontend/`). Cuando la web se abre en `localhost` o `127.0.0.1`, usa sola la API local; publicada, usa la de Render.
+3. En otra terminal, arranca la web:
+
+   ```bash
+   cd frontend
+   npm install
+   npm run dev              # web en http://localhost:5173
+   ```
+
+   En `localhost` la web usa sola la API local; publicada, usa la de Render. Para usar otra API, copia `frontend/.env.example` como `.env` y cambia `VITE_API_URL`.
 
 ## Comandos del backend
 
