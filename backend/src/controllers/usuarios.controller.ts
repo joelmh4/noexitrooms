@@ -29,14 +29,13 @@ export const cambiarMiPassword: RequestHandler = async (req, res) => {
   res.status(204).end();
 };
 
-// GET /users?role=&q=  · el admin ve a todos; el agente solo puede pedir la lista de agentes (para asignarse tickets)
+// GET /users?role=&q=  · solo admin
 export const listar: RequestHandler = async (req, res) => {
   const errores: Errores = {};
   const role = req.query.role ? unoDe(errores, "role", req.query.role, ROLES) : undefined;
   const q = typeof req.query.q === "string" ? req.query.q.trim().slice(0, 100) : undefined;
   comprobar(errores);
-  if (req.usuario!.role === "agente" && role !== "agente") throw ErrorApi.prohibido("Solo puedes consultar la lista de agentes.");
-  res.json(await usuarios.listar({ role, q, soloActivos: req.usuario!.role === "agente" }));
+  res.json(await usuarios.listar({ role, q }));
 };
 
 // PATCH /users/:id { role?, is_active? } · solo admin

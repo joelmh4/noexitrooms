@@ -54,12 +54,10 @@ test("06 · un cliente no puede entrar en la gestión de usuarios → 403 del se
   assert.equal((await pedir("/users/5", { metodo: "PATCH", token, cuerpo: { role: "admin" } })).status, 403);
 });
 
-test("el agente solo puede ver la lista de agentes", async () => {
+test("el agente no puede ver la lista de usuarios", async () => {
   const token = await entrar("marta@noexitrooms.test");
-  const agentes = await pedir("/users?role=agente", { token });
-  assert.equal(agentes.status, 200);
-  assert.ok(agentes.datos.every((u: { role: string }) => u.role === "agente"));
   assert.equal((await pedir("/users", { token })).status, 403);
+  assert.equal((await pedir("/users?role=agente", { token })).status, 403);
 });
 
 test("el admin lista y filtra usuarios", async () => {
@@ -79,7 +77,7 @@ test("el admin cambia el rol de un usuario, y el cambio manda aunque el token se
   assert.equal(r.status, 200);
   assert.equal(r.datos.role, "agente");
   // Con su token antiguo (que decía cliente) ya actúa como agente
-  assert.equal((await pedir("/users?role=agente", { token: nuevo.datos.token })).status, 200);
+  assert.equal((await pedir("/stats", { token: nuevo.datos.token })).status, 200);
   // Si se le desactiva, su token deja de servir
   await pedir(`/users/${nuevo.datos.usuario.id}`, { metodo: "PATCH", token: admin, cuerpo: { is_active: false } });
   assert.equal((await pedir("/users/me", { token: nuevo.datos.token })).status, 403);

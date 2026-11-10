@@ -16,7 +16,7 @@ function contar<K extends string>(claves: readonly K[], filas: { clave: K; n: nu
 const ACTIVO = "t.status NOT IN ('resuelto', 'cerrado')";
 
 export async function resumen(yo: UsuarioPublico) {
-  // El agente solo cuenta sus tickets; los libres se cuentan aparte
+  // El agente solo cuenta sus tickets
   const deQuien = yo.role === "agente" ? "t.agent_id = ?" : "TRUE";
   const v = yo.role === "agente" ? [yo.id] : [];
 
@@ -56,7 +56,11 @@ export async function resumen(yo: UsuarioPublico) {
       creados_ultimos_7_dias: ultimos.map(d => ({ dia: d.dia, n: Number(d.n) }))
     }
   };
-  if (yo.role === "agente") return base;
+  if (yo.role === "agente") {
+    // Los tickets sin asignar no son cosa del agente: los reparte el admin
+    const { sin_asignar: _, ...suyos } = base.tickets;
+    return { tickets: suyos };
+  }
 
   // Solo admin: carga y rendimiento de cada agente, y reservas
   const [agentes, [reservas]] = await Promise.all([

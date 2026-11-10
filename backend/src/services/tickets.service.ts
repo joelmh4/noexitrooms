@@ -2,8 +2,7 @@
 //
 // Reglas (enunciado, apartado 03 y matriz de autorización):
 // - Cliente: ve y responde solo sus tickets. Puede cerrar uno "resuelto" o pedir que se reabra.
-// - Agente: ve los que tiene asignados y los que están sin asignar (para poder quedárselos).
-//   Solo puede responder, cambiar estado o prioridad en los suyos. No puede cerrar.
+// - Agente: solo ve, responde y cambia estado o prioridad en los que tiene asignados. No puede cerrar.
 // - Admin: ve todos, asigna o reasigna, y puede hacer cualquier cambio de estado.
 // Si un ticket no se puede ver, se responde 404 (no 403): así nadie averigua si existe.
 import type { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
@@ -78,7 +77,7 @@ function completar(f: Fila): TicketCompleto {
 // Condición SQL de "lo que este usuario puede ver"
 function visibilidad(yo: UsuarioPublico): { sql: string; valores: number[] } {
   if (yo.role === "cliente") return { sql: "t.customer_id = ?", valores: [yo.id] };
-  if (yo.role === "agente") return { sql: "(t.agent_id = ? OR t.agent_id IS NULL)", valores: [yo.id] };
+  if (yo.role === "agente") return { sql: "t.agent_id = ?", valores: [yo.id] };
   return { sql: "TRUE", valores: [] };
 }
 
@@ -118,11 +117,9 @@ async function visible(yo: UsuarioPublico, id: number, con?: PoolConnection): Pr
   return completar(filas[0]);
 }
 
-// Para escribir, el agente tiene que llevar el ticket (verlo sin asignar no basta)
+// Segunda comprobación: el agente solo trabaja en los tickets que tiene asignados
 function exigirQueLoLleve(yo: UsuarioPublico, t: Ticket): void {
-  if (yo.role === "agente" && t.agent_id !== yo.id) {
-    throw ErrorApi.prohibido(t.agent_id ? "Este ticket lo lleva otro agente." : "Asígnate el ticket antes de trabajar en él.");
-  }
+  if (yo.role === "agente" && t.agent_id !== yo.id) throw ErrorApi.prohibido("Este ticket no está asignado a ti.");
 }
 
 export async function detalle(yo: UsuarioPublico, id: number): Promise<TicketDetalle> {
@@ -261,13 +258,10 @@ export async function actualizar(yo: UsuarioPublico, id: number, cambios: { prio
   return detalle(yo, id);
 }
 
-// Admin: asigna, reasigna o deja sin asignar (null). Agente: solo puede quedarse uno libre.
+// Solo el admin (lo comprueba la ruta): asigna, reasigna o deja sin asignar (null)
 export async function asignar(yo: UsuarioPublico, id: number, agenteId: number | null): Promise<TicketDetalle> {
   await enTransaccion(async con => {
-    const t = await visible(yo, id, con);
-    if (yo.role === "agente" && (agenteId !== yo.id || t.agent_id !== null)) {
-      throw ErrorApi.prohibido("Solo puedes quedarte tickets que estén sin asignar.");
-    }
+    await visible(yo, id, con);
     if (agenteId !== null) {
       const [filas] = await con.execute<RowDataPacket[]>(
         "SELECT id FROM users WHERE id = ? AND role = 'agente' AND is_active = TRUE", [agenteId]);
