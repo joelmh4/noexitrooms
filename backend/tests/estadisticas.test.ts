@@ -26,6 +26,7 @@ test("el agente solo ve sus métricas, sin las del resto del equipo", async () =
   assert.equal(stats.datos.tickets.total, suyos);
   assert.equal(stats.datos.agentes, undefined);
   assert.equal(stats.datos.reservas, undefined);
+  assert.equal(stats.datos.tickets.sin_asignar, undefined);
 });
 
 test("el cliente no tiene métricas → 403", async () => {

@@ -19,7 +19,7 @@ tags:
     description: Gestión de usuarios y roles (administrador)
   - name: Tickets
     description: |
-      Soporte. Cliente: solo sus tickets. Agente: los suyos y los libres (solo trabaja en los suyos).
+      Soporte. Cliente: solo sus tickets. Agente: solo los que tiene asignados.
       Admin: todos. Un ticket que no puedes ver responde 404, aunque exista.
   - name: Categorías
     description: Tipos de ticket (lectura pública, gestión del administrador)
@@ -327,8 +327,7 @@ paths:
       tags: [Usuarios]
       summary: Listar usuarios
       description: |
-        Admin: todos, con filtros. Agente: solo `?role=agente` (para ver a quién se puede asignar un ticket);
-        cualquier otra consulta le devuelve 403. Cliente: 403.
+        Solo admin, con filtros. Cliente y agente: 403.
       security: [{ token: [] }]
       parameters:
         - { name: role, in: query, schema: { $ref: "#/components/schemas/Rol" }, description: Filtrar por rol }
@@ -496,7 +495,7 @@ paths:
     patch:
       tags: [Tickets]
       summary: Asignar o reasignar el ticket
-      description: Admin a cualquier agente activo (o `null` para dejarlo libre). Un agente solo puede asignarse un ticket libre.
+      description: Solo admin. Asigna el ticket a cualquier agente activo (o `null` para dejarlo sin asignar). Cliente y agente, 403.
       security: [{ token: [] }]
       requestBody:
         required: true
@@ -746,7 +745,7 @@ paths:
       tags: [Panel]
       summary: Métricas del panel
       description: |
-        Agente: las de sus tickets (más el número de tickets sin asignar). Admin: las de todo el equipo,
+        Agente: solo las de sus tickets. Admin: las de todo el equipo, los tickets sin asignar,
         con la carga de cada agente y las reservas. Cliente: 403.
         `activos` son los tickets abiertos, en curso o pendientes del cliente.
       security: [{ token: [] }]
@@ -779,7 +778,7 @@ paths:
                         items: { type: object, properties: { id: { type: integer }, name: { type: string }, n: { type: integer } } }
                       sin_asignar:
                         type: object
-                        description: Tickets sin agente que no están cerrados (de todo el equipo)
+                        description: Solo admin. Tickets sin agente que no están cerrados
                         properties: { total: { type: integer }, alta: { type: integer } }
                       horas_medias_hasta_resolver: { type: number, nullable: true, example: 2.2, description: Desde que se abre hasta el primer «resuelto» }
                       creados_ultimos_7_dias:

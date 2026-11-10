@@ -47,12 +47,11 @@ export async function cambiarPassword(id: number, actual: string, nueva: string)
   await ejecutar("UPDATE users SET password_hash = ? WHERE id = ?", [await bcrypt.hash(nueva, COSTE_BCRYPT), id]);
 }
 
-export async function listar(filtros: { role?: Rol; q?: string; soloActivos?: boolean }): Promise<UsuarioPublico[]> {
+export async function listar(filtros: { role?: Rol; q?: string }): Promise<UsuarioPublico[]> {
   const condiciones: string[] = [];
   const valores: (string | number)[] = [];
   if (filtros.role) { condiciones.push("role = ?"); valores.push(filtros.role); }
   if (filtros.q) { condiciones.push("(name LIKE ? OR email LIKE ?)"); valores.push(`%${filtros.q}%`, `%${filtros.q}%`); }
-  if (filtros.soloActivos) condiciones.push("is_active = TRUE");
   const donde = condiciones.length ? `WHERE ${condiciones.join(" AND ")}` : "";
   const filas = await consultar<UsuarioPublico>(`SELECT ${COLUMNAS} FROM users ${donde} ORDER BY role, name`, valores);
   return filas.map(normalizar);

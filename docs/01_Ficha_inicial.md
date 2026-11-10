@@ -50,13 +50,13 @@ Roles: el **cliente** abre tickets y responde a los suyos; el **agente** es el g
 
 ## Tecnologías previstas
 
-- **Frontend (material de clase):** React + Vite con TypeScript (Tema 3), React Router para la navegación y peticiones a la API con `fetch` y async/await. Maquetación con CSS propio, Flexbox y Grid, adaptable a móvil. Desplegado en Vercel o Netlify.
+- **Frontend:** HTML, CSS y JavaScript sin frameworks (el enunciado lo permite en el apartado 05). Varias páginas HTML que piden los datos a la API con `fetch` y async/await desde un único archivo (`js/api.js`). Maquetación con CSS propio, Flexbox y Grid, adaptable a móvil. Publicado en GitHub Pages.
 - **Diseño (Diseño de Interfaces):** wireframes, sitemap y mockups en Figma, con paleta de color, tipografía e iconografía definidas.
-- **Backend:** Node.js + Express + TypeScript, autenticación con JWT, contraseñas con bcrypt, validación de datos y documentación con Swagger (swagger-ui-express). Desplegado en Render o Railway.
-- **Base de datos:** MySQL alojado en un servicio remoto (por ejemplo Railway o Aiven), con script SQL de creación, claves primarias y foráneas, y datos semilla. Desde Express se accede con consultas parametrizadas (mysql2) o con un ORM como Prisma.
+- **Backend:** Node.js + Express + TypeScript, autenticación con JWT, contraseñas con bcrypt, validación de datos y documentación con Swagger (swagger-ui-express). Desplegado en Render.
+- **Base de datos:** MySQL alojado en Aiven, con script SQL de creación, claves primarias y foráneas, y datos semilla. Desde Express se accede con consultas parametrizadas (mysql2).
 - **Control de versiones:** Git y GitHub, con carpetas `frontend/` y `backend/` separadas y secretos en variables de entorno.
 
-*Nota: el material de la biblioteca solo cubre el frontend (React, Vite, TypeScript, fetch) y el diseño (Figma, CSS). El backend de los ejemplos de clase es json-server, que sirve para practicar pero no cumple el enunciado (hace falta una base de datos relacional real, contraseñas con hash y permisos en el servidor). Por eso se propone Express + MySQL, que usa el mismo Node.js y TypeScript vistos en clase. Si el docente indica otro backend, se cambia aquí.*
+*Nota: en clase se ha visto React + Vite, pero para la web hemos preferido HTML, CSS y JavaScript sin framework, que el enunciado admite y que podemos explicar línea a línea en la defensa. El backend de los ejemplos de clase es json-server, que sirve para practicar pero no cumple el enunciado (hace falta una base de datos relacional real, contraseñas con hash y permisos en el servidor). Por eso usamos Express + MySQL, con el mismo Node.js y TypeScript vistos en el Tema 3.*
 
 ## Reparto de responsabilidades
 
