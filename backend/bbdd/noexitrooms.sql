@@ -1,11 +1,26 @@
 -- =====================================================================
--- NoExitRooms · Esquema de base de datos (MySQL 8)
--- Proyecto trimestral DAW · Joel, Edu e Iván · v1 27/10/2026
+-- NoExitRooms · Base de datos (MySQL 8 / MariaDB)
+-- Proyecto trimestral DAW · Joel, Edu e Iván
 --
--- Orden: borrar tablas, crear tablas, insertar datos de ejemplo.
+-- Este archivo lo hace todo: crea la base de datos "noexitrooms" y su
+-- usuario, las 7 tablas (con claves primarias, foráneas, UNIQUE y CHECK)
+-- y los datos de ejemplo. Se ejecuta entero en MySQL Workbench (rayo) o
+-- en phpMyAdmin (pestaña SQL > Continuar). Si ya existía, la borra y la
+-- vuelve a crear: sirve también para dejarlo todo como al principio.
+--
 -- Contraseña de TODOS los usuarios de prueba: Demo1234!
 -- (guardada con bcrypt, coste 10; nunca en texto plano)
 -- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- Base de datos y usuario de la API (los mismos valores que .env.example)
+-- ---------------------------------------------------------------------
+DROP DATABASE IF EXISTS noexitrooms;
+CREATE DATABASE noexitrooms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'noexitrooms'@'localhost' IDENTIFIED BY 'cambia-esto';
+GRANT ALL PRIVILEGES ON noexitrooms.* TO 'noexitrooms'@'localhost';
+FLUSH PRIVILEGES;
+USE noexitrooms;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;

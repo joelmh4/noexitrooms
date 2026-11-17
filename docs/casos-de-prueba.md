@@ -2,7 +2,7 @@
 
 Los casos 01 a 08 son las pruebas de aceptación del enunciado. Se han hecho desde la web, con el navegador (Playwright), contra la API y la base de datos reales; los casos 09 a 14 comprueban la validación y los errores de la API. Las capturas están en [`capturas/`](capturas).
 
-**Entorno de la prueba:** 5 de noviembre de 2026, en local: API con `npm run dev`, MariaDB 10.11 con los datos de `backend/sql/esquema.sql` recién cargados y la web servida en `http://localhost:5500`.
+**Entorno de la prueba:** 5 de noviembre de 2026, en local: API con `npm run dev`, MariaDB 10.11 con los datos de `backend/bbdd/noexitrooms.sql` recién cargados y la web servida en `http://localhost:5500`.
 
 **17 de noviembre de 2026:** el backend se rehace en JavaScript con Express y Sequelize (estructura del ejemplo de clase), sobre las mismas tablas de MySQL. Mismas rutas y respuestas: las 40 pruebas automáticas pasan contra MySQL 8.4 y la web se ha vuelto a probar en local como cliente, agente y administrador.
 

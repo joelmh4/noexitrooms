@@ -11,11 +11,13 @@ Rutas: `/api/health`, Swagger, registro y login con roles (`/api/auth`, `/api/us
 
 ## Puesta en marcha
 
+1. Ejecuta `bbdd/noexitrooms.sql` en MySQL Workbench o phpMyAdmin: crea la base de datos `noexitrooms`, su usuario, las tablas y los datos de ejemplo (si ya existía, la borra y la vuelve a crear).
+2. Arranca la API:
+
 ```bash
 npm install
-cp .env.example .env      # y rellena DB_*, TOKEN_PASSWORD y CORS_ORIGIN
-npm run carga             # crea las tablas con los datos de ejemplo (borra lo que hubiera)
-npm run dev               # arranca en http://localhost:3000/api y se reinicia al guardar (nodemon)
+cp .env.example .env      # con el paso 1 ya valen los valores del ejemplo
+npm start                 # http://localhost:3000/api   (npm run dev: se reinicia al guardar)
 ```
 
 Documentación de la API: http://localhost:3000/api/docs (también en `/api-docs`, como en el ejemplo de clase).
@@ -26,8 +28,7 @@ Documentación de la API: http://localhost:3000/api/docs (también en `/api-docs
 | --- | --- |
 | `npm run dev` | Arranca con `nodemon` y reinicia al guardar |
 | `npm start` | Arranca con `node index.js` (el que usa Render) |
-| `npm run carga` | Borra y crea las tablas en la base de datos del `.env` con los datos de `bbdd/datos.js` |
-| `npm test` | Las 40 pruebas de la API con `node --test` (antes, `npm run carga`) |
+| `npm test` | Las 40 pruebas de la API con `node --test` (antes, ejecutar `bbdd/noexitrooms.sql`) |
 
 ## Estructura
 
@@ -40,7 +41,7 @@ controller/         una clase por recurso con la lógica de cada ruta
 routes/             rutas por recurso, todas bajo /api, con sus comentarios @swagger
 middleware/         verificarToken (401), permitirRoles (403), límite de intentos de login (429), logger y errores
 utils/              validación de datos y horarios de las salas
-bbdd/               datos de ejemplo y script de carga inicial
+bbdd/               noexitrooms.sql: crea la base de datos, las tablas y los datos de ejemplo
 tests/              pruebas
 ```
 
@@ -60,7 +61,7 @@ Las tablas y las columnas tienen nombres en español (`usuarios`, `salas`, `clie
 | `mensajes` | `mensaje.model.js` | `ticket_id` → tickets (CASCADE), `autor_id` → usuarios |
 | `historial_estados` | `cambioEstado.model.js` | `ticket_id` → tickets (CASCADE), `autor_id` → usuarios |
 
-`npm run carga` crea las tablas desde los modelos (`sequelize.sync`). El mismo esquema, escrito a mano, está en [`../docs/05_esquema_mysql.sql`](../docs/05_esquema_mysql.sql): la API funciona igual con cualquiera de los dos.
+Las tablas se crean con el script [`bbdd/noexitrooms.sql`](bbdd/noexitrooms.sql), escrito a mano (CREATE TABLE con sus claves primarias, foráneas, UNIQUE y CHECK, e INSERT con los datos de ejemplo). La API no crea ni modifica tablas: los modelos de Sequelize solo describen las que ya existen.
 
 Los cambios que van juntos (crear un ticket con su primer mensaje y su estado, cambiar el estado y guardar el historial) se hacen en una transacción: o se guardan todos o ninguno.
 

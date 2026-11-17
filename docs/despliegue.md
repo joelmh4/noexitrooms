@@ -27,14 +27,14 @@ Navegador ──► https://joelmh4.github.io/noexitrooms/  (GitHub Pages)
    DB_PORT=…
    DB_USER=avnadmin
    DB_PASSWORD=…
-   DB_NAME=defaultdb
+   DB_NAME=noexitrooms
    DB_SSL=true
    DB_SSL_CA="-----BEGIN CERTIFICATE-----
    …contenido de ca.pem…
    -----END CERTIFICATE-----"
    ```
 
-   y ejecuta `npm run carga` en `backend/`. Debe decir `6 usuarios, 6 salas y 5 tickets`. **Ojo:** este comando borra y vuelve a crear todas las tablas (con `sequelize.sync`); úsalo solo para cargarlas la primera vez o para dejar la base como al principio.
+   Conecta MySQL Workbench a Aiven con esos datos (en la pestaña *SSL*, *Use SSL: Require* y el `ca.pem` como *SSL CA File*) y ejecuta `backend/bbdd/noexitrooms.sql`. Crea la base de datos `noexitrooms` con sus tablas y datos, así que en el `.env` y en Render pon `DB_NAME=noexitrooms`. **Ojo:** el script borra la base de datos si ya existía; úsalo solo la primera vez o para dejarla como al principio.
 
 ## 2. API en Render
 

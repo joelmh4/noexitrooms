@@ -58,18 +58,17 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 
 ## Instalación en local
 
-1. Crea una base de datos MySQL vacía y un usuario con permisos sobre ella.
+1. Ejecuta `backend/bbdd/noexitrooms.sql` en MySQL Workbench o phpMyAdmin: crea la base de datos `noexitrooms`, su usuario, las tablas y los datos de ejemplo.
 2. Prepara el backend:
 
    ```bash
    cd backend
    npm install
-   cp .env.example .env     # rellena DB_*, TOKEN_PASSWORD y CORS_ORIGIN (la dirección donde abres la web, p. ej. http://127.0.0.1:5500)
-   npm run carga            # crea las tablas y carga los datos de ejemplo
+   cp .env.example .env     # rellena DB_*, TOKEN_PASSWORD y CORS_ORIGIN (el ejemplo ya incluye http://localhost:5173)
    npm run dev              # API en http://localhost:3000/api
    ```
 
-3. Abre `frontend/index.html` con Live Server (o `python -m http.server 5500` dentro de `frontend/`). Cuando la web se abre en `localhost` o `127.0.0.1`, usa sola la API local; publicada, usa la de Render.
+3. En `frontend/`, `npm install` y `npm start`: abre la web en http://localhost:5173 (también vale Live Server). Cuando la web se abre en `localhost` o `127.0.0.1`, usa sola la API local; publicada, usa la de Render.
 
 ## Comandos del backend
 
@@ -78,13 +77,12 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 | `npm run dev` | Arranca la API con recarga automática |
 | `npm start` | Arranca la API sin recarga (la de producción) |
 | `npm test` | Lanza las 40 pruebas de la API contra la base de datos del `.env` |
-| `npm run carga` | Borra y vuelve a crear las tablas con los datos de ejemplo |
 
 ## Documentación
 
 - [Permisos por rol](docs/permisos.md)
 - [Casos de prueba](docs/casos-de-prueba.md) y [capturas](docs/capturas/)
-- [Modelo entidad-relación](docs/05_Modelo_ER.html) y [script SQL](docs/05_esquema_mysql.sql)
+- [Modelo entidad-relación](docs/05_Modelo_ER.html) y [script SQL](backend/bbdd/noexitrooms.sql)
 - [Wireframes](docs/04_Wireframes.html) y [guía de estilo](docs/03_Guia_de_estilo.html)
 - [Despliegue paso a paso](docs/despliegue.md)
 - API: Swagger en `/api/docs`, generado con swagger-jsdoc a partir de los comentarios de [`backend/routes/`](backend/routes)

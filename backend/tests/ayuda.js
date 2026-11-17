@@ -1,5 +1,5 @@
 // Arranca la API en un puerto libre para las pruebas y da funciones para hacer peticiones.
-// Las pruebas usan la base de datos del .env con los datos de ejemplo (npm run carga antes de npm test).
+// Las pruebas usan la base de datos del .env con los datos de ejemplo (ejecutar bbdd/noexitrooms.sql antes de npm test).
 const { before, after } = require("node:test");
 process.env.NODE_ENV = "test";
 const app = require("../app");
