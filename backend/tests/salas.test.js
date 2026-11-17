@@ -20,7 +20,7 @@ function diaFuturo(dias = 30) {
 }
 before(async () => {
     [admin, marta, lucia, pablo] = await Promise.all([
-        entrar("admin@noexitrooms.test"), entrar("marta@noexitrooms.test"), entrar("lucia@ejemplo.test"), entrar("pablo@ejemplo.test")
+        entrar("admin@noexitrooms.test"), entrar("alexia@noexitrooms.test"), entrar("pedro@ejemplo.test"), entrar("cristiano@ejemplo.test")
     ]);
     const r = await pedir("/rooms", { metodo: "POST", token: admin, cuerpo: salaDePrueba() });
     assert.equal(r.status, 201, JSON.stringify(r.datos));
@@ -131,5 +131,5 @@ test("el equipo confirma; el cliente solo cancela la suya, y el hueco cancelado 
     assert.equal((await estado(lucia, "cancelada")).datos.status, "cancelada");
     const otra = await pedir("/bookings", { metodo: "POST", token: pablo, cuerpo: { room_id: sala.id, starts_at: `${dia}T20:00`, players: 5 } });
     assert.equal(otra.status, 201, "el hueco ha quedado libre");
-    assert.equal(otra.datos.cliente.name, "Pablo Ruiz");
+    assert.equal(otra.datos.cliente.name, "Cristiano Ronaldo");
 });

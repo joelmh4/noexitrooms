@@ -15,7 +15,7 @@ test("01 · un visitante se registra y su cuenta nace como cliente aunque pida s
 });
 
 test("registro con email repetido → 409", async () => {
-    const r = await pedir("/auth/register", { metodo: "POST", cuerpo: { name: "Otra Lucía", email: "LUCIA@ejemplo.test", password: "Prueba123" } });
+    const r = await pedir("/auth/register", { metodo: "POST", cuerpo: { name: "Otra Pedro", email: "PEDRO@ejemplo.test", password: "Prueba123" } });
     assert.equal(r.status, 409);
 });
 
@@ -36,7 +36,7 @@ test("la contraseña se guarda con hash (el login funciona y el texto plano no e
 });
 
 test("login con contraseña incorrecta → 401 con mensaje genérico", async () => {
-    const mala = await pedir("/auth/login", { metodo: "POST", cuerpo: { email: "lucia@ejemplo.test", password: "mal" } });
+    const mala = await pedir("/auth/login", { metodo: "POST", cuerpo: { email: "pedro@ejemplo.test", password: "mal" } });
     const noExiste = await pedir("/auth/login", { metodo: "POST", cuerpo: { email: "nadie@ejemplo.test", password: "mal" } });
     assert.equal(mala.status, 401);
     assert.equal(noExiste.status, 401);
@@ -49,13 +49,13 @@ test("sin token o con token falso → 401", async () => {
 });
 
 test("06 · un cliente no puede entrar en la gestión de usuarios → 403 del servidor", async () => {
-    const token = await entrar("lucia@ejemplo.test");
+    const token = await entrar("pedro@ejemplo.test");
     assert.equal((await pedir("/users", { token })).status, 403);
     assert.equal((await pedir("/users/5", { metodo: "PATCH", token, cuerpo: { role: "admin" } })).status, 403);
 });
 
 test("el agente no puede ver la lista de usuarios", async () => {
-    const token = await entrar("marta@noexitrooms.test");
+    const token = await entrar("alexia@noexitrooms.test");
     assert.equal((await pedir("/users", { token })).status, 403);
     assert.equal((await pedir("/users?role=agente", { token })).status, 403);
 });
@@ -64,8 +64,8 @@ test("el admin lista y filtra usuarios", async () => {
     const token = await entrar("admin@noexitrooms.test");
     const todos = await pedir("/users", { token });
     assert.equal(todos.status, 200);
-    const busqueda = await pedir("/users?q=lucia", { token });
-    assert.ok(busqueda.datos.some((u) => u.email === "lucia@ejemplo.test"));
+    const busqueda = await pedir("/users?q=pedro", { token });
+    assert.ok(busqueda.datos.some((u) => u.email === "pedro@ejemplo.test"));
     assert.equal((await pedir("/users?role=jefe", { token })).status, 400);
 });
 
@@ -96,7 +96,7 @@ test("perfil: editar nombre y cambiar contraseña", async () => {
     const token = r.datos.token;
     const editado = await pedir("/users/me", { metodo: "PUT", token, cuerpo: { name: "Perfil Nuevo", email } });
     assert.equal(editado.datos.name, "Perfil Nuevo");
-    assert.equal((await pedir("/users/me", { metodo: "PUT", token, cuerpo: { name: "X Y", email: "lucia@ejemplo.test" } })).status, 409);
+    assert.equal((await pedir("/users/me", { metodo: "PUT", token, cuerpo: { name: "X Y", email: "pedro@ejemplo.test" } })).status, 409);
     assert.equal((await pedir("/users/me/password", { metodo: "PUT", token, cuerpo: { actual: "mal", nueva: "Nueva1234" } })).status, 400);
     assert.equal((await pedir("/users/me/password", { metodo: "PUT", token, cuerpo: { actual: "Prueba123", nueva: "Nueva1234" } })).status, 204);
     assert.equal((await pedir("/auth/login", { metodo: "POST", cuerpo: { email, password: "Nueva1234" } })).status, 200);

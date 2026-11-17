@@ -7,8 +7,8 @@ let admin = "", marta = "", sergio = "", lucia = "", pablo = "";
 const MARTA = 2, LUCIA = 4;
 before(async () => {
     [admin, marta, sergio, lucia, pablo] = await Promise.all([
-        entrar("admin@noexitrooms.test"), entrar("marta@noexitrooms.test"), entrar("sergio@noexitrooms.test"),
-        entrar("lucia@ejemplo.test"), entrar("pablo@ejemplo.test")
+        entrar("admin@noexitrooms.test"), entrar("alexia@noexitrooms.test"), entrar("ramos@noexitrooms.test"),
+        entrar("pedro@ejemplo.test"), entrar("cristiano@ejemplo.test")
     ]);
 });
 async function abrirTicket(token = lucia, extra = {}) {
@@ -48,7 +48,7 @@ test("03 y 04 · el admin asigna, el agente responde y cambia el estado, y el cl
     const visto = await pedir(`/tickets/${t.id}`, { token: lucia });
     assert.equal(visto.datos.status, "pendiente_cliente");
     assert.deepEqual(visto.datos.historial.map((h) => h.new_status), ["abierto", "en_curso", "pendiente_cliente"]);
-    assert.equal(visto.datos.historial[1].autor.name, "Marta Gil", "se guarda quién hizo cada cambio");
+    assert.equal(visto.datos.historial[1].autor.name, "Alexia Putellas", "se guarda quién hizo cada cambio");
     assert.equal(visto.datos.mensajes.length, 2, "el cliente no ve la nota interna");
     assert.ok(visto.datos.mensajes.every((m) => !m.is_internal));
     const delEquipo = await pedir(`/tickets/${t.id}`, { token: marta });
@@ -98,7 +98,7 @@ test("el agente: solo ve sus tickets, no asigna, no puede cerrar y no toca ticke
     assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: admin, cuerpo: { agent_id: 3 } })).status, 200);
     assert.equal((await pedir(`/tickets/${t.id}`, { token: sergio })).status, 200, "ya lo ve: es suyo");
     assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: sergio, cuerpo: { agent_id: MARTA } })).status, 403);
-    assert.equal((await pedir(`/tickets/${t.id}`, { token: marta })).status, 404, "Marta ya no lo ve: lo lleva Sergio");
+    assert.equal((await pedir(`/tickets/${t.id}`, { token: marta })).status, 404, "Alexia ya no lo ve: lo lleva Sergio");
     assert.equal((await pedir(`/tickets/${t.id}/status`, { metodo: "PATCH", token: sergio, cuerpo: { status: "cerrado" } })).status, 403);
     const prioridad = await pedir(`/tickets/${t.id}`, { metodo: "PATCH", token: sergio, cuerpo: { priority: "alta" } });
     assert.equal(prioridad.status, 200);
@@ -128,10 +128,10 @@ test("crear ticket: validación, reserva de otro cliente y roles", async () => {
     assert.ok(mal.datos.error.campos.subject && mal.datos.error.campos.description);
     const categoria = await pedir("/tickets", { metodo: "POST", token: lucia, cuerpo: { subject: "Asunto válido", description: "Descripción suficiente", category_id: 999 } });
     assert.equal(categoria.datos.error.campos.category_id, "Esa categoría no existe.");
-    // La reserva 2 es de Pablo
+    // La reserva 2 es de Cristiano
     const ajena = await pedir("/tickets", { metodo: "POST", token: lucia, cuerpo: { subject: "Asunto válido", description: "Descripción suficiente", category_id: 1, booking_id: 2 } });
     assert.equal(ajena.status, 400);
-    // La reserva 1 es de Lucía, en la sala 1: la sala se rellena sola
+    // La reserva 1 es de Pedro, en la sala 1: la sala se rellena sola
     const conReserva = await abrirTicket(lucia, { booking_id: 1 });
     assert.equal(conReserva.sala.id, 1);
     assert.equal((await pedir("/tickets", { metodo: "POST", token: marta, cuerpo: { subject: "x" } })).status, 403, "el agente no abre tickets");

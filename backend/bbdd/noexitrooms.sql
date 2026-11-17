@@ -177,12 +177,12 @@ CREATE TABLE historial_estados (
 SET @pwd = '$2b$10$MmIX7ggb5lxY8Eys0r73NuxeYP3YbFQCIwa3Fa.Rm1ptprhcJiXBm'; -- Demo1234!
 
 INSERT INTO usuarios (id, nombre, email, hash_contrasena, rol) VALUES
-  (1, 'Admin NoExitRooms', 'admin@noexitrooms.test',   @pwd, 'admin'),
-  (2, 'Marta Gil',         'marta@noexitrooms.test',   @pwd, 'agente'),
-  (3, 'Sergio Pardo',      'sergio@noexitrooms.test',  @pwd, 'agente'),
-  (4, 'Lucía Fernández',   'lucia@ejemplo.test',       @pwd, 'cliente'),
-  (5, 'Pablo Ruiz',        'pablo@ejemplo.test',       @pwd, 'cliente'),
-  (6, 'Ana Torres',        'ana@ejemplo.test',         @pwd, 'cliente');
+  (1, 'Florentino Pérez',   'admin@noexitrooms.test',  @pwd, 'admin'),
+  (2, 'Alexia Putellas',    'alexia@noexitrooms.test', @pwd, 'agente'),
+  (3, 'Sergio Ramos',       'ramos@noexitrooms.test',  @pwd, 'agente'),
+  (4, 'Pedro Sánchez',      'pedro@ejemplo.test',      @pwd, 'cliente'),
+  (5, 'Cristiano Ronaldo',  'cristiano@ejemplo.test',  @pwd, 'cliente'),
+  (6, 'Rosalía',            'rosalia@ejemplo.test',    @pwd, 'cliente');
 
 INSERT INTO salas (id, nombre, slug, tematica, dificultad, duracion_min, jugadores_min, jugadores_max, precio_persona, descripcion, lema, edad_minima, activa) VALUES
   (1, 'La acampada de Sol',          'la-acampada-de-sol',          'Humor',        4,  60, 2, 6, 22.00, 'Llegasteis a la acampada de la Puerta del Sol solo para ver qué tal y ahora sois de la comisión de logística. Para iros hay que aprobar vuestra salida en asamblea.', 'La asamblea no se disuelve hasta que haya consenso. Y nunca hay consenso.', 14, TRUE),
@@ -236,7 +236,7 @@ INSERT INTO mensajes (ticket_id, autor_id, texto, nota_interna, creado_en) VALUE
   (3, 2, 'El bono caducó el 30/09. Revisa si tienes otro código o mándanos foto del bono.', FALSE, '2026-10-24 18:30:00'),
   (3, 2, 'Si lo compró en la campaña de verano, se puede ampliar 1 mes.', TRUE, '2026-10-24 18:31:00'),
   (4, 4, '¿Podemos pasar la partida del sábado al domingo a la misma hora?', FALSE, '2026-10-26 18:02:00'),
-  (4, 2, '¡Hola Lucía! El domingo a las 18:00 está libre. ¿Seguís siendo 5 personas?', FALSE, '2026-10-26 19:12:00'),
+  (4, 2, '¡Hola Pedro! El domingo a las 18:00 está libre. ¿Seguís siendo 5 personas?', FALSE, '2026-10-26 19:12:00'),
   (5, 6, 'Somos dos adultos y dos niños de 10 y 12 años.', FALSE, '2026-10-27 09:10:00');
 
 INSERT INTO historial_estados (ticket_id, autor_id, estado_anterior, estado_nuevo, fecha_cambio) VALUES

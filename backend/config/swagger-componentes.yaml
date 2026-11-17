@@ -176,8 +176,8 @@ components:
       type: object
       properties:
         id: { type: integer, example: 4 }
-        name: { type: string, example: Lucía Fernández }
-        email: { type: string, format: email, example: lucia@ejemplo.test }
+        name: { type: string, example: Pedro Sánchez }
+        email: { type: string, format: email, example: pedro@ejemplo.test }
         role: { $ref: "#/components/schemas/Rol" }
         is_active: { type: boolean, example: true }
         created_at: { type: string, format: date-time }

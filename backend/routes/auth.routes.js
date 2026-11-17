@@ -51,7 +51,7 @@ ruta.post("/register", usuarioController.signUp);
  *             type: object
  *             required: [email, password]
  *             properties:
- *               email: { type: string, format: email, example: lucia@ejemplo.test }
+ *               email: { type: string, format: email, example: pedro@ejemplo.test }
  *               password: { type: string, example: Demo1234! }
  *     responses:
  *       "200": { description: Sesión iniciada, content: { application/json: { schema: { $ref: "#/components/schemas/Sesion" } } } }

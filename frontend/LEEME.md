@@ -5,7 +5,7 @@ Web en **HTML, CSS y JavaScript** (sin frameworks). Tiene las 20 páginas del ma
 ## Cómo abrirlo
 - Publicada: https://joelmh4.github.io/noexitrooms/ (usa la API de Render).
 - En local: arranca el backend (`npm start` en `backend/`) y aquí `npm install` y `npm start`, que abre la web en http://localhost:5173 (con `http-server`). También vale abrir `index.html` con la extensión **Live Server** de VS Code. En `localhost` o `127.0.0.1`, la web usa la API local `http://localhost:3000/api`.
-- Cuentas de prueba (contraseña `Demo1234!`): `lucia@ejemplo.test` (cliente), `marta@noexitrooms.test` (agente), `admin@noexitrooms.test` (administrador).
+- Cuentas de prueba (contraseña `Demo1234!`): `pedro@ejemplo.test` (cliente), `alexia@noexitrooms.test` (agente), `admin@noexitrooms.test` (administrador).
 
 ## Estructura
 ```
