@@ -21,8 +21,8 @@ Contraseña de todos: `Demo1234!`
 | Rol | Email |
 | --- | --- |
 | Administrador | admin@noexitrooms.test |
-| Agente | alexia@noexitrooms.test, ramos@noexitrooms.test |
-| Cliente | pedro@ejemplo.test, cristiano@ejemplo.test, rosalia@ejemplo.test |
+| Agente | abalos@noexitrooms.test, ramos@noexitrooms.test |
+| Cliente | pedro@ejemplo.test, cristiano@ejemplo.test, rosalia@ejemplo.test, abascal@ejemplo.test |
 
 Cualquier cuenta nueva creada desde *Registrarse* es siempre de cliente.
 

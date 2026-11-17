@@ -7,7 +7,7 @@ let admin = "", marta = "", sergio = "", lucia = "", pablo = "";
 const MARTA = 2, LUCIA = 4;
 before(async () => {
     [admin, marta, sergio, lucia, pablo] = await Promise.all([
-        entrar("admin@noexitrooms.test"), entrar("alexia@noexitrooms.test"), entrar("ramos@noexitrooms.test"),
+        entrar("admin@noexitrooms.test"), entrar("abalos@noexitrooms.test"), entrar("ramos@noexitrooms.test"),
         entrar("pedro@ejemplo.test"), entrar("cristiano@ejemplo.test")
     ]);
 });
@@ -48,7 +48,7 @@ test("03 y 04 · el admin asigna, el agente responde y cambia el estado, y el cl
     const visto = await pedir(`/tickets/${t.id}`, { token: lucia });
     assert.equal(visto.datos.status, "pendiente_cliente");
     assert.deepEqual(visto.datos.historial.map((h) => h.new_status), ["abierto", "en_curso", "pendiente_cliente"]);
-    assert.equal(visto.datos.historial[1].autor.name, "Alexia Putellas", "se guarda quién hizo cada cambio");
+    assert.equal(visto.datos.historial[1].autor.name, "José Luis Ábalos", "se guarda quién hizo cada cambio");
     assert.equal(visto.datos.mensajes.length, 2, "el cliente no ve la nota interna");
     assert.ok(visto.datos.mensajes.every((m) => !m.is_internal));
     const delEquipo = await pedir(`/tickets/${t.id}`, { token: marta });
@@ -98,7 +98,7 @@ test("el agente: solo ve sus tickets, no asigna, no puede cerrar y no toca ticke
     assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: admin, cuerpo: { agent_id: 3 } })).status, 200);
     assert.equal((await pedir(`/tickets/${t.id}`, { token: sergio })).status, 200, "ya lo ve: es suyo");
     assert.equal((await pedir(`/tickets/${t.id}/assign`, { metodo: "PATCH", token: sergio, cuerpo: { agent_id: MARTA } })).status, 403);
-    assert.equal((await pedir(`/tickets/${t.id}`, { token: marta })).status, 404, "Alexia ya no lo ve: lo lleva Sergio");
+    assert.equal((await pedir(`/tickets/${t.id}`, { token: marta })).status, 404, "Ábalos ya no lo ve: lo lleva Sergio");
     assert.equal((await pedir(`/tickets/${t.id}/status`, { metodo: "PATCH", token: sergio, cuerpo: { status: "cerrado" } })).status, 403);
     const prioridad = await pedir(`/tickets/${t.id}`, { metodo: "PATCH", token: sergio, cuerpo: { priority: "alta" } });
     assert.equal(prioridad.status, 200);

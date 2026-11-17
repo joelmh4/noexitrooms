@@ -72,8 +72,8 @@ Todos con la contraseña `Demo1234!` (en la base de datos solo está su hash bcr
 | Rol | Email |
 | --- | --- |
 | Administrador | admin@noexitrooms.test |
-| Agente | alexia@noexitrooms.test, ramos@noexitrooms.test |
-| Cliente | pedro@ejemplo.test, cristiano@ejemplo.test, rosalia@ejemplo.test |
+| Agente | abalos@noexitrooms.test, ramos@noexitrooms.test |
+| Cliente | pedro@ejemplo.test, cristiano@ejemplo.test, rosalia@ejemplo.test, abascal@ejemplo.test |
 
 ## Seguridad
 

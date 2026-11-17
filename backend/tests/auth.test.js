@@ -55,7 +55,7 @@ test("06 · un cliente no puede entrar en la gestión de usuarios → 403 del se
 });
 
 test("el agente no puede ver la lista de usuarios", async () => {
-    const token = await entrar("alexia@noexitrooms.test");
+    const token = await entrar("abalos@noexitrooms.test");
     assert.equal((await pedir("/users", { token })).status, 403);
     assert.equal((await pedir("/users?role=agente", { token })).status, 403);
 });

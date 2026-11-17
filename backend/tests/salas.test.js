@@ -20,7 +20,7 @@ function diaFuturo(dias = 30) {
 }
 before(async () => {
     [admin, marta, lucia, pablo] = await Promise.all([
-        entrar("admin@noexitrooms.test"), entrar("alexia@noexitrooms.test"), entrar("pedro@ejemplo.test"), entrar("cristiano@ejemplo.test")
+        entrar("admin@noexitrooms.test"), entrar("abalos@noexitrooms.test"), entrar("pedro@ejemplo.test"), entrar("cristiano@ejemplo.test")
     ]);
     const r = await pedir("/rooms", { metodo: "POST", token: admin, cuerpo: salaDePrueba() });
     assert.equal(r.status, 201, JSON.stringify(r.datos));
