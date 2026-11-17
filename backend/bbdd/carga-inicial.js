@@ -7,6 +7,9 @@ const datos = require("./datos");
 async function cargaInicial() {
   // sync({ force: true }) = DROP TABLE + CREATE TABLE de cada modelo, con sus claves primarias,
   // foráneas e índices únicos (el mismo esquema que docs/05_esquema_mysql.sql)
+  // Antes se borran TODAS las tablas que haya (también las de versiones anteriores, como las
+  // tablas en inglés), así sus claves foráneas no impiden borrar las nuevas
+  await sequelize.getQueryInterface().dropAllTables();
   await sequelize.sync({ force: true });
 
   await Usuario.bulkCreate(datos.usuarios);
