@@ -4,6 +4,8 @@ Los casos 01 a 08 son las pruebas de aceptación del enunciado. Se han hecho des
 
 **Entorno de la prueba:** 5 de noviembre de 2026, en local: API con `npm run dev`, MariaDB 10.11 con los datos de `backend/sql/esquema.sql` recién cargados y la web servida en `http://localhost:5500`.
 
+**17 de noviembre de 2026:** el backend se rehace en JavaScript con Express y Sequelize (estructura del ejemplo de clase), sobre las mismas tablas de MySQL. Mismas rutas y respuestas: las 40 pruebas automáticas pasan contra MySQL 8.4 y la web se ha vuelto a probar en local como cliente, agente y administrador.
+
 **Pendiente:** repetir los casos 01 a 08 en las URLs públicas cuando estén desplegadas y rellenar la columna de producción.
 
 ## Pruebas de aceptación del enunciado
