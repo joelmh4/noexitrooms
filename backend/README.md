@@ -48,15 +48,17 @@ tests/              pruebas
 
 Siete tablas, las mismas del modelo entidad-relación (`../docs/05_Modelo_ER.html`). Cada una tiene su modelo en `model/` y las claves foráneas salen de las relaciones de `model/index.js`:
 
+Las tablas y las columnas tienen nombres en español (`usuarios`, `salas`, `cliente_id`...). En el código y en la API los campos siguen con sus nombres de siempre (`name`, `customer_id`...): cada modelo dice con `field` a qué columna corresponde cada uno, así que la web no ha tenido que cambiar.
+
 | Tabla | Modelo | Claves foráneas |
 | --- | --- | --- |
-| `users` | `usuario.model.js` | |
-| `rooms` | `sala.model.js` | |
-| `ticket_categories` | `categoria.model.js` | |
-| `bookings` | `reserva.model.js` | `customer_id` → users, `room_id` → rooms. Único (`room_id`, `starts_at`) |
-| `tickets` | `ticket.model.js` | `customer_id`, `agent_id` → users, `category_id` → ticket_categories, `room_id` → rooms, `booking_id` → bookings |
-| `ticket_messages` | `mensaje.model.js` | `ticket_id` → tickets (CASCADE), `author_id` → users |
-| `ticket_status_history` | `cambioEstado.model.js` | `ticket_id` → tickets (CASCADE), `changed_by_id` → users |
+| `usuarios` | `usuario.model.js` | |
+| `salas` | `sala.model.js` | |
+| `categorias` | `categoria.model.js` | |
+| `reservas` | `reserva.model.js` | `cliente_id` → usuarios, `sala_id` → salas. Único (`sala_id`, `fecha_hora`) |
+| `tickets` | `ticket.model.js` | `cliente_id`, `agente_id` → usuarios, `categoria_id` → categorias, `sala_id` → salas, `reserva_id` → reservas |
+| `mensajes` | `mensaje.model.js` | `ticket_id` → tickets (CASCADE), `autor_id` → usuarios |
+| `historial_estados` | `cambioEstado.model.js` | `ticket_id` → tickets (CASCADE), `autor_id` → usuarios |
 
 `npm run carga` crea las tablas desde los modelos (`sequelize.sync`). El mismo esquema, escrito a mano, está en [`../docs/05_esquema_mysql.sql`](../docs/05_esquema_mysql.sql): la API funciona igual con cualquiera de los dos.
 

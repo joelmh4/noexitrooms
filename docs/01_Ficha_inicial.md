@@ -16,28 +16,28 @@ Los locales de escape rooms pequeños suelen gestionar la información de sus sa
 
 ## Módulo temático (entidad y CRUD)
 
-**Entidad principal: Salas** (`rooms`).
+**Entidad principal: Salas** (`salas`).
 
 | Campo | Tipo | Notas |
 | --- | --- | --- |
 | id | entero | Clave primaria |
-| name | texto | Único, p. ej. "La cripta del alquimista" |
+| nombre | texto | Único, p. ej. "La cripta del alquimista" |
 | slug | texto | Para la URL de la ficha |
-| theme | texto | Terror, misterio, aventura, ciencia ficción... |
-| difficulty | 1 a 5 | Nivel de dificultad |
-| duration_min | entero | Normalmente 60 o 90 |
-| min_players / max_players | entero | p. ej. 2 a 6 |
-| price_per_person | decimal | Precio orientativo, sin pagos reales |
-| description | texto largo | Historia de la sala |
-| image_url | texto | Portada |
-| is_active | booleano | Para desactivar en lugar de borrar |
-| created_at / updated_at | fecha | Trazabilidad |
+| tematica | texto | Terror, misterio, aventura, ciencia ficción... |
+| dificultad | 1 a 5 | Nivel de dificultad |
+| duracion_min | entero | Normalmente 60 o 90 |
+| jugadores_min / jugadores_max | entero | p. ej. 2 a 6 |
+| precio_persona | decimal | Precio orientativo, sin pagos reales |
+| descripcion | texto largo | Historia de la sala |
+| url_imagen | texto | Portada |
+| activa | booleano | Para desactivar en lugar de borrar |
+| creado_en / actualizado_en | fecha | Trazabilidad |
 
 **CRUD (solo administrador):** crear sala, listar y ver ficha (público), editar y desactivar o eliminar. **Búsqueda y filtros:** texto por nombre, filtro por temática, dificultad y número de jugadores, y orden por precio o dificultad.
 
 ## Tipos de solicitudes que se gestionarán como tickets
 
-Categorías de ticket (`ticket_categories`), administrables por el admin:
+Categorías de ticket (`categorias`), administrables por el admin:
 
 - **Reservas y cambios de fecha:** mover o cancelar una partida.
 - **Bonos y tarjetas regalo:** canjeo, caducidad o código que no funciona.
@@ -64,6 +64,6 @@ Proyecto en equipo de tres personas (Joel, Edu e Iván). No hay reparto fijo: lo
 
 ## Mejora opcional que se intentará implementar
 
-**Reservas de partida** como segunda entidad (`bookings`: cliente, sala, fecha y hora, número de jugadores, estado). El ticket podrá vincularse opcionalmente a una reserva, de modo que el agente vea de qué partida se habla.
+**Reservas de partida** como segunda entidad (`reservas`: cliente, sala, fecha y hora, número de jugadores, estado). El ticket podrá vincularse opcionalmente a una reserva, de modo que el agente vea de qué partida se habla.
 
 Si sobra tiempo: **valoraciones** de las salas por parte de los clientes, o **notas internas** en los tickets visibles solo para agentes y admin.

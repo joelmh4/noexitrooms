@@ -6,7 +6,7 @@ const ESTADOS_RESERVA = ["pendiente", "confirmada", "cancelada"];
 // "2026-11-20T18:00:00" (hora de Madrid) → Date para guardarla tal cual en la columna DATETIME
 const aFecha = texto => new Date(`${texto.slice(0, 19)}Z`);
 
-// Tabla bookings: reservas (mejora opcional del enunciado).
+// Tabla reservas: reservas (mejora opcional del enunciado).
 // La hora es "de reloj" en Madrid: en la API va como texto AAAA-MM-DDTHH:MM:SS, sin zona.
 const Reserva = sequelize.define('reserva', {
     id: {
@@ -16,6 +16,7 @@ const Reserva = sequelize.define('reserva', {
     },
     //customer_id y room_id son claves foráneas: se crean en model/index.js con las relaciones
     starts_at: {
+        field: "fecha_hora",
         type: DataTypes.DATE,
         allowNull: false,
         get() {
@@ -27,21 +28,28 @@ const Reserva = sequelize.define('reserva', {
         }
     },
     players: {
+        field: "jugadores",
         type: DataTypes.TINYINT.UNSIGNED,
         allowNull: false,
         validate: { min: 1 }
     },
     status: {
+        field: "estado",
         type: DataTypes.ENUM(...ESTADOS_RESERVA),
         allowNull: false,
         defaultValue: "pendiente"
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        field: "creado_en",
+        allowNull: false
     }
 },
     {
-        tableName: "bookings",
+        tableName: "reservas",
         updatedAt: false,
         //Una sala no puede tener dos reservas a la misma hora
-        indexes: [{ name: "uq_bookings_slot", unique: true, fields: ["room_id", "starts_at"] }]
+        indexes: [{ name: "uq_reservas_hueco", unique: true, fields: ["sala_id", "fecha_hora"] }]
     })
 
 module.exports = Reserva;

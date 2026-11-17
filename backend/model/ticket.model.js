@@ -13,31 +13,46 @@ const Ticket = sequelize.define('ticket', {
         primaryKey: true
     },
     subject: {
+        field: "asunto",
         type: DataTypes.STRING(150),
         allowNull: false
     },
     description: {
+        field: "descripcion",
         type: DataTypes.TEXT,
         allowNull: false
     },
     priority: {
+        field: "prioridad",
         type: DataTypes.ENUM(...PRIORIDADES),
         allowNull: false,
         defaultValue: "media"
     },
     status: {
+        field: "estado",
         type: DataTypes.ENUM(...ESTADOS),
         allowNull: false,
         defaultValue: "abierto"
     },
     closed_at: {
+        field: "cerrado_en",
         type: DataTypes.DATE,
         allowNull: true
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        field: "creado_en",
+        allowNull: false
+    },
+    updated_at: {
+        type: DataTypes.DATE,
+        field: "actualizado_en",
+        allowNull: false
     }
 },
     {
         tableName: "tickets",
-        indexes: [{ fields: ["status"] }, { fields: ["priority"] }]
+        indexes: [{ fields: ["estado"] }, { fields: ["prioridad"] }]
     })
 
 // Código visible del ticket: NXR-0042

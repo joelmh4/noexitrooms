@@ -59,85 +59,85 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-si
   <div class="diagram">
 <pre class="mermaid">
 erDiagram
-  users ||--o{ tickets : "abre (cliente)"
-  users |o--o{ tickets : "atiende (agente)"
-  ticket_categories ||--o{ tickets : clasifica
-  rooms |o--o{ tickets : "trata sobre"
-  bookings |o--o{ tickets : "se refiere a"
-  tickets ||--o{ ticket_messages : contiene
-  users ||--o{ ticket_messages : escribe
-  tickets ||--o{ ticket_status_history : registra
-  users ||--o{ ticket_status_history : cambia
-  users ||--o{ bookings : reserva
-  rooms ||--o{ bookings : "se reserva en"
+  usuarios ||--o{ tickets : "abre (cliente)"
+  usuarios |o--o{ tickets : "atiende (agente)"
+  categorias ||--o{ tickets : clasifica
+  salas |o--o{ tickets : "trata sobre"
+  reservas |o--o{ tickets : "se refiere a"
+  tickets ||--o{ mensajes : contiene
+  usuarios ||--o{ mensajes : escribe
+  tickets ||--o{ historial_estados : registra
+  usuarios ||--o{ historial_estados : cambia
+  usuarios ||--o{ reservas : reserva
+  salas ||--o{ reservas : "se reserva en"
 
-  users {
+  usuarios {
     int id PK
-    varchar name
+    varchar nombre
     varchar email UK
-    varchar password_hash
-    enum role "cliente | agente | admin"
-    bool is_active
-    datetime created_at
+    varchar hash_contrasena
+    enum rol "cliente | agente | admin"
+    bool activo
+    datetime creado_en
   }
-  rooms {
+  salas {
     int id PK
-    varchar name UK
+    varchar nombre UK
     varchar slug UK
-    varchar theme
-    tinyint difficulty "1 a 5"
-    smallint duration_min
-    tinyint min_players
-    tinyint max_players
-    decimal price_per_person
-    text description
-    varchar tagline
-    tinyint min_age
-    text challenges
-    bool is_active
+    varchar tematica
+    tinyint dificultad "1 a 5"
+    smallint duracion_min
+    tinyint jugadores_min
+    tinyint jugadores_max
+    decimal precio_persona
+    text descripcion
+    varchar lema
+    tinyint edad_minima
+    text pruebas
+    bool activa
   }
-  ticket_categories {
+  categorias {
     int id PK
-    varchar name UK
-    bool is_active
+    varchar nombre UK
+    bool activa
   }
   tickets {
     int id PK
-    int customer_id FK
-    int agent_id FK "nullable"
-    int category_id FK
-    int room_id FK "nullable"
-    int booking_id FK "nullable"
-    varchar subject
-    text description
-    enum priority "baja | media | alta"
-    enum status "5 estados"
-    datetime created_at
-    datetime updated_at
+    int cliente_id FK
+    int agente_id FK "nullable"
+    int categoria_id FK
+    int sala_id FK "nullable"
+    int reserva_id FK "nullable"
+    varchar asunto
+    text descripcion
+    enum prioridad "baja | media | alta"
+    enum estado "5 estados"
+    datetime creado_en
+    datetime actualizado_en
   }
-  ticket_messages {
+  mensajes {
     int id PK
     int ticket_id FK
-    int author_id FK
-    text body
-    bool is_internal
-    datetime created_at
+    int autor_id FK
+    text texto
+    bool nota_interna
+    datetime creado_en
   }
-  ticket_status_history {
+  historial_estados {
     int id PK
     int ticket_id FK
-    int changed_by_id FK
-    enum old_status
-    enum new_status
-    datetime changed_at
+    int autor_id FK
+    enum estado_anterior
+    enum estado_nuevo
+    datetime fecha_cambio
   }
-  bookings {
+  reservas {
     int id PK
-    int customer_id FK
-    int room_id FK
-    datetime starts_at
-    tinyint players
-    enum status
+    int cliente_id FK
+    int sala_id FK
+    datetime fecha_hora
+    tinyint jugadores
+    enum estado
   }
 </pre>
   </div>
@@ -146,60 +146,60 @@ erDiagram
 <section>
   <h2>Las tablas una a una</h2>
   <div class="tables">
-    <div class="tcard"><div class="thead"><h3>users</h3><span class="badge">Obligatoria</span></div>
+    <div class="tcard"><div class="thead"><h3>usuarios</h3><span class="badge">Obligatoria</span></div>
       <p>Todas las personas que entran en la web. El rol decide qué puede hacer cada una.</p>
       <div class="cols"><table>
         <tr><td>id<span class="k pk">PK</span></td><td>INT</td><td>Identificador</td></tr>
         <tr><td>email<span class="k">ÚNICO</span></td><td>VARCHAR(150)</td><td>No puede haber dos cuentas con el mismo email</td></tr>
-        <tr><td>password_hash</td><td>VARCHAR(255)</td><td>Hash bcrypt, nunca la contraseña</td></tr>
-        <tr><td>role</td><td>ENUM</td><td><code>cliente</code> por defecto; solo el admin lo cambia</td></tr>
-        <tr><td>is_active</td><td>BOOLEAN</td><td>Para bloquear una cuenta sin borrarla</td></tr>
+        <tr><td>hash_contrasena</td><td>VARCHAR(255)</td><td>Hash bcrypt, nunca la contraseña</td></tr>
+        <tr><td>rol</td><td>ENUM</td><td><code>cliente</code> por defecto; solo el admin lo cambia</td></tr>
+        <tr><td>activo</td><td>BOOLEAN</td><td>Para bloquear una cuenta sin borrarla</td></tr>
       </table></div></div>
-    <div class="tcard"><div class="thead"><h3>rooms</h3><span class="badge">CRUD temático</span></div>
+    <div class="tcard"><div class="thead"><h3>salas</h3><span class="badge">CRUD temático</span></div>
       <p>Las salas del catálogo. Es la entidad propia del negocio que pide el enunciado.</p>
       <div class="cols"><table>
-        <tr><td>name, slug<span class="k">ÚNICO</span></td><td>VARCHAR</td><td>El slug forma la URL: <code>/salas/operacion-david</code></td></tr>
-        <tr><td>difficulty</td><td>TINYINT</td><td>De 1 a 5, comprobado con CHECK</td></tr>
-        <tr><td>min_players, max_players</td><td>TINYINT</td><td>CHECK: máximo ≥ mínimo</td></tr>
-        <tr><td>price_per_person</td><td>DECIMAL(6,2)</td><td>Precio orientativo, sin pagos reales</td></tr>
-        <tr><td>tagline, min_age</td><td>VARCHAR, TINYINT</td><td>Lema de la tarjeta y edad mínima (0 = sin mínimo)</td></tr>
-        <tr><td>challenges</td><td>TEXT</td><td>Pruebas de la sala que salen en su ficha, una por línea</td></tr>
-        <tr><td>is_active</td><td>BOOLEAN</td><td>"Eliminar" desactiva si ya tiene tickets</td></tr>
+        <tr><td>nombre, slug<span class="k">ÚNICO</span></td><td>VARCHAR</td><td>El slug forma la URL: <code>/salas/operacion-david</code></td></tr>
+        <tr><td>dificultad</td><td>TINYINT</td><td>De 1 a 5, comprobado con CHECK</td></tr>
+        <tr><td>jugadores_min, jugadores_max</td><td>TINYINT</td><td>CHECK: máximo ≥ mínimo</td></tr>
+        <tr><td>precio_persona</td><td>DECIMAL(6,2)</td><td>Precio orientativo, sin pagos reales</td></tr>
+        <tr><td>lema, edad_minima</td><td>VARCHAR, TINYINT</td><td>Lema de la tarjeta y edad mínima (0 = sin mínimo)</td></tr>
+        <tr><td>pruebas</td><td>TEXT</td><td>Pruebas de la sala que salen en su ficha, una por línea</td></tr>
+        <tr><td>activa</td><td>BOOLEAN</td><td>"Eliminar" desactiva si ya tiene tickets</td></tr>
       </table></div></div>
     <div class="tcard"><div class="thead"><h3>tickets</h3><span class="badge">Obligatoria</span></div>
       <p>Cada consulta o incidencia. Se relaciona con quién la abre, quién la atiende y, si procede, con una sala o reserva.</p>
       <div class="cols"><table>
-        <tr><td>customer_id<span class="k">FK</span></td><td>→ users</td><td>Cliente que lo abre; base del control de propiedad</td></tr>
-        <tr><td>agent_id<span class="k">FK</span></td><td>→ users</td><td>Agente asignado; vacío hasta que el admin lo asigna</td></tr>
-        <tr><td>category_id<span class="k">FK</span></td><td>→ ticket_categories</td><td>Obligatoria</td></tr>
-        <tr><td>room_id, booking_id<span class="k">FK</span></td><td>→ rooms / bookings</td><td>Opcionales: de qué sala o partida se habla</td></tr>
-        <tr><td>priority</td><td>ENUM</td><td><code>baja · media · alta</code></td></tr>
-        <tr><td>status</td><td>ENUM</td><td><code>abierto · en_curso · pendiente_cliente · resuelto · cerrado</code></td></tr>
+        <tr><td>cliente_id<span class="k">FK</span></td><td>→ usuarios</td><td>Cliente que lo abre; base del control de propiedad</td></tr>
+        <tr><td>agente_id<span class="k">FK</span></td><td>→ usuarios</td><td>Agente asignado; vacío hasta que el admin lo asigna</td></tr>
+        <tr><td>categoria_id<span class="k">FK</span></td><td>→ categorias</td><td>Obligatoria</td></tr>
+        <tr><td>sala_id, reserva_id<span class="k">FK</span></td><td>→ salas / reservas</td><td>Opcionales: de qué sala o partida se habla</td></tr>
+        <tr><td>prioridad</td><td>ENUM</td><td><code>baja · media · alta</code></td></tr>
+        <tr><td>estado</td><td>ENUM</td><td><code>abierto · en_curso · pendiente_cliente · resuelto · cerrado</code></td></tr>
       </table></div></div>
-    <div class="tcard"><div class="thead"><h3>ticket_messages</h3><span class="badge">Obligatoria</span></div>
+    <div class="tcard"><div class="thead"><h3>mensajes</h3><span class="badge">Obligatoria</span></div>
       <p>Las respuestas de la conversación. Guarda quién escribió cada una y cuándo.</p>
       <div class="cols"><table>
         <tr><td>ticket_id<span class="k">FK</span></td><td>→ tickets</td><td>Si se borra el ticket, se borran sus mensajes</td></tr>
-        <tr><td>author_id<span class="k">FK</span></td><td>→ users</td><td>Cliente, agente o admin</td></tr>
-        <tr><td>is_internal</td><td>BOOLEAN</td><td>Mejora: nota que el cliente no ve</td></tr>
+        <tr><td>autor_id<span class="k">FK</span></td><td>→ usuarios</td><td>Cliente, agente o admin</td></tr>
+        <tr><td>nota_interna</td><td>BOOLEAN</td><td>Mejora: nota que el cliente no ve</td></tr>
       </table></div></div>
-    <div class="tcard"><div class="thead"><h3>ticket_status_history</h3><span class="badge">Obligatoria</span></div>
+    <div class="tcard"><div class="thead"><h3>historial_estados</h3><span class="badge">Obligatoria</span></div>
       <p>Un registro por cada cambio de estado, para mostrar el historial y poder auditarlo.</p>
       <div class="cols"><table>
-        <tr><td>changed_by_id<span class="k">FK</span></td><td>→ users</td><td>Quién hizo el cambio</td></tr>
-        <tr><td>old_status</td><td>ENUM</td><td>Vacío en el registro de creación</td></tr>
-        <tr><td>new_status</td><td>ENUM</td><td>Estado nuevo</td></tr>
+        <tr><td>autor_id<span class="k">FK</span></td><td>→ usuarios</td><td>Quién hizo el cambio</td></tr>
+        <tr><td>estado_anterior</td><td>ENUM</td><td>Vacío en el registro de creación</td></tr>
+        <tr><td>estado_nuevo</td><td>ENUM</td><td>Estado nuevo</td></tr>
       </table></div></div>
-    <div class="tcard"><div class="thead"><h3>ticket_categories</h3><span class="badge">Obligatoria</span></div>
+    <div class="tcard"><div class="thead"><h3>categorias</h3><span class="badge">Obligatoria</span></div>
       <p>Tipos de consulta que administra el admin. Se desactivan en vez de borrarse.</p>
       <div class="cols"><table>
-        <tr><td>name<span class="k">ÚNICO</span></td><td>VARCHAR(80)</td><td>Reservas, Bonos, Grupos, Objetos perdidos, Reclamaciones, Cuenta</td></tr>
+        <tr><td>nombre<span class="k">ÚNICO</span></td><td>VARCHAR(80)</td><td>Reservas, Bonos, Grupos, Objetos perdidos, Reclamaciones, Cuenta</td></tr>
       </table></div></div>
-    <div class="tcard"><div class="thead"><h3>bookings</h3><span class="badge opt">Mejora opcional</span></div>
-      <p>Reservas de partida. Es la segunda entidad que se propuso como mejora en la ficha; si no se hace, se quita junto con <code>tickets.booking_id</code>.</p>
+    <div class="tcard"><div class="thead"><h3>reservas</h3><span class="badge opt">Mejora opcional</span></div>
+      <p>Reservas de partida. Es la segunda entidad que se propuso como mejora en la ficha; si no se hace, se quita junto con <code>tickets.reserva_id</code>.</p>
       <div class="cols"><table>
-        <tr><td>room_id + starts_at<span class="k">ÚNICO</span></td><td>—</td><td>Una sala no se puede reservar dos veces a la misma hora</td></tr>
-        <tr><td>status</td><td>ENUM</td><td><code>pendiente · confirmada · cancelada</code></td></tr>
+        <tr><td>sala_id + fecha_hora<span class="k">ÚNICO</span></td><td>—</td><td>Una sala no se puede reservar dos veces a la misma hora</td></tr>
+        <tr><td>estado</td><td>ENUM</td><td><code>pendiente · confirmada · cancelada</code></td></tr>
       </table></div></div>
   </div>
 </section>
@@ -207,11 +207,11 @@ erDiagram
 <section>
   <h2>Decisiones de diseño</h2>
   <ul class="dec">
-    <li><b>El rol vive en <code>users.role</code>.</b> Con tres roles fijos no hace falta una tabla aparte, y el backend lo comprueba en cada petición con un middleware.</li>
-    <li><b>La propiedad se comprueba con <code>tickets.customer_id</code>.</b> Un cliente solo recibe tickets donde <code>customer_id</code> es el suyo; un agente, donde <code>agent_id</code> es el suyo. Así se supera la prueba de cambiar el id en la URL.</li>
+    <li><b>El rol vive en <code>usuarios.rol</code>.</b> Con tres roles fijos no hace falta una tabla aparte, y el backend lo comprueba en cada petición con un middleware.</li>
+    <li><b>La propiedad se comprueba con <code>tickets.cliente_id</code>.</b> Un cliente solo recibe tickets donde <code>cliente_id</code> es el suyo; un agente, donde <code>agente_id</code> es el suyo. Así se supera la prueba de cambiar el id en la URL.</li>
     <li><b>El código visible (NXR-0042) no se guarda.</b> La API lo forma a partir del id (<code>'NXR-' + id con 4 cifras</code>), así nunca se duplica ni se desincroniza.</li>
-    <li><b>Desactivar en lugar de borrar.</b> Salas, categorías y usuarios tienen <code>is_active</code>; las claves foráneas usan RESTRICT para no perder tickets por un borrado.</li>
-    <li><b>Los datos que el enunciado llama "trazabilidad"</b> están en <code>created_at</code>, <code>updated_at</code>, los mensajes y el historial de estados.</li>
+    <li><b>Desactivar en lugar de borrar.</b> Salas y categorías tienen <code>activa</code> y los usuarios <code>activo</code>; las claves foráneas usan RESTRICT para no perder tickets por un borrado.</li>
+    <li><b>Los datos que el enunciado llama "trazabilidad"</b> están en <code>creado_en</code>, <code>actualizado_en</code>, los mensajes y el historial de estados.</li>
     <li><b>Validación doble.</b> La base de datos impide valores imposibles (CHECK, UNIQUE, ENUM) y el backend devuelve el error con un mensaje claro y el código HTTP adecuado (400, 409…).</li>
   </ul>
 </section>

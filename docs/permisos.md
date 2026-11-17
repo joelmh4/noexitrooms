@@ -36,6 +36,6 @@ El registro público siempre crea la cuenta con rol cliente, aunque se envíe ot
 - El agente puede pasarlo a **En curso**, **Pendiente del cliente** o **Resuelto**, y devolverlo a En curso. No puede cerrarlo.
 - Si el cliente responde a un ticket en Pendiente del cliente, vuelve solo a **En curso**.
 - Un ticket **Resuelto** lo cierra el cliente (confirmando) o el administrador. El cliente también puede pedir que se reabra.
-- Cada cambio guarda quién lo hizo, cuándo, el estado anterior y el nuevo (`ticket_status_history`).
+- Cada cambio guarda quién lo hizo, cuándo, el estado anterior y el nuevo (`historial_estados`).
 
 Una sala con tickets o reservas no se borra (409): se desactiva, para no perder el historial.

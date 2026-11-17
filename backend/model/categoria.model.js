@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 
-// Tabla ticket_categories: tipos de ticket. No se borran: se desactivan,
+// Tabla categorias: tipos de ticket. No se borran: se desactivan,
 // así los tickets antiguos siguen teniendo su categoría.
 const Categoria = sequelize.define('categoria', {
     id: {
@@ -10,18 +10,20 @@ const Categoria = sequelize.define('categoria', {
         primaryKey: true
     },
     name: {
+        field: "nombre",
         type: DataTypes.STRING(80),
         allowNull: false,
-        unique: "uq_ticket_categories_name"
+        unique: "uq_categorias_nombre"
     },
     is_active: {
+        field: "activa",
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
     }
 },
     {
-        tableName: "ticket_categories",
+        tableName: "categorias",
         timestamps: false
     })
 
