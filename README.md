@@ -38,8 +38,8 @@ Los tickets siguen el ciclo Abierto → En curso → Pendiente del cliente → R
 ## Arquitectura
 
 ```
-Navegador ──► Web (HTML, CSS y JS) ──fetch + JWT──► API REST (Node, Express, TypeScript) ──► MySQL
-              GitHub Pages                          Render                                    Aiven
+Navegador ──► Web (HTML, CSS y JS) ──fetch + JWT──► API REST (Node, Express) ──► MongoDB
+              GitHub Pages                          Render                       Atlas
 ```
 
 El frontend nunca habla con la base de datos: todo pasa por la API, que comprueba la sesión, el rol y la propiedad de cada recurso. Ocultar un botón en la web no da ni quita permisos.
@@ -47,25 +47,25 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 | Carpeta | Qué hay |
 | --- | --- |
 | [`frontend/`](frontend) | Web en HTML, CSS y JavaScript sin frameworks. Todas las páginas piden los datos a la API desde `js/api.js`. |
-| [`backend/`](backend) | API REST con rutas, controladores, servicios y middleware, documentación Swagger y 40 pruebas automáticas. |
-| [`docs/`](docs) | Ficha inicial, mapa de páginas, guía de estilo, wireframes, modelo entidad-relación, script SQL, permisos, casos de prueba, capturas y guía de despliegue. |
+| [`backend/`](backend) | API REST en Express con Mongoose (modelos, controladores, rutas y middleware, como el ejemplo de clase), documentación Swagger y 40 pruebas automáticas. |
+| [`docs/`](docs) | Ficha inicial, mapa de páginas, guía de estilo, wireframes, modelo entidad-relación, modelo de datos en MongoDB, permisos, casos de prueba, capturas y guía de despliegue. |
 
 ## Requisitos para ejecutarlo en local
 
 - Node 20 o posterior
-- MySQL 8 o MariaDB 10.11
+- MongoDB (en local o un clúster gratuito de MongoDB Atlas)
 - Un navegador y cualquier servidor estático (por ejemplo, la extensión Live Server de VS Code)
 
 ## Instalación en local
 
-1. Crea una base de datos vacía y un usuario con permisos sobre ella.
+1. Arranca MongoDB en local (o crea un clúster gratuito en MongoDB Atlas).
 2. Prepara el backend:
 
    ```bash
    cd backend
    npm install
-   cp .env.example .env     # rellena DB_*, JWT_SECRET y CORS_ORIGIN (la dirección donde abres la web, p. ej. http://127.0.0.1:5500)
-   npm run db:cargar        # crea las tablas y carga los datos de ejemplo
+   cp .env.example .env     # rellena MONGO_URL, TOKEN_PASSWORD y CORS_ORIGIN (la dirección donde abres la web, p. ej. http://127.0.0.1:5500)
+   npm run carga            # crea la base de datos con los datos de ejemplo
    npm run dev              # API en http://localhost:3000/api
    ```
 
@@ -76,23 +76,22 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 | Comando | Qué hace |
 | --- | --- |
 | `npm run dev` | Arranca la API con recarga automática |
-| `npm run build` | Compila TypeScript a `dist` |
-| `npm start` | Arranca la versión compilada (la de producción) |
+| `npm start` | Arranca la API sin recarga (la de producción) |
 | `npm test` | Lanza las 40 pruebas de la API contra la base de datos del `.env` |
-| `npm run db:cargar` | Borra y vuelve a crear las tablas con los datos de ejemplo |
+| `npm run carga` | Borra la base de datos y la vuelve a crear con los datos de ejemplo |
 
 ## Documentación
 
 - [Permisos por rol](docs/permisos.md)
 - [Casos de prueba](docs/casos-de-prueba.md) y [capturas](docs/capturas/)
-- [Modelo entidad-relación](docs/05_Modelo_ER.html) y [script SQL](backend/sql/esquema.sql)
+- [Modelo entidad-relación](docs/05_Modelo_ER.html) y [modelo de datos en MongoDB](docs/05_Modelo_datos_MongoDB.md)
 - [Wireframes](docs/04_Wireframes.html) y [guía de estilo](docs/03_Guia_de_estilo.html)
 - [Despliegue paso a paso](docs/despliegue.md)
-- API: Swagger en `/api/docs` y el archivo [`openapi.yaml`](backend/src/docs/openapi.yaml)
+- API: Swagger en `/api/docs`, generado con swagger-jsdoc a partir de los comentarios de [`backend/routes/`](backend/routes)
 
 ## Seguridad
 
 - Contraseñas guardadas con bcrypt; sesión con token JWT que caduca a las 8 horas.
-- Todas las consultas a MySQL son parametrizadas y todo texto se escapa antes de pintarlo en la web.
+- Las consultas a MongoDB se hacen con Mongoose y valores ya validados, y todo texto se escapa antes de pintarlo en la web.
 - Diez intentos fallidos de login en 15 minutos bloquean temporalmente ese acceso (429).
 - Las claves y la conexión a la base de datos van en variables de entorno; en el repositorio solo está `backend/.env.example`.

@@ -1,0 +1,101 @@
+// Métricas del panel (enunciado: "vista de tickets pendientes y métricas básicas" y, como mejora,
+// "estadísticas por agente"). El admin ve las de todo el equipo; el agente, solo las suyas.
+const Ticket = require("../model/ticket.model");
+const { ESTADOS, PRIORIDADES } = require("../model/ticket.model");
+const Categoria = require("../model/categoria.model");
+const Usuario = require("../model/usuario.model");
+const Reserva = require("../model/reserva.model");
+const { ahoraEnMadrid, sumarDias } = require("../utils/horario");
+
+const ACTIVOS = ["abierto", "en_curso", "pendiente_cliente"];
+
+// Cuenta cuántos elementos de la lista tienen cada valor (los que no salen, a 0)
+function contar(claves, lista) {
+    const result = Object.fromEntries(claves.map(k => [k, 0]));
+    for (const valor of lista) result[valor]++;
+    return result;
+}
+
+class EstadisticaController {
+
+    // GET /stats · agente o admin
+    async resumen(req, res) {
+        const yo = req.usuario;
+        const deQuien = yo.role === "agente" ? { agent_id: yo.id } : {};
+
+        const [tickets, categorias] = await Promise.all([
+            Ticket.find(deQuien).select("status priority category_id agent_id created_at historial.new_status historial.changed_at"),
+            Categoria.find().sort({ name: 1 }).collation({ locale: "es" })
+        ]);
+        const activos = tickets.filter(t => ACTIVOS.includes(t.status));
+
+        // Horas desde que se abre hasta que se marca resuelto por primera vez
+        const horas = tickets
+            .map(t => {
+                const resuelto = t.historial.find(h => h.new_status === "resuelto");
+                return resuelto ? (resuelto.changed_at - t.created_at) / 3600000 : null;
+            })
+            .filter(h => h !== null);
+
+        // Tickets creados cada día de la última semana (días con al menos uno)
+        const hoy = new Date().toISOString().slice(0, 10);
+        const desde = sumarDias(hoy, -6);
+        const porDia = {};
+        for (const t of tickets) {
+            const dia = t.created_at.toISOString().slice(0, 10);
+            if (dia >= desde) porDia[dia] = (porDia[dia] || 0) + 1;
+        }
+
+        const porEstado = contar(ESTADOS, tickets.map(t => t.status));
+        const resumen = {
+            total: tickets.length,
+            activos: activos.length,
+            por_estado: porEstado,
+            activos_por_prioridad: contar(PRIORIDADES, activos.map(t => t.priority)),
+            por_categoria: categorias
+                .map(c => ({ id: c._id, name: c.name, n: tickets.filter(t => t.category_id === c._id).length }))
+                .sort((a, b) => b.n - a.n),
+            horas_medias_hasta_resolver: horas.length
+                ? Math.round((horas.reduce((a, b) => a + b, 0) / horas.length) * 10) / 10
+                : null,
+            creados_ultimos_7_dias: Object.keys(porDia).sort().map(dia => ({ dia, n: porDia[dia] }))
+        };
+
+        // Los tickets sin asignar no son cosa del agente: los reparte el admin
+        if (yo.role === "agente") return res.status(200).json({ tickets: resumen });
+
+        // Solo admin: tickets sin asignar, carga de cada agente y reservas
+        const ahora = ahoraEnMadrid();
+        const [sinAsignar, agentes, pendientes, proximas] = await Promise.all([
+            Ticket.find({ agent_id: null, status: { $ne: "cerrado" } }).select("priority"),
+            Usuario.find({ role: "agente", is_active: true }),
+            Reserva.countDocuments({ status: "pendiente" }),
+            Reserva.countDocuments({
+                status: { $ne: "cancelada" },
+                starts_at: { $gte: `${ahora}:00`, $lt: `${sumarDias(ahora.slice(0, 10), 7)}T00:00:00` }
+            })
+        ]);
+
+        resumen.sin_asignar = { total: sinAsignar.length, alta: sinAsignar.filter(t => t.priority === "alta").length };
+        const cargaAgentes = agentes
+            .map(a => {
+                const suyos = tickets.filter(t => t.agent_id === a._id);
+                return {
+                    id: a._id,
+                    name: a.name,
+                    activos: suyos.filter(t => ACTIVOS.includes(t.status)).length,
+                    pendientes_cliente: suyos.filter(t => t.status === "pendiente_cliente").length,
+                    resueltos: suyos.filter(t => t.status === "resuelto" || t.status === "cerrado").length
+                };
+            })
+            .sort((a, b) => b.activos - a.activos || a.name.localeCompare(b.name, "es"));
+
+        return res.status(200).json({
+            tickets: resumen,
+            agentes: cargaAgentes,
+            reservas: { pendientes_de_confirmar: pendientes, proximos_7_dias: proximas }
+        });
+    }
+}
+
+module.exports = new EstadisticaController();
