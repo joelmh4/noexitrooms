@@ -1,0 +1,200 @@
+# Piezas comunes de la documentación Swagger (esquemas, respuestas y etiquetas).
+# Las rutas se documentan con comentarios @swagger en cada archivo de routes/.
+tags:
+  - name: Sistema
+    description: Estado del servicio
+  - name: Autenticación
+    description: Registro e inicio de sesión (públicas)
+  - name: Perfil
+    description: Datos de la persona que ha iniciado sesión
+  - name: Usuarios
+    description: Gestión de usuarios y roles (administrador)
+  - name: Tickets
+    description: |
+      Soporte. Cliente: solo sus tickets. Agente: solo los que tiene asignados.
+      Admin: todos. Un ticket que no puedes ver responde 404, aunque exista.
+  - name: Categorías
+    description: Tipos de ticket (lectura pública, gestión del administrador)
+  - name: Panel
+    description: Métricas para los paneles del agente y del administrador
+  - name: Salas
+    description: Catálogo de salas (lectura pública con buscador, CRUD del administrador)
+  - name: Reservas
+    description: |
+      Horarios y reservas. Las horas son de Madrid y van sin zona horaria: `AAAA-MM-DDTHH:MM:SS`.
+      Una reserva nace `pendiente` hasta que la confirma el equipo.
+components:
+  securitySchemes:
+    token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    DatosInvalidos:
+      description: Datos incompletos o no válidos (400). `campos` dice qué falla en cada uno.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    SinSesion:
+      description: Sin token, token caducado o credenciales incorrectas (401)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Prohibido:
+      description: El rol no tiene permiso o la cuenta está desactivada (403)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NoEncontrado:
+      description: No existe o no tienes acceso (404)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Conflicto:
+      description: Duplicado o conflicto (409)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  parameters:
+    IdTicket: { name: id, in: path, required: true, schema: { type: integer, example: 4 } }
+  schemas:
+    Sala:
+      type: object
+      properties:
+        id: { type: integer, example: 3 }
+        name: { type: string, example: El manicomio de San Tomás }
+        slug: { type: string, example: el-manicomio-de-san-tomas }
+        theme: { type: string, example: Terror }
+        difficulty: { type: integer, minimum: 1, maximum: 5 }
+        duration_min: { type: integer, minimum: 15, maximum: 180, example: 150 }
+        min_players: { type: integer, example: 3 }
+        max_players: { type: integer, example: 7 }
+        price_per_person: { type: number, example: 26 }
+        description: { type: string }
+        tagline: { type: string, nullable: true }
+        min_age: { type: integer, example: 18 }
+        challenges: { type: string, nullable: true, description: Pruebas de la sala separadas por saltos de línea }
+        image_url: { type: string, nullable: true, example: img/salas/el-manicomio-de-san-tomas/principal.webp }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    DatosSala:
+      type: object
+      required: [name, theme, difficulty, duration_min, min_players, max_players, price_per_person, description]
+      properties:
+        name: { type: string, minLength: 3, maxLength: 100, example: La cripta }
+        theme: { type: string, minLength: 3, maxLength: 50, example: Misterio }
+        difficulty: { type: integer, minimum: 1, maximum: 5, example: 3 }
+        duration_min: { type: integer, minimum: 15, maximum: 180, example: 60 }
+        min_players: { type: integer, minimum: 1, maximum: 20, example: 2 }
+        max_players: { type: integer, minimum: 1, maximum: 20, example: 6, description: No puede ser menor que min_players }
+        price_per_person: { type: number, minimum: 0, example: 20 }
+        description: { type: string, minLength: 20, maxLength: 5000 }
+        tagline: { type: string, maxLength: 150, nullable: true }
+        min_age: { type: integer, minimum: 0, maximum: 99, default: 0 }
+        challenges: { type: string, maxLength: 2000, nullable: true, description: Una prueba por línea }
+        image_url: { type: string, nullable: true, description: "Si no se envía: img/salas/<slug>/principal.webp al crear, la que tenía al editar" }
+        is_active: { type: boolean, default: true }
+    Reserva:
+      type: object
+      properties:
+        id: { type: integer }
+        customer_id: { type: integer }
+        room_id: { type: integer }
+        starts_at: { type: string, example: "2026-10-31T18:00:00" }
+        players: { type: integer, example: 5 }
+        status: { type: string, enum: [pendiente, confirmada, cancelada] }
+        created_at: { type: string, format: date-time }
+        sala:
+          type: object
+          properties: { id: { type: integer }, name: { type: string }, slug: { type: string }, image_url: { type: string, nullable: true } }
+        cliente:
+          type: object
+          properties: { id: { type: integer }, name: { type: string } }
+    Rol:
+      type: string
+      enum: [cliente, agente, admin]
+    Estado:
+      type: string
+      enum: [abierto, en_curso, pendiente_cliente, resuelto, cerrado]
+    Prioridad:
+      type: string
+      enum: [baja, media, alta]
+    Persona:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        role: { $ref: "#/components/schemas/Rol" }
+    Categoria:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: Reservas y cambios de fecha }
+        is_active: { type: boolean }
+    Ticket:
+      type: object
+      properties:
+        id: { type: integer, example: 4 }
+        codigo: { type: string, example: NXR-0004 }
+        subject: { type: string }
+        description: { type: string }
+        priority: { $ref: "#/components/schemas/Prioridad" }
+        status: { $ref: "#/components/schemas/Estado" }
+        customer_id: { type: integer }
+        agent_id: { type: integer, nullable: true }
+        category_id: { type: integer }
+        room_id: { type: integer, nullable: true }
+        booking_id: { type: integer, nullable: true }
+        cliente: { $ref: "#/components/schemas/Persona" }
+        agente: { type: object, allOf: [{ $ref: "#/components/schemas/Persona" }], nullable: true }
+        categoria: { type: string, example: Reservas y cambios de fecha }
+        sala:
+          type: object
+          nullable: true
+          properties: { id: { type: integer }, name: { type: string }, slug: { type: string } }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        closed_at: { type: string, format: date-time, nullable: true }
+    TicketDetalle:
+      allOf:
+        - $ref: "#/components/schemas/Ticket"
+        - type: object
+          properties:
+            mensajes:
+              type: array
+              description: En orden cronológico. El cliente no recibe las notas internas.
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  body: { type: string }
+                  is_internal: { type: boolean }
+                  created_at: { type: string, format: date-time }
+                  autor: { $ref: "#/components/schemas/Persona" }
+            historial:
+              type: array
+              description: Cambios de estado en orden cronológico, con quién y cuándo
+              items:
+                type: object
+                properties:
+                  old_status: { type: string, allOf: [{ $ref: "#/components/schemas/Estado" }], nullable: true }
+                  new_status: { $ref: "#/components/schemas/Estado" }
+                  changed_at: { type: string, format: date-time }
+                  autor: { $ref: "#/components/schemas/Persona" }
+    Usuario:
+      type: object
+      properties:
+        id: { type: integer, example: 4 }
+        name: { type: string, example: Pedro Sánchez }
+        email: { type: string, format: email, example: pedro@ejemplo.test }
+        role: { $ref: "#/components/schemas/Rol" }
+        is_active: { type: boolean, example: true }
+        created_at: { type: string, format: date-time }
+    Sesion:
+      type: object
+      properties:
+        token: { type: string, description: "JWT. Se envía en Authorization: Bearer <token>. Caduca a las 8 h." }
+        usuario: { $ref: "#/components/schemas/Usuario" }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo: { type: string, example: NO_ENCONTRADO }
+            mensaje: { type: string, example: No existe o no tienes acceso. }
+            campos:
+              type: object
+              additionalProperties: { type: string }
+              example: { email: Escribe un email válido. }

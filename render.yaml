@@ -7,7 +7,7 @@ services:
     plan: free
     region: frankfurt
     rootDir: backend
-    buildCommand: npm ci --include=dev && npm run build
+    buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
@@ -30,9 +30,9 @@ services:
         value: "true"
       - key: DB_SSL_CA
         sync: false
-      - key: JWT_SECRET
+      - key: TOKEN_PASSWORD
         generateValue: true
-      - key: JWT_EXPIRES
+      - key: TOKEN_EXPIRES
         value: 8h
       - key: CORS_ORIGIN
         value: https://joelmh4.github.io

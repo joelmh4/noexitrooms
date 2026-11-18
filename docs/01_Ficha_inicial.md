@@ -16,28 +16,28 @@ Los locales de escape rooms pequeños suelen gestionar la información de sus sa
 
 ## Módulo temático (entidad y CRUD)
 
-**Entidad principal: Salas** (`rooms`).
+**Entidad principal: Salas** (`salas`).
 
 | Campo | Tipo | Notas |
 | --- | --- | --- |
 | id | entero | Clave primaria |
-| name | texto | Único, p. ej. "La cripta del alquimista" |
+| nombre | texto | Único, p. ej. "La cripta del alquimista" |
 | slug | texto | Para la URL de la ficha |
-| theme | texto | Terror, misterio, aventura, ciencia ficción... |
-| difficulty | 1 a 5 | Nivel de dificultad |
-| duration_min | entero | Normalmente 60 o 90 |
-| min_players / max_players | entero | p. ej. 2 a 6 |
-| price_per_person | decimal | Precio orientativo, sin pagos reales |
-| description | texto largo | Historia de la sala |
-| image_url | texto | Portada |
-| is_active | booleano | Para desactivar en lugar de borrar |
-| created_at / updated_at | fecha | Trazabilidad |
+| tematica | texto | Terror, misterio, aventura, ciencia ficción... |
+| dificultad | 1 a 5 | Nivel de dificultad |
+| duracion_min | entero | Normalmente 60 o 90 |
+| jugadores_min / jugadores_max | entero | p. ej. 2 a 6 |
+| precio_persona | decimal | Precio orientativo, sin pagos reales |
+| descripcion | texto largo | Historia de la sala |
+| url_imagen | texto | Portada |
+| activa | booleano | Para desactivar en lugar de borrar |
+| creado_en / actualizado_en | fecha | Trazabilidad |
 
 **CRUD (solo administrador):** crear sala, listar y ver ficha (público), editar y desactivar o eliminar. **Búsqueda y filtros:** texto por nombre, filtro por temática, dificultad y número de jugadores, y orden por precio o dificultad.
 
 ## Tipos de solicitudes que se gestionarán como tickets
 
-Categorías de ticket (`ticket_categories`), administrables por el admin:
+Categorías de ticket (`categorias`), administrables por el admin:
 
 - **Reservas y cambios de fecha:** mover o cancelar una partida.
 - **Bonos y tarjetas regalo:** canjeo, caducidad o código que no funciona.
@@ -50,13 +50,13 @@ Roles: el **cliente** abre tickets y responde a los suyos; el **agente** es el g
 
 ## Tecnologías previstas
 
-- **Frontend (material de clase):** React + Vite con TypeScript (Tema 3), React Router para la navegación y peticiones a la API con `fetch` y async/await. Maquetación con CSS propio, Flexbox y Grid, adaptable a móvil. Desplegado en Vercel o Netlify.
+- **Frontend:** HTML, CSS y JavaScript sin frameworks (el enunciado lo permite en el apartado 05). Varias páginas HTML que piden los datos a la API con `fetch` y async/await desde un único archivo (`js/api.js`). Maquetación con CSS propio, Flexbox y Grid, adaptable a móvil. Publicado en GitHub Pages.
 - **Diseño (Diseño de Interfaces):** wireframes, sitemap y mockups en Figma, con paleta de color, tipografía e iconografía definidas.
-- **Backend:** Node.js + Express + TypeScript, autenticación con JWT, contraseñas con bcrypt, validación de datos y documentación con Swagger (swagger-ui-express). Desplegado en Render o Railway.
-- **Base de datos:** MySQL alojado en un servicio remoto (por ejemplo Railway o Aiven), con script SQL de creación, claves primarias y foráneas, y datos semilla. Desde Express se accede con consultas parametrizadas (mysql2) o con un ORM como Prisma.
+- **Backend:** Node.js + Express en JavaScript, con la estructura del ejemplo de clase de la app de coches (modelos, controladores, rutas y middleware), autenticación con JWT, contraseñas con bcrypt, validación de datos y documentación con Swagger (swagger-jsdoc y swagger-ui-express). Desplegado en Render.
+- **Base de datos:** MySQL alojado en Aiven, con claves primarias y foráneas. Desde Express se accede con el ORM Sequelize (modelos con validaciones y relaciones; consultas siempre parametrizadas). Las tablas y los datos de ejemplo se crean con el script SQL `backend/bbdd/noexitrooms.sql`.
 - **Control de versiones:** Git y GitHub, con carpetas `frontend/` y `backend/` separadas y secretos en variables de entorno.
 
-*Nota: el material de la biblioteca solo cubre el frontend (React, Vite, TypeScript, fetch) y el diseño (Figma, CSS). El backend de los ejemplos de clase es json-server, que sirve para practicar pero no cumple el enunciado (hace falta una base de datos relacional real, contraseñas con hash y permisos en el servidor). Por eso se propone Express + MySQL, que usa el mismo Node.js y TypeScript vistos en clase. Si el docente indica otro backend, se cambia aquí.*
+*Nota: en clase se ha visto React + Vite, pero para la web hemos preferido HTML, CSS y JavaScript sin framework, que el enunciado admite y que podemos explicar línea a línea en la defensa. El backend de los ejemplos de clase es json-server, que sirve para practicar pero no cumple el enunciado (hace falta una base de datos relacional real, contraseñas con hash y permisos en el servidor). Por eso el backend sigue el ejemplo de clase de la app de coches (Express, JWT, bcrypt y Swagger con swagger-jsdoc), pero con MySQL y Sequelize en lugar de MongoDB y Mongoose, porque el enunciado pide una base de datos relacional.*
 
 ## Reparto de responsabilidades
 
@@ -64,6 +64,6 @@ Proyecto en equipo de tres personas (Joel, Edu e Iván). No hay reparto fijo: lo
 
 ## Mejora opcional que se intentará implementar
 
-**Reservas de partida** como segunda entidad (`bookings`: cliente, sala, fecha y hora, número de jugadores, estado). El ticket podrá vincularse opcionalmente a una reserva, de modo que el agente vea de qué partida se habla.
+**Reservas de partida** como segunda entidad (`reservas`: cliente, sala, fecha y hora, número de jugadores, estado). El ticket podrá vincularse opcionalmente a una reserva, de modo que el agente vea de qué partida se habla.
 
 Si sobra tiempo: **valoraciones** de las salas por parte de los clientes, o **notas internas** en los tickets visibles solo para agentes y admin.

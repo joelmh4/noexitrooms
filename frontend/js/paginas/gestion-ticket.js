@@ -3,7 +3,8 @@ iniciar(async yo => {
   const id = Number(parametro("id"));
   const zona = document.getElementById("ticket");
   const volver = yo.role === "admin" ? ["admin-tickets.html", "Todos los tickets"] : ["soporte.html", "Mis tickets"];
-  const agentes = await api.usuarios.agentes();
+  // Solo el admin asigna tickets, así que solo él necesita la lista de agentes
+  const agentes = yo.role === "admin" ? await api.usuarios.agentes() : [];
 
   let recienEnviado = false;
   async function cargar() {
@@ -15,7 +16,6 @@ iniciar(async yo => {
       return;
     }
     document.title = `${codigoTicket(t.id)} · Soporte · NoExitRooms`;
-    const puedeEditar = yo.role === "admin" || t.agent_id === yo.id;
     // El agente no cierra tickets: lo hace el cliente al confirmar o un admin
     const estadosPermitidos = Object.entries(ESTADOS).filter(([v]) => yo.role === "admin" || v !== "cerrado" || t.status === "cerrado");
 
@@ -29,8 +29,6 @@ iniciar(async yo => {
             ${agentes.map(a => `<option value="${a.id}"${a.id === t.agent_id ? " selected" : ""}>${esc(a.name)}</option>`).join("")}
           </select>
         </div>`;
-    } else if (t.agent_id === null) {
-      asignacion = `<button class="boton boton-primario boton-bloque" id="quedarmelo">${icono("hand")} Quedármelo</button>`;
     } else {
       asignacion = `<dl class="datos-ticket"><dt>Agente</dt><dd>${esc(t.agente.name)}</dd></dl>`;
     }
@@ -44,14 +42,13 @@ iniciar(async yo => {
         </div>
         <div class="fila">${chipPrioridad(t.priority)} ${chipEstado(t.status)}</div>
       </div>
-      ${!puedeEditar ? aviso("info", "Este ticket está sin asignar. Quédatelo para poder responder y cambiar su estado.") : ""}
       <div class="detalle">
         <div class="pila">
           <section class="tarjeta">
             <h2 class="tarjeta-titulo">Historial</h2>
             <div class="historial">${historialTicket(t, true)}</div>
           </section>
-          ${puedeEditar && t.status !== "cerrado" ? `
+          ${t.status !== "cerrado" ? `
           <form class="tarjeta formulario" id="form-respuesta" novalidate>
             <div class="campo">
               <label for="respuesta">Responder al cliente</label>
@@ -78,13 +75,13 @@ iniciar(async yo => {
             ${asignacion}
             <div class="campo">
               <label for="estado">Estado</label>
-              <select id="estado"${puedeEditar ? "" : " disabled"}>
+              <select id="estado">
                 ${estadosPermitidos.map(([v, txt]) => `<option value="${v}"${v === t.status ? " selected" : ""}>${txt}</option>`).join("")}
               </select>
             </div>
             <div class="campo">
               <label for="prioridad">Prioridad</label>
-              <select id="prioridad"${puedeEditar ? "" : " disabled"}>
+              <select id="prioridad">
                 ${Object.entries(PRIORIDADES).map(([v, txt]) => `<option value="${v}"${v === t.priority ? " selected" : ""}>${txt}</option>`).join("")}
               </select>
             </div>
@@ -108,8 +105,6 @@ iniciar(async yo => {
       guardar(() => api.tickets.cambiarPrioridad(id, e.target.value), `Prioridad cambiada a ${PRIORIDADES[e.target.value]}.`));
     zona.querySelector("#agente")?.addEventListener("change", e =>
       guardar(() => api.tickets.asignar(id, Number(e.target.value) || null), e.target.value ? "Ticket asignado." : "Ticket sin asignar."));
-    zona.querySelector("#quedarmelo")?.addEventListener("click", () =>
-      guardar(() => api.tickets.asignar(id, yo.id), "Ahora el ticket es tuyo."));
     zona.querySelector("#form-respuesta")?.addEventListener("submit", async e => {
       e.preventDefault();
       const { respuesta, interna } = e.target.elements;
