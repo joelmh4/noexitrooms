@@ -21,6 +21,18 @@
 .manifiesto-texto { font-family: var(--font-titulos); font-weight: 700; font-size: clamp(1.9rem, 4.6vw, 4rem); line-height: 1.12; letter-spacing: -0.025em; color: #F1F3EE; max-width: 20ch; margin: 0 auto; text-align: center; text-wrap: balance; }
 .manifiesto-estatico .manifiesto-fondo { opacity: .45; }
 
+/* Cuenta atrás de la franja oscura */
+.manifiesto { padding: 18vh 0; }
+.manifiesto-reloj { display: flex; flex-direction: column; align-items: center; gap: var(--esp-4); text-align: center; }
+.reloj-etiqueta { margin: 0; display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-codigo); font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: #C9CFC4; }
+.piloto-rojo { width: 10px; height: 10px; border-radius: 50%; background: #FF5A5A; box-shadow: 0 0 10px #FF5A5A; animation: parpadeo 1s steps(2, start) infinite; }
+@keyframes parpadeo { to { visibility: hidden; } }
+.reloj-digitos { margin: 0; font-family: var(--font-codigo); font-weight: 700; font-size: clamp(4.5rem, 16vw, 11rem); line-height: 1; letter-spacing: .02em; color: var(--color-neon);
+  text-shadow: 0 0 18px rgba(152, 252, 2, .55), 0 0 60px rgba(152, 252, 2, .25); font-variant-numeric: tabular-nums; }
+.reloj-digitos.ultimo-minuto { color: #FF5A5A; text-shadow: 0 0 18px rgba(255, 90, 90, .6), 0 0 60px rgba(255, 90, 90, .3); }
+.manifiesto-reloj .manifiesto-texto { font-size: clamp(1.5rem, 3.4vw, 2.6rem); }
+@media (prefers-reduced-motion: reduce) { .piloto-rojo { animation: none; } }
+
 /* ---------- Medidor de miedo ---------- */
 .medidor-rejilla { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: var(--esp-12); align-items: center; }
 .medidor-control { display: flex; flex-direction: column; gap: var(--esp-4); }
