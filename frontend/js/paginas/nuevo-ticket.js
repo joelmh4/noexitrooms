@@ -1,33 +1,26 @@
-// Nuevo ticket (cliente)
 iniciar(async yo => {
   const [categorias, salas] = await Promise.all([api.categorias.listar(), api.salas.listar()]);
   const form = document.getElementById("form-ticket");
   if (yo.role === "admin") document.getElementById("cancelar").href = "admin-tickets.html";
-  const { subject, category_id, room_id, description } = form.elements;
+  const { subject, category_id, room_id, priority, description } = form.elements;
+  const categoria = inicio => categorias.find(c => c.name.startsWith(inicio))?.id || "";
 
-  category_id.innerHTML = `<option value="">Elige una categoría</option>` +
-    categorias.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
-  room_id.innerHTML = `<option value="">Ninguna en concreto</option>` +
-    salas.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  category_id.innerHTML = opciones(categorias.map(c => [c.id, c.name]), "Elige una categoría");
+  room_id.innerHTML = opciones(salas.map(s => [s.id, s.name]), "Ninguna en concreto");
 
-  // Si venimos desde la ficha de una sala, la dejamos elegida
   const desdeSala = salas.find(s => s.slug === parametro("sala"));
   if (desdeSala) {
     room_id.value = desdeSala.id;
-    category_id.value = categorias.find(c => c.name.startsWith("Reservas"))?.id || "";
+    category_id.value = categoria("Reservas");
     subject.value = `Reserva en ${desdeSala.name}`;
   }
-
-  // Si venimos del candado de la portada, preparamos el canje del código
   if (parametro("bono") === "NOEXIT-1974") {
-    category_id.value = categorias.find(c => c.name.startsWith("Bonos"))?.id || "";
+    category_id.value = categoria("Bonos");
     subject.value = "Canjear código NOEXIT-1974";
     description.value = "He abierto el candado de la portada y quiero canjear el código NOEXIT-1974 (10 % de descuento en nuestra primera sala).";
   }
-
-  // Desde "Bonos regalo" de la portada
   if (parametro("regalo")) {
-    category_id.value = categorias.find(c => c.name.startsWith("Bonos"))?.id || "";
+    category_id.value = categoria("Bonos");
     subject.value = "Quiero regalar un bono";
   }
 
@@ -36,12 +29,11 @@ iniciar(async yo => {
 
   form.addEventListener("submit", async e => {
     e.preventDefault();
-    limpiarErrores(form);
-    let valido = true;
-    if (subject.value.trim().length < 5) { marcarError(subject, "El asunto necesita al menos 5 caracteres."); valido = false; }
-    if (!category_id.value) { marcarError(category_id, "Elige una categoría."); valido = false; }
-    if (description.value.trim().length < 20) { marcarError(description, "Cuéntanos un poco más (mínimo 20 caracteres)."); valido = false; }
-    if (!valido) return;
+    if (!validar(form, [
+      [subject.value.trim().length < 5, subject, "El asunto necesita al menos 5 caracteres."],
+      [!category_id.value, category_id, "Elige una categoría."],
+      [description.value.trim().length < 20, description, "Cuéntanos un poco más (mínimo 20 caracteres)."]
+    ])) return;
 
     let ticket;
     const ok = await accion(form.querySelector('[type="submit"]'), async () => {
@@ -49,12 +41,11 @@ iniciar(async yo => {
         subject: subject.value,
         category_id: Number(category_id.value),
         room_id: room_id.value ? Number(room_id.value) : null,
-        priority: form.elements.priority.value,
+        priority: priority.value,
         description: description.value
       });
     });
     if (!ok) return;
-    // El cliente vuelve a su ticket; el admin lo abre en la gestión
     const pagina = yo.role === "admin" ? "soporte-ticket.html" : "ticket.html";
     location.href = `${pagina}?id=${ticket.id}&nuevo=1`;
   });

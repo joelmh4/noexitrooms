@@ -1,21 +1,12 @@
-// Iniciar sesión. Tras entrar, vuelve a la página que pedía sesión o va al inicio de su rol.
 iniciar(async yo => {
   const form = document.getElementById("form-login");
   const zonaAviso = document.getElementById("aviso-login");
-  if (yo) {
-    zonaAviso.innerHTML = aviso("info", `Ya has iniciado sesión como ${yo.name}.`);
-  }
-  if (parametro("volver")) {
-    zonaAviso.innerHTML = aviso("aviso", "Inicia sesión para continuar.");
-  }
+  const volver = parametro("volver");
+  if (yo) zonaAviso.innerHTML = aviso("info", `Ya has iniciado sesión como ${yo.name}.`);
+  if (volver) zonaAviso.innerHTML = aviso("aviso", "Inicia sesión para continuar.");
 
-  function destino(rol) {
-    const volver = parametro("volver");
-    // Solo aceptamos páginas de esta web (nada de enlaces externos)
-    return volver && /^[a-z0-9-]+\.html(\?[\w=&%-]*)?(#[\w-]+)?$/i.test(volver) ? volver : INICIO_POR_ROL[rol];
-  }
+  const destino = rol => volver && /^[a-z0-9-]+\.html(\?[\w=&%-]*)?(#[\w-]+)?$/i.test(volver) ? volver : INICIO_POR_ROL[rol];
 
-  // Cuentas de prueba: rellenan el formulario (todas tienen la contraseña Demo1234!)
   form.querySelectorAll("[data-cuenta]").forEach(b => b.addEventListener("click", () => {
     form.elements.email.value = b.dataset.cuenta;
     form.elements.password.value = "Demo1234!";
@@ -24,13 +15,12 @@ iniciar(async yo => {
 
   form.addEventListener("submit", async e => {
     e.preventDefault();
-    limpiarErrores(form);
     zonaAviso.innerHTML = "";
     const { email, password } = form.elements;
-    let valido = true;
-    if (!EMAIL_VALIDO.test(email.value.trim())) { marcarError(email, "Escribe un email válido."); valido = false; }
-    if (!password.value) { marcarError(password, "Escribe tu contraseña."); valido = false; }
-    if (!valido) return;
+    if (!validar(form, [
+      [!EMAIL_VALIDO.test(email.value.trim()), email, "Escribe un email válido."],
+      [!password.value, password, "Escribe tu contraseña."]
+    ])) return;
 
     const boton = form.querySelector('[type="submit"]');
     boton.disabled = true;

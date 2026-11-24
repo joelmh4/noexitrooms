@@ -1,4 +1,3 @@
-// Detalle de ticket (cliente). Solo ve sus tickets y nunca las notas internas.
 iniciar(async () => {
   const id = Number(parametro("id"));
   const zona = document.getElementById("ticket");
@@ -14,13 +13,10 @@ iniciar(async () => {
     }
     document.title = `${codigoTicket(t.id)} · NoExitRooms`;
 
-    let acciones = "";
-    if (t.status === "resuelto") {
-      acciones = `
-        ${aviso("info", "El equipo ha marcado el ticket como resuelto. ¿Está todo bien?")}
-        <button class="boton boton-primario boton-bloque" data-estado="cerrado">Sí, cerrar el ticket</button>
-        <button class="boton boton-secundario boton-bloque" data-estado="abierto">No, sigue sin resolver</button>`;
-    }
+    const acciones = t.status !== "resuelto" ? "" : `
+      ${aviso("info", "El equipo ha marcado el ticket como resuelto. ¿Está todo bien?")}
+      <button class="boton boton-primario boton-bloque" data-estado="cerrado">Sí, cerrar el ticket</button>
+      <button class="boton boton-secundario boton-bloque" data-estado="abierto">No, sigue sin resolver</button>`;
 
     zona.innerHTML = `
       <a href="mis-tickets.html" class="subtexto">← Mis tickets</a>
@@ -65,8 +61,7 @@ iniciar(async () => {
     zona.querySelector("#form-respuesta")?.addEventListener("submit", async e => {
       e.preventDefault();
       const caja = e.target.elements.respuesta;
-      limpiarErrores(e.target);
-      if (!caja.value.trim()) { marcarError(caja, "Escribe un mensaje antes de enviar."); return; }
+      if (!validar(e.target, [[!caja.value.trim(), caja, "Escribe un mensaje antes de enviar."]])) return;
       const ok = await accion(e.target.querySelector('[type="submit"]'), () => api.tickets.responder(id, caja.value));
       if (!ok) return;
       recienEnviado = true;
@@ -83,7 +78,6 @@ iniciar(async () => {
       toast("ok", nuevo === "cerrado" ? "Ticket cerrado. ¡Gracias!" : "Ticket reabierto.");
       cargar();
     }));
-    // El mensaje que acabas de enviar llega desde la caja de respuesta
     if (recienEnviado) { [...zona.querySelectorAll(".mensaje")].pop()?.classList.add("recien"); recienEnviado = false; }
     pintarIconos();
   }

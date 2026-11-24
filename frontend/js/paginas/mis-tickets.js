@@ -1,4 +1,3 @@
-// Mis tickets (cliente): listado con filtro por estado
 iniciar(async yo => {
   const [tickets, reservas] = await Promise.all([api.tickets.listar(), api.reservas.mias()]);
   pintarReservas(reservas);
@@ -32,10 +31,8 @@ iniciar(async yo => {
   pintar();
 });
 
-// Próximas reservas del cliente (las pasadas no se enseñan)
 function pintarReservas(reservas) {
-  const d = new Date();
-  const ahora = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const ahora = ahoraIso();
   const proximas = reservas.filter(r => r.starts_at.slice(0, 16) >= ahora && r.status !== "cancelada").reverse();
   if (!proximas.length) return;
   document.getElementById("mis-reservas").innerHTML = `
@@ -45,13 +42,12 @@ function pintarReservas(reservas) {
         <a href="sala.html?slug=${encodeURIComponent(r.sala.slug)}"><b>${esc(r.sala.name)}</b></a>
         <span>${new Date(r.starts_at).toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })} · ${r.starts_at.slice(11, 16)} · ${r.players} jugadores</span>
         <div class="fila-entre">
-          <span class="pastilla ${r.status === "confirmada" ? "pastilla-activa" : "pastilla-inactiva"}">${r.status === "confirmada" ? "Confirmada" : "Pendiente de confirmar"}</span>
+          ${pastilla(r.status === "confirmada", r.status === "confirmada" ? "Confirmada" : "Pendiente de confirmar")}
           <button class="boton-enlace" type="button" data-cancelar="${r.id}">Cancelar</button>
         </div>
       </div>`).join("")}</div>`;
 }
 
-// El cliente puede cancelar una reserva suya que aún no ha empezado (lo comprueba la API)
 document.addEventListener("click", async e => {
   const b = e.target.closest("[data-cancelar]");
   if (!b) return;
