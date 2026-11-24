@@ -86,6 +86,22 @@ function toast(tipo, texto) {
   setTimeout(quitar, 4000);
 }
 
+/* ---------- Acciones que llaman a la API ---------- */
+// Desactiva el botón mientras espera la respuesta (así no se envía dos veces)
+// y, si la API devuelve un error, lo enseña en un aviso. Devuelve true si ha ido bien.
+async function accion(boton, funcion) {
+  if (boton) boton.disabled = true;
+  try {
+    await funcion();
+    return true;
+  } catch (err) {
+    toast("error", err.message);
+    return false;
+  } finally {
+    if (boton) boton.disabled = false;
+  }
+}
+
 /* ---------- Diálogo de confirmación (devuelve true o false) ---------- */
 function confirmar(titulo, texto, textoBoton = "Confirmar", peligro = false) {
   return new Promise(resolver => {
@@ -240,6 +256,7 @@ const MENU_ADMIN = [
   ["admin", "admin.html", "layout-dashboard", "Dashboard"],
   ["admin-tickets", "admin-tickets.html", "ticket", "Tickets"],
   ["admin-salas", "admin-salas.html", "door-closed", "Salas"],
+  ["admin-reservas", "admin-reservas.html", "calendar-check", "Reservas"],
   ["admin-usuarios", "admin-usuarios.html", "users", "Usuarios"],
   ["admin-categorias", "admin-categorias.html", "tags", "Categorías"]
 ];
@@ -305,7 +322,7 @@ function menuCliente(pagina, yo) {
 function menuLateral(pagina, yo) {
   const enlaces = yo.role === "admin" ? MENU_ADMIN : MENU_AGENTE;
   // La gestión de un ticket marca como activa la lista de la que viene
-  const activa = pagina === "gestion-ticket" ? (yo.role === "admin" ? "admin-tickets" : "soporte") : pagina;
+  const activa = ["gestion-ticket", "nuevo-ticket"].includes(pagina) ? (yo.role === "admin" ? "admin-tickets" : "soporte") : pagina;
   return `
     <aside class="menu-lateral" id="menu-lateral" aria-label="Menú del panel">
       <div class="menu-lateral-cabeza">
@@ -352,7 +369,13 @@ async function contadoresMenu(yo) {
       el.textContent = n;
       el.title = titulo;
     };
-    if (yo.role === "admin") poner("admin-tickets", libres, `${libres} sin asignar`);
+    if (yo.role === "admin") {
+      poner("admin-tickets", libres, `${libres} sin asignar`);
+      const reservas = await api.reservas.listar();
+      const hoy = new Date().toLocaleDateString("sv-SE");   // AAAA-MM-DD
+      const porConfirmar = reservas.filter(r => r.status === "pendiente" && r.starts_at.slice(0, 10) >= hoy).length;
+      poner("admin-reservas", porConfirmar, `${porConfirmar} por confirmar`);
+    }
     else poner("soporte", mios, `${mios} tuyos por atender`);
   } catch { /* el menú funciona igual sin los números */ }
 }
@@ -374,8 +397,10 @@ function montarMenuPanel() {
 // Pinta la estructura y devuelve el usuario (o null). Si la página exige
 // un rol y no lo tienes, muestra el aviso y devuelve null.
 function montarPagina() {
-  const { zona, pagina, rol } = document.body.dataset;
+  const { pagina, rol } = document.body.dataset;
   const yo = api.auth.usuarioActual();
+  // El admin también puede abrir tickets: la página "Nuevo ticket" se le enseña dentro de su panel
+  const zona = document.body.dataset.zona === "cliente" && yo?.role === "admin" ? "panel" : document.body.dataset.zona;
   const main = document.querySelector("main");
   main.id = "contenido";
 

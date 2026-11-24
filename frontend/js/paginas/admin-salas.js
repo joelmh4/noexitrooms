@@ -59,7 +59,7 @@ iniciar(async () => {
     const sala = salas.find(s => s.id === Number(b.dataset.editar || b.dataset.activar || b.dataset.borrar));
     if (b.dataset.editar) abrir(sala);
     if (b.dataset.activar) {
-      await api.salas.actualizar(sala.id, { ...sala, is_active: !sala.is_active });
+      if (!await accion(b, () => api.salas.actualizar(sala.id, { ...sala, is_active: !sala.is_active }))) return;
       toast("ok", sala.is_active ? "Sala desactivada: ya no sale en el catálogo." : "Sala activada.");
       salas = await pintar();
     }

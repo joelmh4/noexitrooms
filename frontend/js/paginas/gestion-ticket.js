@@ -111,11 +111,13 @@ iniciar(async yo => {
       limpiarErrores(e.target);
       if (!respuesta.value.trim()) { marcarError(respuesta, "Escribe un mensaje antes de enviar."); return; }
       recienEnviado = true;
+      e.target.querySelector('[type="submit"]').disabled = true;
       await guardar(() => api.tickets.responder(id, respuesta.value, interna.checked), interna.checked ? "Nota interna guardada." : "Respuesta enviada.");
     });
     // El mensaje que acabas de enviar llega desde la caja de respuesta
     if (recienEnviado) { [...zona.querySelectorAll(".mensaje")].pop()?.classList.add("recien"); recienEnviado = false; }
     pintarIconos();
   }
+  if (parametro("nuevo")) toast("ok", "Ticket creado.");
   await cargar();
 });

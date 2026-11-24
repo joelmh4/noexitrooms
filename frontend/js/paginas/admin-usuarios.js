@@ -41,7 +41,7 @@ iniciar(async yo => {
     if (!select) return;
     const u = usuarios.find(x => x.id === Number(select.dataset.rol));
     if (!await confirmar("Cambiar rol", `${u.name} pasará a ser ${ROLES[select.value]}.`, "Cambiar rol")) { select.value = u.role; return; }
-    await api.usuarios.actualizar(u.id, { role: select.value });
+    if (!await accion(select, () => api.usuarios.actualizar(u.id, { role: select.value }))) { select.value = u.role; return; }
     toast("ok", `${u.name} ahora es ${ROLES[select.value]}.`);
     usuarios = await api.usuarios.listar();
     pintar();
@@ -51,7 +51,7 @@ iniciar(async yo => {
     if (!b) return;
     const u = usuarios.find(x => x.id === Number(b.dataset.activar));
     if (u.is_active && !await confirmar("Desactivar cuenta", `${u.name} no podrá iniciar sesión hasta que la actives de nuevo.`, "Desactivar", true)) return;
-    await api.usuarios.actualizar(u.id, { is_active: !u.is_active });
+    if (!await accion(b, () => api.usuarios.actualizar(u.id, { is_active: !u.is_active }))) return;
     toast("ok", u.is_active ? "Cuenta desactivada." : "Cuenta activada.");
     usuarios = await api.usuarios.listar();
     pintar();

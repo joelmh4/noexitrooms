@@ -57,7 +57,7 @@ iniciar(async () => {
     }
     if (b.dataset.activar) {
       const activa = b.dataset.activa === "true";
-      await api.categorias.actualizar(Number(b.dataset.activar), { is_active: !activa });
+      if (!await accion(b, () => api.categorias.actualizar(Number(b.dataset.activar), { is_active: !activa }))) return;
       toast("ok", activa ? "Categoría desactivada." : "Categoría activada.");
       pintar();
     }

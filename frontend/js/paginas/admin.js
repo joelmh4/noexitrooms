@@ -14,7 +14,7 @@ iniciar(async () => {
     { titulo: "Tiempo hasta resolver", valor: horas === null ? "—" : horas < 48 ? `${String(horas).replace(".", ",")} h` : `${Math.round(horas / 24)} d`,
       detalle: "media hasta el primer «resuelto»", color: "var(--estado-resuelto)" },
     { titulo: "Reservas por confirmar", valor: stats.reservas.pendientes_de_confirmar, detalle: `${stats.reservas.proximos_7_dias} ${stats.reservas.proximos_7_dias === 1 ? "partida" : "partidas"} en 7 días`,
-      color: "var(--estado-en-curso)" }
+      color: "var(--estado-en-curso)", href: "admin-reservas.html" }
   ].map(m => {
     const dentro = `<span class="monitor-titulo"><span class="piloto" style="--c:${m.color}"></span>${m.titulo}</span><b>${m.valor}</b><small>${m.detalle}</small>`;
     return m.href
@@ -96,8 +96,9 @@ iniciar(async () => {
   zona.addEventListener("change", async e => {
     const select = e.target.closest("[data-ticket]");
     if (!select || !select.value) return;
+    const ok = await accion(select, () => api.tickets.asignar(Number(select.dataset.ticket), Number(select.value)));
+    if (!ok) { select.value = ""; return; }
     select.disabled = true;
-    await api.tickets.asignar(Number(select.dataset.ticket), Number(select.value));
     toast("ok", `${codigoTicket(select.dataset.ticket)} asignado a ${select.selectedOptions[0].text}.`);
     setTimeout(() => location.reload(), 900);
   });

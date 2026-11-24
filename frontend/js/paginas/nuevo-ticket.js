@@ -1,7 +1,8 @@
 // Nuevo ticket (cliente)
-iniciar(async () => {
+iniciar(async yo => {
   const [categorias, salas] = await Promise.all([api.categorias.listar(), api.salas.listar()]);
   const form = document.getElementById("form-ticket");
+  if (yo.role === "admin") document.getElementById("cancelar").href = "admin-tickets.html";
   const { subject, category_id, room_id, description } = form.elements;
 
   category_id.innerHTML = `<option value="">Elige una categoría</option>` +
@@ -42,13 +43,19 @@ iniciar(async () => {
     if (description.value.trim().length < 20) { marcarError(description, "Cuéntanos un poco más (mínimo 20 caracteres)."); valido = false; }
     if (!valido) return;
 
-    const ticket = await api.tickets.crear({
-      subject: subject.value,
-      category_id: Number(category_id.value),
-      room_id: room_id.value ? Number(room_id.value) : null,
-      priority: form.elements.priority.value,
-      description: description.value
+    let ticket;
+    const ok = await accion(form.querySelector('[type="submit"]'), async () => {
+      ticket = await api.tickets.crear({
+        subject: subject.value,
+        category_id: Number(category_id.value),
+        room_id: room_id.value ? Number(room_id.value) : null,
+        priority: form.elements.priority.value,
+        description: description.value
+      });
     });
-    location.href = `ticket.html?id=${ticket.id}&nuevo=1`;
+    if (!ok) return;
+    // El cliente vuelve a su ticket; el admin lo abre en la gestión
+    const pagina = yo.role === "admin" ? "soporte-ticket.html" : "ticket.html";
+    location.href = `${pagina}?id=${ticket.id}&nuevo=1`;
   });
 });
