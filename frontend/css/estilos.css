@@ -468,7 +468,7 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 .logo img { width: 36px; height: 36px; object-fit: contain; margin-right: 8px; }
 .pie .logo img { width: 44px; height: 44px; }
 .logo-portada { width: 120px; height: 120px; margin-bottom: var(--esp-4); }
-.acceso-marca .pila img { width: 96px; height: 96px; }
+
 .error-pagina .cuenta-atras img { width: 140px; height: 140px; }
 
 /* Iconos ilustrados de "Cómo funciona" */
@@ -625,10 +625,51 @@ dialog { border-radius: 28px; }
   .foto-banda img { aspect-ratio: 4 / 3; }
   .foto-banda-fina img { aspect-ratio: 3 / 1; }
 }
-/* Login y registro: la mano con la llave detrás del logo */
-.acceso-marca.con-foto { position: relative; isolation: isolate; overflow: hidden; }
-.acceso-fondo { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 70%; }
-.acceso-marca.con-foto::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(14,16,17,.75), rgba(14,16,17,.2) 75%), linear-gradient(rgba(14,16,17,.6), rgba(14,16,17,.2) 40%, rgba(14,16,17,.8)); }
+/* ---------- Login y registro ----------
+   La foto de la mano con la llave ocupa toda la pantalla; a la izquierda va el lema
+   y a la derecha el formulario en una tarjeta oscura con el borde de arriba en neón. */
+.acceso { position: relative; isolation: isolate; overflow: hidden; grid-template-columns: 1.1fr 1fr; }
+.acceso-fondo { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 30% 70%; }
+.acceso::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg, rgba(14,16,17,.55), rgba(14,16,17,.3) 40%, rgba(14,16,17,.92) 70%),
+              linear-gradient(rgba(14,16,17,.5), transparent 30%, transparent 70%, rgba(14,16,17,.8)); }
+.acceso-marca { background: transparent; }
+.acceso-marca small { color: #9AA29A; }
+.acceso-lema { display: flex; flex-direction: column; gap: var(--esp-3); }
+.acceso-lema h1 { font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.05; max-width: 12ch; }
+.acceso-lema p { font-size: 1.05rem; }
+
+.acceso-tarjeta { background: rgba(28, 31, 34, .88); border: 1px solid var(--borde); border-top: 3px solid var(--color-neon);
+  border-radius: var(--radio-lg); padding: var(--esp-8); box-shadow: 0 30px 60px -20px rgba(0,0,0,.8);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.acceso-tarjeta h2 { font-size: 1.9rem; }
+.acceso-icono { width: 56px; height: 56px; }
+.acceso-cambiar { text-align: center; }
+
+/* Campo con icono a la izquierda (y el ojo de la contraseña a la derecha) */
+.campo-icono { position: relative; }
+.campo-icono > svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--texto-suave); pointer-events: none; }
+.campo .campo-icono input { width: 100%; padding-left: 44px; }
+.campo-icono:focus-within > svg { color: var(--color-neon); }
+.ver-clave { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: 0; padding: 8px; color: var(--texto-suave); cursor: pointer; border-radius: var(--radio-sm); display: flex; }
+.ver-clave:hover, .ver-clave[aria-pressed="true"] { color: var(--color-neon); }
+.ver-clave svg { width: 18px; height: 18px; }
+.campo-icono:has(.ver-clave) input { padding-right: 44px; }
+
+/* Cuentas de prueba (para la demostración) */
+.cuentas-prueba { border-top: 1px dashed var(--borde); padding-top: var(--esp-4); display: flex; flex-direction: column; gap: var(--esp-2); }
+.cuentas-prueba p { margin: 0; font-family: var(--font-codigo); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--texto-suave); }
+
+@media (max-width: 1024px) {
+  .acceso { grid-template-columns: 1fr; }
+  .acceso::before { background: linear-gradient(rgba(14,16,17,.55), rgba(14,16,17,.75) 35%, rgba(14,16,17,.95) 60%); }
+  .acceso-marca { min-height: 0; gap: var(--esp-6); }
+  .acceso-formulario { padding-top: 0; align-items: flex-start; }
+}
+@media (max-width: 560px) {
+  .acceso-tarjeta { padding: var(--esp-6); }
+  .acceso-marca small { display: none; }
+}
 
 /* Mapa de la página de contacto */
 .mapa { padding: 0; overflow: hidden; gap: 0; }

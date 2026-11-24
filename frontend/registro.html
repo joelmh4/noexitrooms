@@ -18,31 +18,45 @@
 <body class="tema-oscuro" data-zona="acceso" data-pagina="registro">
 <main>
   <div class="acceso">
-    <div class="acceso-marca con-foto">
-      <img class="acceso-fondo" src="img/acceso.webp" alt="" width="1200" height="2150">
+    <img class="acceso-fondo" src="img/acceso.webp" alt="" width="1200" height="2150">
+    <div class="acceso-marca">
       <a class="logo" href="index.html"><img src="img/logo-candado-oscuro.png" alt="" width="36" height="36">NoExit<span>Rooms</span></a>
-      <div class="pila">
-        <img src="img/logo-cerradura-oscuro.png" alt="" width="96" height="96">
-        <h1 style="font-size:2.4rem">Crea tu cuenta</h1>
-        <p>Con tu cuenta puedes abrir tickets para reservas, bonos regalo, grupos o cualquier duda, y seguirlos desde tu área.</p>
+      <div class="acceso-lema">
+        <span class="etiqueta-superior">Primera visita</span>
+        <h1>Coge tu llave.</h1>
+        <p>Con tu cuenta reservas sala, abres tickets para bonos, grupos o cualquier duda y los sigues desde tu área.</p>
       </div>
-      <small style="color:#9AA29A">Calle del Candado 13, Madrid</small>
+      <small>Calle del Candado 13, Madrid</small>
     </div>
     <div class="acceso-formulario">
-      <form class="formulario" id="form-registro" novalidate>
-        <h2>Registro</h2>
+      <form class="formulario acceso-tarjeta" id="form-registro" novalidate>
+        <img class="acceso-icono" src="img/logo-cerradura-oscuro.png" alt="" width="56" height="56">
+        <div class="pila" style="gap:4px">
+          <h2>Crear cuenta</h2>
+          <p class="texto-suave">Tarda menos que abrir un candado.</p>
+        </div>
         <div id="aviso-registro" aria-live="polite"></div>
         <div class="campo">
           <label for="name">Nombre y apellidos</label>
-          <input id="name" name="name" autocomplete="name" maxlength="100" required>
+          <div class="campo-icono">
+            <i data-lucide="user" aria-hidden="true"></i>
+            <input id="name" name="name" autocomplete="name" maxlength="100" required>
+          </div>
         </div>
         <div class="campo">
           <label for="email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="email" maxlength="150" required>
+          <div class="campo-icono">
+            <i data-lucide="mail" aria-hidden="true"></i>
+            <input id="email" name="email" type="email" autocomplete="email" maxlength="150" placeholder="tu@email.com" required>
+          </div>
         </div>
         <div class="campo">
           <label for="password">Contraseña</label>
-          <input id="password" name="password" type="password" autocomplete="new-password" required>
+          <div class="campo-icono">
+            <i data-lucide="lock" aria-hidden="true"></i>
+            <input id="password" name="password" type="password" autocomplete="new-password" required>
+            <button class="ver-clave" type="button" aria-label="Mostrar la contraseña" aria-pressed="false"><i data-lucide="eye" aria-hidden="true"></i></button>
+          </div>
           <span class="ayuda">Mínimo 8 caracteres y al menos un número.</span>
         </div>
         <div class="campo">
@@ -51,7 +65,7 @@
         </div>
         <label class="casilla"><input type="checkbox" name="condiciones"> Acepto las condiciones de uso y la política de privacidad</label>
         <button class="boton boton-primario boton-bloque" type="submit">Crear cuenta</button>
-        <p class="texto-suave">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+        <p class="texto-suave acceso-cambiar">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
       </form>
     </div>
   </div>

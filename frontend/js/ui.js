@@ -291,7 +291,7 @@ function piePagina() {
       <div class="contenedor">
         <div class="pila" style="gap:8px">
           <span class="logo"><img src="img/logo-cerradura-oscuro.png" alt="" width="44" height="44">NoExit<span>Rooms</span></span>
-          <small>Calle del Candado 13, Madrid · Proyecto trimestral DAW 2026</small>
+          <small>Calle del Candado 13, Madrid</small>
           <small>Joel, Edu e Iván</small>
         </div>
         <div class="pila" style="gap:6px">
@@ -466,6 +466,17 @@ function montarPagina() {
   pintarIconos();
   return main.dataset.bloqueada ? null : (yo || "invitado");
 }
+
+/* ---------- Ojo para ver u ocultar la contraseña (login y registro) ---------- */
+document.addEventListener("click", e => {
+  const boton = e.target.closest(".ver-clave");
+  if (!boton) return;
+  const campo = boton.parentElement.querySelector("input");
+  const ver = campo.type === "password";
+  campo.type = ver ? "text" : "password";
+  boton.setAttribute("aria-pressed", ver);
+  boton.setAttribute("aria-label", ver ? "Ocultar la contraseña" : "Mostrar la contraseña");
+});
 
 /* ---------- Menú del móvil: el botón abre y cierra la lista de enlaces ---------- */
 function montarMenuMovil() {

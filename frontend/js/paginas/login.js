@@ -15,6 +15,13 @@ iniciar(async yo => {
     return volver && /^[a-z0-9-]+\.html(\?[\w=&%-]*)?(#[\w-]+)?$/i.test(volver) ? volver : INICIO_POR_ROL[rol];
   }
 
+  // Cuentas de prueba: rellenan el formulario (todas tienen la contraseña Demo1234!)
+  form.querySelectorAll("[data-cuenta]").forEach(b => b.addEventListener("click", () => {
+    form.elements.email.value = b.dataset.cuenta;
+    form.elements.password.value = "Demo1234!";
+    form.querySelector('[type="submit"]').focus();
+  }));
+
   form.addEventListener("submit", async e => {
     e.preventDefault();
     limpiarErrores(form);
