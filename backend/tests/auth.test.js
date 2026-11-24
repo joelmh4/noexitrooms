@@ -28,9 +28,9 @@ test("registro con datos inválidos → 400 con el campo que falla", async () =>
 test("la contraseña se guarda con hash (el login funciona y el texto plano no está en la base de datos)", async () => {
     const email = emailNuevo("hash");
     await pedir("/auth/register", { metodo: "POST", cuerpo: { name: "Hash", email, password: "Prueba123" } });
-    const { Usuario } = require("../model");
-    const usuario = await Usuario.scope("conPassword").findOne({ where: { email } });
-    const hash = usuario.password_hash;
+    const Usuario = require("../model/usuario.model");
+    const usuario = await Usuario.findOne({ email }).select("+password");
+    const hash = usuario.password;
     assert.match(hash, /^\$2[aby]\$10\$/);
     assert.notEqual(hash, "Prueba123");
 });

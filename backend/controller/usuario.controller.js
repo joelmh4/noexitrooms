@@ -1,7 +1,6 @@
 // Registro, inicio de sesión, perfil propio y gestión de usuarios por el administrador
 const bcrypt = require("bcrypt");
-const { Op } = require("sequelize");
-const { Usuario } = require("../model");
+const Usuario = require("../model/usuario.model");
 const { ROLES } = require("../model/usuario.model");
 const { firmarToken } = require("../middleware/auth.middleware");
 const { ErrorApi } = require("../middleware/errores.middleware");
@@ -26,11 +25,11 @@ class UsuarioController {
         const password = v.passwordNueva(errores, "password", req.body?.password);
         v.comprobar(errores);
 
-        if (await Usuario.findOne({ where: { email } })) throw ErrorApi.conflicto("Ya existe una cuenta con ese email.");
+        if (await Usuario.findOne({ email })) throw ErrorApi.conflicto("Ya existe una cuenta con ese email.");
 
         // req.body.role se ignora a propósito: nadie puede registrarse como agente o admin
         const passwordEncriptado = await bcrypt.hash(password, COSTE_BCRYPT);
-        const usuario = await Usuario.create({ name, email, password_hash: passwordEncriptado, role: "cliente" });
+        const usuario = await Usuario.create({ name, email, password: passwordEncriptado, role: "cliente" });
 
         const datos = usuario.toJSON();
         return res.status(201).json({ token: firmarToken(datos), usuario: datos });
@@ -44,9 +43,9 @@ class UsuarioController {
         if (!password) errores.password = "Escribe tu contraseña.";
         v.comprobar(errores);
 
-        //Con el scope "conPassword" pedimos también el hash, que el modelo oculta
-        const user = await Usuario.scope("conPassword").findOne({ where: { email } });
-        const isTruePassword = await bcrypt.compare(password, user ? user.password_hash : HASH_RELLENO);
+        //Con select("+password") pedimos también el hash, que el modelo oculta (select: false)
+        const user = await Usuario.findOne({ email }).select("+password");
+        const isTruePassword = await bcrypt.compare(password, user ? user.password : HASH_RELLENO);
 
         if (!user || !isTruePassword) throw ErrorApi.sinSesion("El email o la contraseña no son correctos.");
         if (!user.is_active) throw ErrorApi.prohibido("Esta cuenta está desactivada. Escríbenos desde Contacto.");
@@ -67,11 +66,11 @@ class UsuarioController {
         const email = v.email(errores, req.body?.email);
         v.comprobar(errores);
 
-        if (await Usuario.findOne({ where: { email, id: { [Op.ne]: req.usuario.id } } })) {
+        if (await Usuario.findOne({ email, _id: { $ne: req.usuario.id } })) {
             throw ErrorApi.conflicto("Ese email ya lo usa otra cuenta.");
         }
-        await Usuario.update({ name, email }, { where: { id: req.usuario.id } });
-        return res.status(200).json(await Usuario.findByPk(req.usuario.id));
+        const result = await Usuario.findByIdAndUpdate(req.usuario.id, { name, email }, { returnDocument: "after", runValidators: true });
+        return res.status(200).json(result);
     }
 
     // PUT /users/me/password { actual, nueva }
@@ -82,11 +81,11 @@ class UsuarioController {
         const nueva = v.passwordNueva(errores, "nueva", req.body?.nueva);
         v.comprobar(errores);
 
-        const user = await Usuario.scope("conPassword").findByPk(req.usuario.id);
-        if (!user || !(await bcrypt.compare(actual, user.password_hash))) {
+        const user = await Usuario.findById(req.usuario.id).select("+password");
+        if (!user || !(await bcrypt.compare(actual, user.password))) {
             throw ErrorApi.datosInvalidos({ actual: "La contraseña actual no es correcta." });
         }
-        user.password_hash = await bcrypt.hash(nueva, COSTE_BCRYPT);
+        user.password = await bcrypt.hash(nueva, COSTE_BCRYPT);
         await user.save();
         return res.status(204).end();
     }
@@ -98,10 +97,10 @@ class UsuarioController {
         if (req.query.role) filtro.role = v.unoDe(errores, "role", req.query.role, ROLES);
         v.comprobar(errores);
         const q = typeof req.query.q === "string" ? req.query.q.trim().slice(0, 100) : "";
-        //Op.like = LIKE de SQL: busca el texto dentro del nombre o del email
-        if (q) filtro[Op.or] = [{ name: { [Op.like]: `%${q}%` } }, { email: { [Op.like]: `%${q}%` } }];
+        //$or: el texto puede estar dentro del nombre o del email
+        if (q) filtro.$or = [{ name: v.buscarTexto(q) }, { email: v.buscarTexto(q) }];
 
-        const result = await Usuario.findAll({ where: filtro });
+        const result = await Usuario.find(filtro);
         return res.status(200).json(ordenarPorRol(result.map(u => u.toJSON())));
     }
 
@@ -121,9 +120,8 @@ class UsuarioController {
         // Un admin no puede quitarse a sí mismo el rol ni desactivarse: la web se quedaría sin nadie que la administre
         if (id === req.usuario.id) throw ErrorApi.conflicto("No puedes cambiar tu propio rol ni desactivar tu cuenta.");
 
-        const usuario = await Usuario.findByPk(id);
+        const usuario = await Usuario.findByIdAndUpdate(id, cambios, { returnDocument: "after", runValidators: true });
         if (!usuario) throw ErrorApi.noEncontrado("Ese usuario no existe.");
-        await usuario.update(cambios);
         return res.status(200).json(usuario);
     }
 }

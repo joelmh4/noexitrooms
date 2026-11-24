@@ -62,4 +62,8 @@ function comprobar(errores) {
 
 const pideTodas = valor => valor === "1" || valor === "true";
 
-module.exports = { texto, email, passwordNueva, unoDe, entero, idOpcional, idDeRuta, comprobar, pideTodas };
+// Para buscar un texto dentro de un campo (el LIKE '%texto%' de SQL), sin mirar mayúsculas.
+// Se escapan los caracteres especiales para que el texto se busque tal cual
+const buscarTexto = texto => new RegExp(texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+
+module.exports = { texto, email, passwordNueva, unoDe, entero, idOpcional, idDeRuta, comprobar, pideTodas, buscarTexto };

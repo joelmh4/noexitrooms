@@ -1,12 +1,11 @@
 // Categorías de los tickets. GET es público (lo usa el formulario de nuevo ticket); crear y editar, solo admin.
-const { Op } = require("sequelize");
-const { Categoria } = require("../model");
+const Categoria = require("../model/categoria.model");
 const { ErrorApi } = require("../middleware/errores.middleware");
 const v = require("../utils/validacion");
 
-// MySQL compara sin mirar mayúsculas ni tildes: "objetos perdidos" choca con "Objetos perdidos"
+// El modelo compara sin mirar mayúsculas ni tildes (collation): "objetos perdidos" choca con "Objetos perdidos"
 const nombreOcupado = (name, excepto = 0) =>
-    Categoria.findOne({ where: { name, id: { [Op.ne]: excepto } } });
+    Categoria.findOne({ name, _id: { $ne: excepto } });
 
 class CategoriaController {
 
@@ -15,7 +14,7 @@ class CategoriaController {
         const todas = v.pideTodas(req.query.all);
         if (todas && req.usuario?.role !== "admin") throw ErrorApi.prohibido();
         const filtro = todas ? {} : { is_active: true };
-        const result = await Categoria.findAll({ where: filtro, order: [["name", "ASC"]] });
+        const result = await Categoria.find(filtro).sort({ name: 1 });
         return res.status(200).json(result);
     }
 
@@ -43,11 +42,12 @@ class CategoriaController {
         if (!Object.keys(cambios).length && !Object.keys(errores).length) errores.cambios = "Envía name o is_active.";
         v.comprobar(errores);
 
-        const categoria = await Categoria.findByPk(id);
+        const categoria = await Categoria.findById(id);
         if (!categoria) throw ErrorApi.noEncontrado("Esa categoría no existe.");
         if (cambios.name !== undefined && (await nombreOcupado(cambios.name, id))) throw ErrorApi.conflicto("Esa categoría ya existe.");
 
-        await categoria.update(cambios);
+        categoria.set(cambios);
+        await categoria.save();
         return res.status(200).json(categoria);
     }
 }

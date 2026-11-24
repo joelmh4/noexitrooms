@@ -1,36 +1,36 @@
 // Reservas: el cliente reserva y ve las suyas; el equipo las consulta y las confirma o cancela.
 // Una reserva nace "pendiente" hasta que la confirma el equipo.
-const { Op, UniqueConstraintError } = require("sequelize");
-const { Reserva, Sala, Usuario } = require("../model");
-const { ESTADOS_RESERVA, aFecha } = require("../model/reserva.model");
+const Reserva = require("../model/reserva.model");
+const { ESTADOS_RESERVA } = require("../model/reserva.model");
+const Sala = require("../model/sala.model");
 const { ErrorApi } = require("../middleware/errores.middleware");
 const { horasDe, ahoraEnMadrid } = require("../utils/horario");
 const v = require("../utils/validacion");
 
-// include = el JOIN: trae con cada reserva los datos de su sala y de su cliente
-const CON_DATOS = [
-    { model: Sala, as: "sala", attributes: ["id", "name", "slug", "image_url"] },
-    { model: Usuario, as: "cliente", attributes: ["id", "name"] }
-];
+// populate (el JOIN de Mongoose): cambia room_id y customer_id por los datos de la sala y del cliente
+const conDatos = consulta => consulta
+    .populate("room_id", "name slug image_url")
+    .populate("customer_id", "name");
 
 // Lo que se envía al frontend: los ids y, aparte, los datos de la sala y del cliente
 function formatear(r) {
-    const { sala, cliente } = r;
+    const sala = r.room_id;
+    const cliente = r.customer_id;
     return {
-        id: r.id,
-        customer_id: r.customer_id,
-        room_id: r.room_id,
+        id: r._id,
+        customer_id: cliente ? cliente._id : null,
+        room_id: sala ? sala._id : null,
         starts_at: r.starts_at,
         players: r.players,
         status: r.status,
         created_at: r.created_at,
-        sala: sala ? { id: sala.id, name: sala.name, slug: sala.slug, image_url: sala.image_url } : null,
-        cliente: cliente ? { id: cliente.id, name: cliente.name } : null
+        sala: sala ? { id: sala._id, name: sala.name, slug: sala.slug, image_url: sala.image_url } : null,
+        cliente: cliente ? { id: cliente._id, name: cliente.name } : null
     };
 }
 
 async function buscarReserva(id) {
-    const r = await Reserva.findByPk(id, { include: CON_DATOS });
+    const r = await conDatos(Reserva.findById(id));
     if (!r) throw ErrorApi.noEncontrado("Esa reserva no existe.");
     return formatear(r);
 }
@@ -49,7 +49,7 @@ class ReservaController {
         if (!Number.isInteger(players) || players < 1) errores.players = "¿Cuántas personas vais a jugar?";
         v.comprobar(errores);
 
-        const sala = await Sala.findOne({ where: { id: room_id, is_active: true } });
+        const sala = await Sala.findOne({ _id: room_id, is_active: true });
         if (!sala) throw ErrorApi.datosInvalidos({ room_id: "Esa sala no existe." });
 
         const [fecha, hora] = [starts.slice(0, 10), starts.slice(11, 16)];
@@ -66,22 +66,24 @@ class ReservaController {
         try {
             // El índice único (room_id, starts_at) impide dos reservas a la vez en el mismo hueco
             const nueva = await Reserva.create({ ...datos, room_id, starts_at });
-            id = nueva.id;
+            id = nueva._id;
         } catch (err) {
-            if (!(err instanceof UniqueConstraintError)) throw err;
+            //11000 = valor único repetido
+            if (err.code !== 11000) throw err;
             // Ese hueco ya tuvo una reserva: si estaba cancelada se reutiliza; si no, está ocupado
-            const [cambiadas] = await Reserva.update(
+            const reutilizada = await Reserva.findOneAndUpdate(
+                { room_id, starts_at, status: "cancelada" },
                 { ...datos, created_at: new Date() },
-                { where: { room_id, starts_at: aFecha(starts_at), status: "cancelada" } });
-            if (!cambiadas) throw ErrorApi.conflicto("Alguien acaba de reservar esa hora. Elige otra.");
-            id = (await Reserva.findOne({ where: { room_id, starts_at: aFecha(starts_at) } })).id;
+                { returnDocument: "after", timestamps: false });
+            if (!reutilizada) throw ErrorApi.conflicto("Alguien acaba de reservar esa hora. Elige otra.");
+            id = reutilizada._id;
         }
         return res.status(201).json(await buscarReserva(id));
     }
 
     // GET /bookings/me · cliente
     async findMine(req, res) {
-        const result = await Reserva.findAll({ where: { customer_id: req.usuario.id }, include: CON_DATOS, order: [["starts_at", "DESC"]] });
+        const result = await conDatos(Reserva.find({ customer_id: req.usuario.id }).sort({ starts_at: -1 }));
         return res.status(200).json(result.map(formatear));
     }
 
@@ -97,11 +99,11 @@ class ReservaController {
         }
         if (typeof q.from === "string") {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(q.from)) errores.from = "Usa el formato AAAA-MM-DD.";
-            filtro.starts_at = { [Op.gte]: aFecha(`${q.from}T00:00:00`) };
+            filtro.starts_at = { $gte: `${q.from}T00:00:00` };
         }
         v.comprobar(errores);
 
-        const result = await Reserva.findAll({ where: filtro, include: CON_DATOS, order: [["starts_at", "ASC"]] });
+        const result = await conDatos(Reserva.find(filtro).sort({ starts_at: 1 }));
         return res.status(200).json(result.map(formatear));
     }
 
@@ -123,7 +125,7 @@ class ReservaController {
         if (reserva.status === "cancelada" && status !== "cancelada") {
             throw ErrorApi.conflicto("Una reserva cancelada no se puede recuperar: hay que hacer una nueva.");
         }
-        await Reserva.update({ status }, { where: { id } });
+        await Reserva.updateOne({ _id: id }, { status });
         return res.status(200).json(await buscarReserva(id));
     }
 }

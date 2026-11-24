@@ -1,34 +1,34 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const mongoose = require('mongoose');
 
-// Tabla mensajes: la conversación de cada ticket (ticket_id y author_id en model/index.js)
-const Mensaje = sequelize.define('mensaje', {
-    id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        autoIncrement: true,
-        primaryKey: true
+// Colección mensajes: la conversación de cada ticket
+const appMensajesSchema = new mongoose.Schema({
+    ticket_id: {
+        type: Number,
+        ref: "ticket",
+        required: true
+    },
+    author_id: {
+        type: Number,
+        ref: "usuario",
+        required: true
     },
     body: {
-        field: "texto",
-        type: DataTypes.TEXT,
-        allowNull: false
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 5000
     },
     //Nota interna del equipo: el cliente nunca la recibe
     is_internal: {
-        field: "nota_interna",
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        field: "creado_en",
-        allowNull: false
+        type: Boolean,
+        default: false
     }
 },
     {
-        tableName: "mensajes",
-        updatedAt: false
+        timestamps: { createdAt: "created_at", updatedAt: false },
+        versionKey: false
     })
+
+const Mensaje = mongoose.model("mensaje", appMensajesSchema);
 
 module.exports = Mensaje;

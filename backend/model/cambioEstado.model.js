@@ -1,35 +1,35 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const mongoose = require('mongoose');
 const { ESTADOS } = require('./ticket.model');
 
-// Tabla historial_estados: cada cambio de estado de un ticket, con quién y cuándo
-const CambioEstado = sequelize.define('cambioEstado', {
-    id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        autoIncrement: true,
-        primaryKey: true
+// Colección historial_estados: cada cambio de estado de un ticket, con quién y cuándo
+const appHistorialSchema = new mongoose.Schema({
+    ticket_id: {
+        type: Number,
+        ref: "ticket",
+        required: true
+    },
+    changed_by_id: {
+        type: Number,
+        ref: "usuario",
+        required: true
     },
     //null en el primer registro, cuando se crea el ticket
     old_status: {
-        field: "estado_anterior",
-        type: DataTypes.ENUM(...ESTADOS),
-        allowNull: true
+        type: String,
+        enum: [...ESTADOS, null],
+        default: null
     },
     new_status: {
-        field: "estado_nuevo",
-        type: DataTypes.ENUM(...ESTADOS),
-        allowNull: false
-    },
-    changed_at: {
-        type: DataTypes.DATE,
-        field: "fecha_cambio",
-        allowNull: false
+        type: String,
+        enum: ESTADOS,
+        required: true
     }
 },
     {
-        tableName: "historial_estados",
-        createdAt: "changed_at",
-        updatedAt: false
+        timestamps: { createdAt: "changed_at", updatedAt: false },
+        versionKey: false
     })
+
+const CambioEstado = mongoose.model("cambioEstado", appHistorialSchema, "historial_estados");
 
 module.exports = CambioEstado;

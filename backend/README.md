@@ -1,16 +1,30 @@
 # NoExitRooms · Backend (API)
 
-API REST de NoExitRooms hecha con Node.js, Express y MySQL (Sequelize).
+API REST de NoExitRooms hecha con Node.js, Express y MongoDB (Mongoose).
 
 ## Carpetas
 
 - `index.js` y `app.js`: arranque del servidor
-- `config/`: conexión a la base de datos y Swagger
-- `model/`: tablas de la base de datos
+- `config/`: variables de entorno y Swagger
+- `model/`: colecciones de la base de datos (esquemas de Mongoose)
 - `controller/`: lógica de cada ruta
 - `routes/`: rutas de la API
 - `middleware/`: login (token JWT), roles y errores
-- `bbdd/noexitrooms.sql`: crea la base de datos con datos de ejemplo
+- `bbdd/datos.js` y `bbdd/carga-inicial.js`: datos de ejemplo; `npm run carga` crea la base de datos con ellos
+
+## Cómo arrancarla
+
+1. Tener MongoDB arrancado en `mongodb://127.0.0.1:27017` (o una base de datos de MongoDB Atlas).
+2. Copiar `.env.example` como `.env`.
+3. Instalar, cargar los datos de ejemplo y arrancar:
+
+```
+npm install
+npm run carga
+npm start
+```
+
+La API queda en `http://localhost:3000/api`. `npm run carga` borra la base de datos y la deja como al principio.
 
 ## Rutas principales
 

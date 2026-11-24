@@ -1,30 +1,30 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const mongoose = require('mongoose');
+const { idNumerico } = require('./contador.model');
 
-// Tabla categorias: tipos de ticket. No se borran: se desactivan,
+// Colección categorias: tipos de ticket. No se borran: se desactivan,
 // así los tickets antiguos siguen teniendo su categoría.
-const Categoria = sequelize.define('categoria', {
-    id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        autoIncrement: true,
-        primaryKey: true
-    },
+const appCategoriasSchema = new mongoose.Schema({
+    _id: Number,
     name: {
-        field: "nombre",
-        type: DataTypes.STRING(80),
-        allowNull: false,
-        unique: "uq_categorias_nombre"
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        maxlength: 80
     },
     is_active: {
-        field: "activa",
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
+        type: Boolean,
+        default: true
     }
 },
     {
-        tableName: "categorias",
-        timestamps: false
+        versionKey: false,
+        //Sin mirar mayúsculas ni tildes: "objetos perdidos" choca con "Objetos perdidos"
+        collation: { locale: "es", strength: 1 }
     })
+
+appCategoriasSchema.plugin(idNumerico, { nombre: "categorias" });
+
+const Categoria = mongoose.model("categoria", appCategoriasSchema);
 
 module.exports = Categoria;

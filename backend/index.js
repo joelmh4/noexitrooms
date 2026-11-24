@@ -1,9 +1,9 @@
-// Punto de entrada: conecta con MySQL y arranca el servidor
+// Punto de entrada: conecta con MongoDB y arranca el servidor
+const mongoose = require('mongoose');
 const app = require('./app');
 const entorno = require('./config/entorno');
-const { conectar } = require('./config/db');
 
-conectar()
+mongoose.connect(entorno.mongoUrl)
     .then(() => {
         console.log("BBDD en marcha!!");
         // El puerto donde se ejecuta la API (Render lo da en la variable PORT)
@@ -17,6 +17,6 @@ conectar()
         });
     })
     .catch(err => {
-        console.error("No se pudo conectar con MySQL:", err.message);
+        console.log("Error al conectar con la BBDD:", err.message);
         process.exit(1);
     });
