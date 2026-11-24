@@ -41,9 +41,22 @@ function pintarReservas(reservas) {
   document.getElementById("mis-reservas").innerHTML = `
     <h2 class="tarjeta-titulo">Tus próximas reservas</h2>
     <div class="lista-reservas">${proximas.map(r => `
-      <a class="tarjeta reserva-mini" href="sala.html?slug=${encodeURIComponent(r.sala.slug)}">
-        <b>${esc(r.sala.name)}</b>
+      <div class="tarjeta reserva-mini">
+        <a href="sala.html?slug=${encodeURIComponent(r.sala.slug)}"><b>${esc(r.sala.name)}</b></a>
         <span>${new Date(r.starts_at).toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })} · ${r.starts_at.slice(11, 16)} · ${r.players} jugadores</span>
-        <span class="pastilla ${r.status === "confirmada" ? "pastilla-activa" : "pastilla-inactiva"}">${r.status === "confirmada" ? "Confirmada" : "Pendiente de confirmar"}</span>
-      </a>`).join("")}</div>`;
+        <div class="fila-entre">
+          <span class="pastilla ${r.status === "confirmada" ? "pastilla-activa" : "pastilla-inactiva"}">${r.status === "confirmada" ? "Confirmada" : "Pendiente de confirmar"}</span>
+          <button class="boton-enlace" type="button" data-cancelar="${r.id}">Cancelar</button>
+        </div>
+      </div>`).join("")}</div>`;
 }
+
+// El cliente puede cancelar una reserva suya que aún no ha empezado (lo comprueba la API)
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-cancelar]");
+  if (!b) return;
+  if (!await confirmar("Cancelar reserva", "Dejaréis libre el hueco para otros jugadores.", "Cancelar reserva", true)) return;
+  if (!await accion(b, () => api.reservas.cambiarEstado(Number(b.dataset.cancelar), "cancelada"))) return;
+  toast("ok", "Reserva cancelada.");
+  b.closest(".reserva-mini").remove();
+});

@@ -124,7 +124,12 @@ const api = {
   reservas: {
     huecos: (salaId, desde, dias = 7) => pedir(`/rooms/${salaId}/slots`, { consulta: { from: desde, days: dias } }),
     crear: ({ room_id, starts_at, players }) => pedir("/bookings", { metodo: "POST", cuerpo: { room_id, starts_at, players } }),
-    mias: () => pedir("/bookings/me")
+    mias: () => pedir("/bookings/me"),
+    listar: () => pedir("/bookings"),
+    async cambiarEstado(id, status) {
+      await pedir(`/bookings/${id}/status`, { metodo: "PATCH", cuerpo: { status } });
+      return true;
+    }
   },
 
   categorias: {
