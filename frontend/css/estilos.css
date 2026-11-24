@@ -473,7 +473,7 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 
 /* Iconos ilustrados de "Cómo funciona" */
 .paso img { width: 72px; height: 72px; object-fit: contain; }
-.pasos-seis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pasos-seis, .pasos-tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* Cerrar sesión con la puerta */
 .cerrar-sesion { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
@@ -488,6 +488,8 @@ dialog .contenido-dialogo { padding: var(--esp-6); display: flex; flex-direction
 @keyframes girar-reloj { 0%, 40% { transform: rotate(0); } 60%, 100% { transform: rotate(180deg); } }
 
 @media (max-width: 1024px) { .pasos-seis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Contacto y Sobre nosotros: tres tarjetas en fila; en el móvil, una debajo de otra */
+@media (max-width: 760px) { .pasos-tres { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .pasos-seis { grid-template-columns: 1fr; } .logo-portada { width: 88px; height: 88px; } }
 
 
@@ -627,3 +629,8 @@ dialog { border-radius: 28px; }
 .acceso-marca.con-foto { position: relative; isolation: isolate; overflow: hidden; }
 .acceso-fondo { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 70%; }
 .acceso-marca.con-foto::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(14,16,17,.75), rgba(14,16,17,.2) 75%), linear-gradient(rgba(14,16,17,.6), rgba(14,16,17,.2) 40%, rgba(14,16,17,.8)); }
+
+/* Mapa de la página de contacto */
+.mapa { padding: 0; overflow: hidden; gap: 0; }
+.mapa iframe { width: 100%; min-height: 300px; border: 0; display: block; }
+.mapa a { padding: var(--esp-3) var(--esp-4); }
