@@ -40,19 +40,19 @@ const manejarErrores = (err, req, res, next) => {
   if (err.type === "entity.parse.failed") {
     return res.status(400).json({ error: { codigo: "JSON_INVALIDO", mensaje: "El cuerpo de la petición no es JSON válido." } });
   }
-  // Clave única repetida en MySQL (email, nombre de sala...)
-  if (err.name === "SequelizeUniqueConstraintError") {
+  // Valor único repetido en MongoDB (email, nombre de sala...): error 11000
+  if (err.code === 11000) {
     return res.status(409).json({ error: { codigo: "DUPLICADO", mensaje: "Ya existe un registro con ese valor." } });
   }
-  // Clave foránea: se intenta borrar algo que otros registros usan, o enlazar con algo que no existe
-  if (err.name === "SequelizeForeignKeyConstraintError") {
-    return res.status(409).json({ error: { codigo: "CONFLICTO", mensaje: "Ese registro está relacionado con otros datos." } });
-  }
-  // Las validaciones de los modelos de Sequelize (allowNull, min, max, isEmail...)
-  if (err.name === "SequelizeValidationError") {
+  // Las validaciones de los modelos de Mongoose (required, min, max, enum, match...)
+  if (err.name === "ValidationError") {
     const campos = {};
-    for (const detalle of err.errors) campos[detalle.path] = detalle.message;
+    for (const campo in err.errors) campos[campo] = err.errors[campo].message;
     return res.status(400).json({ error: { codigo: "DATOS_INVALIDOS", mensaje: "Revisa los datos enviados.", campos } });
+  }
+  // Un valor que no se puede convertir al tipo del campo (texto donde va un número...)
+  if (err.name === "CastError") {
+    return res.status(400).json({ error: { codigo: "DATOS_INVALIDOS", mensaje: "Revisa los datos enviados.", campos: { [err.path]: "Valor no válido." } } });
   }
   // Error inesperado: se apunta en el servidor y al cliente no se le dan detalles técnicos
   console.error(err);

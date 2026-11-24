@@ -5,42 +5,45 @@
 // - Agente: solo ve, responde y cambia estado o prioridad en los que tiene asignados. No puede cerrar.
 // - Admin: ve todos, asigna o reasigna, y puede hacer cualquier cambio de estado.
 // Si un ticket no se puede ver, se responde 404 (no 403): así nadie averigua si existe.
-const { Op } = require("sequelize");
-const { sequelize, Ticket, Usuario, Categoria, Sala, Reserva, Mensaje, CambioEstado } = require("../model");
+const Ticket = require("../model/ticket.model");
 const { ESTADOS, PRIORIDADES, codigoTicket } = require("../model/ticket.model");
+const Usuario = require("../model/usuario.model");
+const Categoria = require("../model/categoria.model");
+const Sala = require("../model/sala.model");
+const Reserva = require("../model/reserva.model");
+const Mensaje = require("../model/mensaje.model");
+const CambioEstado = require("../model/cambioEstado.model");
 const { ErrorApi } = require("../middleware/errores.middleware");
 const v = require("../utils/validacion");
 
 const ORDENES = ["recientes", "antiguos", "prioridad"];
 const PESO_PRIORIDAD = { alta: 0, media: 1, baja: 2 };
 
-// Filtro (WHERE) de "lo que este usuario puede ver"
+// Filtro de "lo que este usuario puede ver"
 function visibilidad(yo) {
     if (yo.role === "cliente") return { customer_id: yo.id };
     if (yo.role === "agente") return { agent_id: yo.id };
     return {};
 }
 
-// include = los JOIN: con cada ticket vienen su cliente, su agente, su categoría y su sala
-const PERSONA = ["id", "name", "role"];
-const CON_DATOS = [
-    { model: Usuario, as: "cliente", attributes: PERSONA },
-    { model: Usuario, as: "agente", attributes: PERSONA },
-    { model: Categoria, as: "categoria", attributes: ["id", "name"] },
-    { model: Sala, as: "sala", attributes: ["id", "name", "slug"] }
-];
+// populate (el JOIN de Mongoose): con cada ticket vienen su cliente, su agente, su categoría y su sala
+const conDatos = consulta => consulta
+    .populate("customer_id", "name role")
+    .populate("agent_id", "name role")
+    .populate("category_id", "name")
+    .populate("room_id", "name slug");
 
-const persona = u => (u ? { id: u.id, name: u.name, role: u.role } : null);
+const persona = u => (u ? { id: u._id, name: u.name, role: u.role } : null);
 
-// Lo que se envía al frontend
+// Lo que se envía al frontend: los ids y, aparte, los datos de cada uno
 function formatear(t) {
     return {
-        id: t.id,
-        codigo: codigoTicket(t.id),
-        customer_id: t.customer_id,
-        agent_id: t.agent_id,
-        category_id: t.category_id,
-        room_id: t.room_id,
+        id: t._id,
+        codigo: codigoTicket(t._id),
+        customer_id: t.customer_id ? t.customer_id._id : null,
+        agent_id: t.agent_id ? t.agent_id._id : null,
+        category_id: t.category_id ? t.category_id._id : null,
+        room_id: t.room_id ? t.room_id._id : null,
         booking_id: t.booking_id,
         subject: t.subject,
         description: t.description,
@@ -49,47 +52,38 @@ function formatear(t) {
         created_at: t.created_at,
         updated_at: t.updated_at,
         closed_at: t.closed_at,
-        cliente: persona(t.cliente),
-        agente: persona(t.agente),
-        categoria: t.categoria ? t.categoria.name : null,
-        sala: t.sala ? { id: t.sala.id, name: t.sala.name, slug: t.sala.slug } : null
+        cliente: persona(t.customer_id),
+        agente: persona(t.agent_id),
+        categoria: t.category_id ? t.category_id.name : null,
+        sala: t.room_id ? { id: t.room_id._id, name: t.room_id.name, slug: t.room_id.slug } : null
     };
 }
 
 // Ticket con sus mensajes y su historial. El cliente nunca recibe las notas internas del equipo.
 async function detalleDe(yo, id) {
-    const t = await Ticket.findOne({ where: { id, ...visibilidad(yo) }, include: CON_DATOS });
+    const t = await conDatos(Ticket.findOne({ _id: id, ...visibilidad(yo) }));
     if (!t) throw ErrorApi.noEncontrado("Ese ticket no existe o no tienes acceso.");
     const soloPublicos = yo.role === "cliente" ? { is_internal: false } : {};
     const [mensajes, historial] = await Promise.all([
-        Mensaje.findAll({
-            where: { ticket_id: id, ...soloPublicos },
-            include: [{ model: Usuario, as: "autor", attributes: PERSONA }],
-            order: [["created_at", "ASC"], ["id", "ASC"]]
-        }),
-        CambioEstado.findAll({
-            where: { ticket_id: id },
-            include: [{ model: Usuario, as: "autor", attributes: PERSONA }],
-            order: [["changed_at", "ASC"], ["id", "ASC"]]
-        })
+        Mensaje.find({ ticket_id: id, ...soloPublicos }).populate("author_id", "name role").sort({ created_at: 1, _id: 1 }),
+        CambioEstado.find({ ticket_id: id }).populate("changed_by_id", "name role").sort({ changed_at: 1, _id: 1 })
     ]);
     return {
         ...formatear(t),
         mensajes: mensajes.map(m => ({
-            id: m.id, ticket_id: m.ticket_id, author_id: m.author_id, body: m.body,
-            is_internal: m.is_internal, created_at: m.created_at, autor: persona(m.autor)
+            id: m._id, ticket_id: m.ticket_id, author_id: m.author_id ? m.author_id._id : null, body: m.body,
+            is_internal: m.is_internal, created_at: m.created_at, autor: persona(m.author_id)
         })),
         historial: historial.map(h => ({
-            id: h.id, ticket_id: h.ticket_id, changed_by_id: h.changed_by_id, old_status: h.old_status,
-            new_status: h.new_status, changed_at: h.changed_at, autor: persona(h.autor)
+            id: h._id, ticket_id: h.ticket_id, changed_by_id: h.changed_by_id ? h.changed_by_id._id : null, old_status: h.old_status,
+            new_status: h.new_status, changed_at: h.changed_at, autor: persona(h.changed_by_id)
         }))
     };
 }
 
-// Devuelve el ticket si este usuario puede verlo; si no, 404.
-// Dentro de una transacción lo bloquea (SELECT ... FOR UPDATE) hasta que termine el cambio.
-async function visible(yo, id, transaction) {
-    const t = await Ticket.findOne({ where: { id, ...visibilidad(yo) }, transaction, lock: transaction ? true : undefined });
+// Devuelve el ticket (sin rellenar) si este usuario puede verlo; si no, 404
+async function visible(yo, id) {
+    const t = await Ticket.findOne({ _id: id, ...visibilidad(yo) });
     if (!t) throw ErrorApi.noEncontrado("Ese ticket no existe o no tienes acceso.");
     return t;
 }
@@ -112,11 +106,13 @@ function transicionPermitida(rol, desde, hasta) {
     return null;
 }
 
-// Cambia el estado y lo apunta en el historial, dentro de la misma transacción
-async function registrarEstado(t, nuevo, quien, transaction) {
+// Cambia el estado y lo apunta en el historial
+async function registrarEstado(t, nuevo, quien) {
     const anterior = t.status;
-    await t.update({ status: nuevo, closed_at: nuevo === "cerrado" ? new Date() : null }, { transaction });
-    await CambioEstado.create({ ticket_id: t.id, changed_by_id: quien, old_status: anterior, new_status: nuevo }, { transaction });
+    t.status = nuevo;
+    t.closed_at = nuevo === "cerrado" ? new Date() : null;
+    await t.save();
+    await CambioEstado.create({ ticket_id: t._id, changed_by_id: quien, old_status: anterior, new_status: nuevo });
 }
 
 class TicketController {
@@ -141,19 +137,19 @@ class TicketController {
         const orden = q.orden ? v.unoDe(errores, "orden", q.orden, ORDENES) : "recientes";
         v.comprobar(errores);
 
-        // Op.and: los filtros nunca amplían lo que el usuario puede ver
+        // $and: los filtros nunca amplían lo que el usuario puede ver
         const condiciones = [filtro, extra];
         if (typeof q.q === "string" && q.q.trim()) {
             // Busca en asunto y descripción; "NXR-0004" o "4" también encuentran el ticket por su número
             const texto = q.q.trim().slice(0, 100);
             const numero = Number(texto.replace(/^NXR-?/i, ""));
-            const o = [{ subject: { [Op.like]: `%${texto}%` } }, { description: { [Op.like]: `%${texto}%` } }];
-            if (Number.isInteger(numero) && numero > 0) o.push({ id: numero });
-            condiciones.push({ [Op.or]: o });
+            const o = [{ subject: v.buscarTexto(texto) }, { description: v.buscarTexto(texto) }];
+            if (Number.isInteger(numero) && numero > 0) o.push({ _id: numero });
+            condiciones.push({ $or: o });
         }
 
-        const sort = orden === "antiguos" ? [["created_at", "ASC"], ["id", "ASC"]] : [["updated_at", "DESC"], ["id", "DESC"]];
-        let result = (await Ticket.findAll({ where: { [Op.and]: condiciones }, include: CON_DATOS, order: sort })).map(formatear);
+        const sort = orden === "antiguos" ? { created_at: 1, _id: 1 } : { updated_at: -1, _id: -1 };
+        let result = (await conDatos(Ticket.find({ $and: condiciones }).sort(sort))).map(formatear);
         if (orden === "prioridad") {
             // Array.sort es estable: dentro de la misma prioridad se queda el orden por fecha
             result = result.sort((a, b) => PESO_PRIORIDAD[a.priority] - PESO_PRIORIDAD[b.priority]);
@@ -185,29 +181,25 @@ class TicketController {
 
         // Solo el admin puede abrirlo en nombre de un cliente
         const clienteId = yo.role === "admin" && pedidoPara ? pedidoPara : yo.id;
-        if (clienteId !== yo.id && !(await Usuario.findOne({ where: { id: clienteId, role: "cliente", is_active: true } }))) {
+        if (clienteId !== yo.id && !(await Usuario.exists({ _id: clienteId, role: "cliente", is_active: true }))) {
             errores.customer_id = "Ese cliente no existe.";
         }
-        if (!(await Categoria.findOne({ where: { id: datos.category_id, is_active: true } }))) errores.category_id = "Esa categoría no existe.";
+        if (!(await Categoria.exists({ _id: datos.category_id, is_active: true }))) errores.category_id = "Esa categoría no existe.";
         if (datos.booking_id) {
             // La reserva tiene que ser del mismo cliente; si no se indicó sala, se toma la de la reserva
-            const reserva = await Reserva.findOne({ where: { id: datos.booking_id, customer_id: clienteId } });
+            const reserva = await Reserva.findOne({ _id: datos.booking_id, customer_id: clienteId });
             if (!reserva) errores.booking_id = "Esa reserva no existe o no es tuya.";
             else if (datos.room_id && datos.room_id !== reserva.room_id) errores.room_id = "La sala no coincide con la de la reserva.";
             else datos.room_id = reserva.room_id;
         }
-        if (datos.room_id && !errores.room_id && !(await Sala.findByPk(datos.room_id))) errores.room_id = "Esa sala no existe.";
+        if (datos.room_id && !errores.room_id && !(await Sala.exists({ _id: datos.room_id }))) errores.room_id = "Esa sala no existe.";
         v.comprobar(errores);
 
-        // El ticket, su primer mensaje y el primer estado del historial se guardan juntos (transacción):
-        // si falla uno, no se guarda ninguno
-        const id = await sequelize.transaction(async transaction => {
-            const ticket = await Ticket.create({ ...datos, customer_id: clienteId }, { transaction });
-            await Mensaje.create({ ticket_id: ticket.id, author_id: yo.id, body: datos.description }, { transaction });
-            await CambioEstado.create({ ticket_id: ticket.id, changed_by_id: yo.id, old_status: null, new_status: "abierto" }, { transaction });
-            return ticket.id;
-        });
-        return res.status(201).json(await detalleDe(yo, id));
+        // El ticket, su primer mensaje y el primer estado del historial
+        const ticket = await Ticket.create({ ...datos, customer_id: clienteId });
+        await Mensaje.create({ ticket_id: ticket._id, author_id: yo.id, body: datos.description });
+        await CambioEstado.create({ ticket_id: ticket._id, changed_by_id: yo.id, old_status: null, new_status: "abierto" });
+        return res.status(201).json(await detalleDe(yo, ticket._id));
     }
 
     // POST /tickets/:id/messages { body, is_internal? }
@@ -221,19 +213,15 @@ class TicketController {
         v.comprobar(errores);
         if (interno && yo.role === "cliente") throw ErrorApi.prohibido("Los clientes no pueden escribir notas internas.");
 
-        await sequelize.transaction(async transaction => {
-            const t = await visible(yo, id, transaction);
-            exigirQueLoLleve(yo, t);
-            if (t.status === "cerrado") throw ErrorApi.conflicto("El ticket está cerrado. Pide que se reabra para seguir escribiendo.");
+        const t = await visible(yo, id);
+        exigirQueLoLleve(yo, t);
+        if (t.status === "cerrado") throw ErrorApi.conflicto("El ticket está cerrado. Pide que se reabra para seguir escribiendo.");
 
-            await Mensaje.create({ ticket_id: id, author_id: yo.id, body, is_internal: interno }, { transaction });
-            // Si el cliente contesta lo que le pidió el equipo, el ticket vuelve a "En curso"
-            if (yo.role === "cliente" && t.status === "pendiente_cliente") await registrarEstado(t, "en_curso", yo.id, transaction);
-            else {
-                t.changed("updated_at", true); // la última actividad del ticket es este mensaje
-                await t.save({ transaction });
-            }
-        });
+        await Mensaje.create({ ticket_id: id, author_id: yo.id, body, is_internal: interno });
+        // Si el cliente contesta lo que le pidió el equipo, el ticket vuelve a "En curso"
+        if (yo.role === "cliente" && t.status === "pendiente_cliente") await registrarEstado(t, "en_curso", yo.id);
+        // Si no, solo se actualiza updated_at: la última actividad del ticket es este mensaje
+        else await Ticket.updateOne({ _id: id }, { updated_at: new Date() });
         return res.status(201).json(await detalleDe(yo, id));
     }
 
@@ -245,15 +233,14 @@ class TicketController {
         const nuevo = v.unoDe(errores, "status", req.body?.status, ESTADOS);
         v.comprobar(errores);
 
-        await sequelize.transaction(async transaction => {
-            const t = await visible(yo, id, transaction);
-            exigirQueLoLleve(yo, t);
-            // Si ya está en ese estado no se cambia nada (no se ensucia el historial)
-            if (t.status === nuevo) return;
+        const t = await visible(yo, id);
+        exigirQueLoLleve(yo, t);
+        // Si ya está en ese estado no se cambia nada (no se ensucia el historial)
+        if (t.status !== nuevo) {
             const motivo = transicionPermitida(yo.role, t.status, nuevo);
             if (motivo) throw ErrorApi.prohibido(motivo);
-            await registrarEstado(t, nuevo, yo.id, transaction);
-        });
+            await registrarEstado(t, nuevo, yo.id);
+        }
         return res.status(200).json(await detalleDe(yo, id));
     }
 
@@ -270,10 +257,11 @@ class TicketController {
 
         const t = await visible(yo, id);
         exigirQueLoLleve(yo, t);
-        if (cambios.category_id !== undefined && !(await Categoria.findOne({ where: { id: cambios.category_id, is_active: true } }))) {
+        if (cambios.category_id !== undefined && !(await Categoria.exists({ _id: cambios.category_id, is_active: true }))) {
             throw ErrorApi.datosInvalidos({ category_id: "Esa categoría no existe." });
         }
-        await t.update(cambios);
+        t.set(cambios);
+        await t.save();
         return res.status(200).json(await detalleDe(yo, id));
     }
 
@@ -287,10 +275,11 @@ class TicketController {
         v.comprobar(errores);
 
         const t = await visible(yo, id);
-        if (agenteId !== null && !(await Usuario.findOne({ where: { id: agenteId, role: "agente", is_active: true } }))) {
+        if (agenteId !== null && !(await Usuario.exists({ _id: agenteId, role: "agente", is_active: true }))) {
             throw ErrorApi.datosInvalidos({ agent_id: "Ese agente no existe o está desactivado." });
         }
-        await t.update({ agent_id: agenteId });
+        t.agent_id = agenteId;
+        await t.save();
         return res.status(200).json(await detalleDe(yo, id));
     }
 }

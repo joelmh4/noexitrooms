@@ -1,6 +1,6 @@
 // Autenticación con JWT y permisos por rol (como verificarToken y permitirRoles del ejemplo de clase).
 const jwt = require("jsonwebtoken");
-const { Usuario } = require("../model");
+const Usuario = require("../model/usuario.model");
 const entorno = require("../config/entorno");
 const { ErrorApi } = require("./errores.middleware");
 
@@ -18,7 +18,7 @@ const verificarToken = async (req, res, next) => {
     return next(ErrorApi.sinSesion("La sesión no es válida o ha caducado. Vuelve a iniciar sesión."));
   }
 
-  const usuario = await Usuario.findByPk(tokenVerificado.id);
+  const usuario = await Usuario.findById(tokenVerificado.id);
   if (!usuario) return next(ErrorApi.sinSesion("Tu cuenta ya no existe."));
   if (!usuario.is_active) return next(ErrorApi.prohibido("Esta cuenta está desactivada."));
 

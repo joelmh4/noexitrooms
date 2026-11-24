@@ -12,7 +12,7 @@ const { verificarToken, permitirRoles } = require('../middleware/auth.middleware
  *     tags: [Sistema]
  *     summary: Estado de la API y de la conexión con la base de datos
  *     security: []
- *     description: No necesita sesión. Devuelve 503 si la API no llega a MySQL.
+ *     description: No necesita sesión. Devuelve 503 si la API no llega a MongoDB.
  *     responses:
  *       "200":
  *         description: Todo funciona

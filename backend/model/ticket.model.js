@@ -1,59 +1,71 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const mongoose = require('mongoose');
+const { idNumerico } = require('./contador.model');
 
 const ESTADOS = ["abierto", "en_curso", "pendiente_cliente", "resuelto", "cerrado"];
 const PRIORIDADES = ["baja", "media", "alta"];
 
-// Tabla tickets. Las claves foráneas (customer_id, agent_id, category_id, room_id, booking_id)
-// se crean en model/index.js con las relaciones.
-const Ticket = sequelize.define('ticket', {
-    id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        autoIncrement: true,
-        primaryKey: true
+// Colección tickets. Los mensajes y el historial de estados van en sus colecciones
+// (mensajes e historial_estados) y apuntan al ticket con ticket_id.
+const appTicketsSchema = new mongoose.Schema({
+    _id: Number,
+    customer_id: {
+        type: Number,
+        ref: "usuario",
+        required: true
+    },
+    agent_id: {
+        type: Number,
+        ref: "usuario",
+        default: null
+    },
+    category_id: {
+        type: Number,
+        ref: "categoria",
+        required: true
+    },
+    room_id: {
+        type: Number,
+        ref: "sala",
+        default: null
+    },
+    booking_id: {
+        type: Number,
+        ref: "reserva",
+        default: null
     },
     subject: {
-        field: "asunto",
-        type: DataTypes.STRING(150),
-        allowNull: false
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 150
     },
     description: {
-        field: "descripcion",
-        type: DataTypes.TEXT,
-        allowNull: false
+        type: String,
+        required: true
     },
     priority: {
-        field: "prioridad",
-        type: DataTypes.ENUM(...PRIORIDADES),
-        allowNull: false,
-        defaultValue: "media"
+        type: String,
+        enum: PRIORIDADES,
+        default: "media"
     },
     status: {
-        field: "estado",
-        type: DataTypes.ENUM(...ESTADOS),
-        allowNull: false,
-        defaultValue: "abierto"
+        type: String,
+        enum: ESTADOS,
+        default: "abierto"
     },
     closed_at: {
-        field: "cerrado_en",
-        type: DataTypes.DATE,
-        allowNull: true
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        field: "creado_en",
-        allowNull: false
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        field: "actualizado_en",
-        allowNull: false
+        type: Date,
+        default: null
     }
 },
     {
-        tableName: "tickets",
-        indexes: [{ fields: ["estado"] }, { fields: ["prioridad"] }]
+        timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+        versionKey: false
     })
+
+appTicketsSchema.plugin(idNumerico, { nombre: "tickets" });
+
+const Ticket = mongoose.model("ticket", appTicketsSchema);
 
 // Código visible del ticket: NXR-0042
 const codigoTicket = (id) => `NXR-${String(id).padStart(4, "0")}`;

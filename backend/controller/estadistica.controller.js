@@ -1,9 +1,11 @@
 // Métricas del panel (enunciado: "vista de tickets pendientes y métricas básicas" y, como mejora,
 // "estadísticas por agente"). El admin ve las de todo el equipo; el agente, solo las suyas.
-const { Op } = require("sequelize");
-const { Ticket, Categoria, Usuario, Reserva, CambioEstado } = require("../model");
+const Ticket = require("../model/ticket.model");
 const { ESTADOS, PRIORIDADES } = require("../model/ticket.model");
-const { aFecha } = require("../model/reserva.model");
+const Categoria = require("../model/categoria.model");
+const Usuario = require("../model/usuario.model");
+const Reserva = require("../model/reserva.model");
+const CambioEstado = require("../model/cambioEstado.model");
 const { ahoraEnMadrid, sumarDias } = require("../utils/horario");
 
 const ACTIVOS = ["abierto", "en_curso", "pendiente_cliente"];
@@ -23,10 +25,10 @@ class EstadisticaController {
         const deQuien = yo.role === "agente" ? { agent_id: yo.id } : {};
 
         const [tickets, categorias, resueltos] = await Promise.all([
-            Ticket.findAll({ where: deQuien, attributes: ["id", "status", "priority", "category_id", "agent_id", "created_at"] }),
-            Categoria.findAll({ order: [["name", "ASC"]] }),
+            Ticket.find(deQuien).select("status priority category_id agent_id created_at"),
+            Categoria.find().sort({ name: 1 }),
             // Primera vez que cada ticket pasó a "resuelto"
-            CambioEstado.findAll({ where: { new_status: "resuelto" }, order: [["changed_at", "ASC"]] })
+            CambioEstado.find({ new_status: "resuelto" }).sort({ changed_at: 1 })
         ]);
         const primeraResolucion = new Map();
         for (const h of resueltos) if (!primeraResolucion.has(h.ticket_id)) primeraResolucion.set(h.ticket_id, h.changed_at);
@@ -35,7 +37,7 @@ class EstadisticaController {
         // Horas desde que se abre hasta que se marca resuelto por primera vez
         const horas = tickets
             .map(t => {
-                const resuelto = primeraResolucion.get(t.id);
+                const resuelto = primeraResolucion.get(t._id);
                 return resuelto ? (resuelto - t.created_at) / 3600000 : null;
             })
             .filter(h => h !== null);
@@ -56,7 +58,7 @@ class EstadisticaController {
             por_estado: porEstado,
             activos_por_prioridad: contar(PRIORIDADES, activos.map(t => t.priority)),
             por_categoria: categorias
-                .map(c => ({ id: c.id, name: c.name, n: tickets.filter(t => t.category_id === c.id).length }))
+                .map(c => ({ id: c._id, name: c.name, n: tickets.filter(t => t.category_id === c._id).length }))
                 .sort((a, b) => b.n - a.n),
             horas_medias_hasta_resolver: horas.length
                 ? Math.round((horas.reduce((a, b) => a + b, 0) / horas.length) * 10) / 10
@@ -70,23 +72,21 @@ class EstadisticaController {
         // Solo admin: tickets sin asignar, carga de cada agente y reservas
         const ahora = ahoraEnMadrid();
         const [sinAsignar, agentes, pendientes, proximas] = await Promise.all([
-            Ticket.findAll({ where: { agent_id: null, status: { [Op.ne]: "cerrado" } }, attributes: ["priority"] }),
-            Usuario.findAll({ where: { role: "agente", is_active: true } }),
-            Reserva.count({ where: { status: "pendiente" } }),
-            Reserva.count({
-                where: {
-                    status: { [Op.ne]: "cancelada" },
-                    starts_at: { [Op.gte]: aFecha(`${ahora}:00`), [Op.lt]: aFecha(`${sumarDias(ahora.slice(0, 10), 7)}T00:00:00`) }
-                }
+            Ticket.find({ agent_id: null, status: { $ne: "cerrado" } }).select("priority"),
+            Usuario.find({ role: "agente", is_active: true }),
+            Reserva.countDocuments({ status: "pendiente" }),
+            Reserva.countDocuments({
+                status: { $ne: "cancelada" },
+                starts_at: { $gte: `${ahora}:00`, $lt: `${sumarDias(ahora.slice(0, 10), 7)}T00:00:00` }
             })
         ]);
 
         resumen.sin_asignar = { total: sinAsignar.length, alta: sinAsignar.filter(t => t.priority === "alta").length };
         const cargaAgentes = agentes
             .map(a => {
-                const suyos = tickets.filter(t => t.agent_id === a.id);
+                const suyos = tickets.filter(t => t.agent_id === a._id);
                 return {
-                    id: a.id,
+                    id: a._id,
                     name: a.name,
                     activos: suyos.filter(t => ACTIVOS.includes(t.status)).length,
                     pendientes_cliente: suyos.filter(t => t.status === "pendiente_cliente").length,

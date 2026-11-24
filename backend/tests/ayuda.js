@@ -1,9 +1,10 @@
 // Arranca la API en un puerto libre para las pruebas y da funciones para hacer peticiones.
-// Las pruebas usan la base de datos del .env con los datos de ejemplo (ejecutar bbdd/noexitrooms.sql antes de npm test).
+// Las pruebas usan la base de datos del .env con los datos de ejemplo (npm run carga antes de npm test).
 const { before, after } = require("node:test");
 process.env.NODE_ENV = "test";
 const app = require("../app");
-const { conectar, desconectar } = require("../config/db");
+const mongoose = require("mongoose");
+const entorno = require("../config/entorno");
 
 let servidor;
 let base = "";
@@ -12,13 +13,13 @@ let marcarListo;
 const listo = new Promise(r => { marcarListo = r; });
 
 before(async () => {
-    await conectar();
+    await mongoose.connect(entorno.mongoUrl);
     servidor = app.listen(0);
     await new Promise(r => servidor.once("listening", r));
     base = `http://127.0.0.1:${servidor.address().port}/api`;
     marcarListo();
 });
-after(async () => { servidor.close(); await desconectar(); });
+after(async () => { servidor.close(); await mongoose.disconnect(); });
 
 async function pedir(ruta, { metodo = "GET", cuerpo, token } = {}) {
     await listo;

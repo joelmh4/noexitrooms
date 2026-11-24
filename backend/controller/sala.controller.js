@@ -1,16 +1,16 @@
 // Salas: catálogo público con buscador y CRUD del administrador
-const { Op } = require("sequelize");
-const { Sala, Ticket, Reserva } = require("../model");
-const { aFecha } = require("../model/reserva.model");
+const Sala = require("../model/sala.model");
+const Ticket = require("../model/ticket.model");
+const Reserva = require("../model/reserva.model");
 const { ErrorApi } = require("../middleware/errores.middleware");
 const { horasDe, ahoraEnMadrid, sumarDias } = require("../utils/horario");
 const v = require("../utils/validacion");
 
 const ORDENES = {
-    nombre: [["name", "ASC"]],
-    dificultad: [["difficulty", "ASC"], ["name", "ASC"]],
-    precio: [["price_per_person", "ASC"], ["name", "ASC"]],
-    duracion: [["duration_min", "ASC"], ["name", "ASC"]]
+    nombre: { name: 1 },
+    dificultad: { difficulty: 1, name: 1 },
+    precio: { price_per_person: 1, name: 1 },
+    duracion: { duration_min: 1, name: 1 }
 };
 
 // "El manicomio de San Tomás" → "el-manicomio-de-san-tomas" (igual que en el frontend)
@@ -19,9 +19,9 @@ const slugDe = texto =>
 
 // Por slug (la web pública) o por id (el panel). Si no existe → 404
 async function buscarSala(clave, { soloActivas = true } = {}) {
-    const filtro = typeof clave === "number" ? { id: clave } : { slug: clave };
+    const filtro = typeof clave === "number" ? { _id: clave } : { slug: clave };
     if (soloActivas) filtro.is_active = true;
-    const sala = await Sala.findOne({ where: filtro });
+    const sala = await Sala.findOne(filtro);
     if (!sala) throw ErrorApi.noEncontrado("Esa sala no existe.");
     return sala;
 }
@@ -57,7 +57,7 @@ function leerSala(b = {}) {
 }
 
 const nombreOcupado = (datos, excepto = 0) =>
-    Sala.findOne({ where: { [Op.or]: [{ slug: datos.slug }, { name: datos.name }], id: { [Op.ne]: excepto } } });
+    Sala.findOne({ $or: [{ slug: datos.slug }, { name: datos.name }], _id: { $ne: excepto } });
 
 class SalaController {
 
@@ -70,22 +70,22 @@ class SalaController {
         const filtro = {};
         if (!todas) filtro.is_active = true;
         if (typeof q.q === "string" && q.q.trim()) {
-            //Op.like = LIKE de SQL: busca el texto en el nombre, la frase o la descripción
-            const texto = { [Op.like]: `%${q.q.trim().slice(0, 100)}%` };
-            filtro[Op.or] = [{ name: texto }, { tagline: texto }, { description: texto }];
+            //$or: busca el texto en el nombre, la frase o la descripción
+            const texto = v.buscarTexto(q.q.trim().slice(0, 100));
+            filtro.$or = [{ name: texto }, { tagline: texto }, { description: texto }];
         }
         if (typeof q.theme === "string" && q.theme.trim()) filtro.theme = q.theme.trim();
         if (q.difficulty) filtro.difficulty = v.entero(errores, "difficulty", q.difficulty, 1, 5, "Entre 1 y 5.");
         if (q.players) {
             const jugadores = v.entero(errores, "players", q.players, 1, 99, "Número de jugadores no válido.");
-            //lte: menor o igual que · gte: mayor o igual que
-            filtro.min_players = { [Op.lte]: jugadores };
-            filtro.max_players = { [Op.gte]: jugadores };
+            //$lte: menor o igual que · $gte: mayor o igual que
+            filtro.min_players = { $lte: jugadores };
+            filtro.max_players = { $gte: jugadores };
         }
         const orden = q.orden ? v.unoDe(errores, "orden", q.orden, Object.keys(ORDENES)) : "nombre";
         v.comprobar(errores);
 
-        const result = await Sala.findAll({ where: filtro, order: ORDENES[orden] });
+        const result = await Sala.find(filtro).sort(ORDENES[orden]);
         return res.status(200).json(result);
     }
 
@@ -112,7 +112,8 @@ class SalaController {
         const datos = leerSala(req.body);
         if (await nombreOcupado(datos, id)) throw ErrorApi.conflicto("Ya hay una sala con ese nombre.");
         if (!datos.image_url) datos.image_url = actual.image_url;
-        await actual.update(datos);
+        actual.set(datos);
+        await actual.save();
         return res.status(200).json(actual);
     }
 
@@ -121,13 +122,13 @@ class SalaController {
         const id = v.idDeRuta(req.params.id);
         const sala = await buscarSala(id, { soloActivas: false });
         const [tickets, reservas] = await Promise.all([
-            Ticket.count({ where: { room_id: id } }),
-            Reserva.count({ where: { room_id: id } })
+            Ticket.countDocuments({ room_id: id }),
+            Reserva.countDocuments({ room_id: id })
         ]);
         if (tickets || reservas) {
             throw ErrorApi.conflicto("La sala tiene tickets o reservas asociados. Desactívala en lugar de borrarla.");
         }
-        await sala.destroy();
+        await Sala.findByIdAndDelete(id);
         return res.status(204).end();
     }
 
@@ -141,12 +142,11 @@ class SalaController {
         v.comprobar(errores);
 
         const sala = await buscarSala(id);
-        const ocupadas = await Reserva.findAll({
-            where: {
-                room_id: id,
-                status: { [Op.ne]: "cancelada" },
-                starts_at: { [Op.gte]: aFecha(`${desde}T00:00:00`), [Op.lt]: aFecha(`${sumarDias(desde, dias)}T00:00:00`) }
-            }
+        //starts_at es texto AAAA-MM-DDTHH:MM:SS: comparar textos sirve para buscar entre dos fechas
+        const ocupadas = await Reserva.find({
+            room_id: id,
+            status: { $ne: "cancelada" },
+            starts_at: { $gte: `${desde}T00:00:00`, $lt: `${sumarDias(desde, dias)}T00:00:00` }
         });
         const porHora = new Map(ocupadas.map(o => [o.starts_at, o.customer_id]));
         const ahora = ahoraEnMadrid();

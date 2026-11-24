@@ -1,70 +1,51 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+const mongoose = require('mongoose');
+const { idNumerico } = require('./contador.model');
 
 const ROLES = ["cliente", "agente", "admin"];
 
-// Tabla usuarios. El registro público siempre crea "cliente"; agentes y admins los nombra un admin.
-const Usuario = sequelize.define('usuario', {
-    id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        autoIncrement: true,
-        primaryKey: true
-    },
+// Colección usuarios. El registro público siempre crea "cliente"; agentes y admins los nombra un admin.
+const appUsuariosSchema = new mongoose.Schema({
+    _id: Number,
     name: {
-        field: "nombre",
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        validate: { len: [2, 100] }
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 2,
+        maxlength: 100
     },
     email: {
-        type: DataTypes.STRING(150),
-        allowNull: false,
+        type: String,
+        required: true,
         //El email no se puede repetir
-        unique: "uq_usuarios_email",
-        validate: { isEmail: true }
+        unique: true,
+        lowercase: true,
+        trim: true,
+        match: [/^\S+@\S+\.\S+$/, "El email no es válido"]
     },
-    //Solo el hash de bcrypt, nunca la contraseña en texto plano
-    password_hash: {
-        field: "hash_contrasena",
-        type: DataTypes.STRING(255),
-        allowNull: false
+    //Solo el hash de bcrypt, nunca la contraseña en texto plano. Con select: false no sale en las consultas
+    password: {
+        type: String,
+        required: true,
+        select: false
     },
     role: {
-        field: "rol",
-        //ENUM: no se puede guardar otro rol que no sea uno de estos
-        type: DataTypes.ENUM(...ROLES),
-        allowNull: false,
-        defaultValue: "cliente"
+        type: String,
+        enum: ROLES,
+        default: "cliente"
     },
     is_active: {
-        field: "activo",
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        field: "creado_en",
-        allowNull: false
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        field: "actualizado_en",
-        allowNull: false
+        type: Boolean,
+        default: true
     }
 },
     {
-        tableName: "usuarios",
-        //Por defecto las consultas NO traen el hash (como select: false en Mongoose)
-        defaultScope: { attributes: { exclude: ["password_hash"] } },
-        scopes: { conPassword: { attributes: { include: ["password_hash"] } } }
+        timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
+        versionKey: false
     })
 
-// Al enviarlo como JSON, el hash nunca sale aunque se haya leído
-Usuario.prototype.toJSON = function () {
-    const { password_hash, updated_at, ...datos } = this.get();
-    return datos;
-};
+appUsuariosSchema.plugin(idNumerico, { nombre: "usuarios", ocultar: ["password", "updated_at"] });
+
+const Usuario = mongoose.model("usuario", appUsuariosSchema);
 
 module.exports = Usuario;
 module.exports.ROLES = ROLES;

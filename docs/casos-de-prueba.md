@@ -6,6 +6,8 @@ Los casos 01 a 08 son las pruebas de aceptación del enunciado. Se han hecho des
 
 **17 de noviembre de 2026:** el backend se rehace en JavaScript con Express y Sequelize (estructura del ejemplo de clase), sobre las mismas tablas de MySQL. Mismas rutas y respuestas: las 40 pruebas automáticas pasan contra MySQL 8.4 y la web se ha vuelto a probar en local como cliente, agente y administrador.
 
+**24 de noviembre de 2026:** la base de datos pasa a MongoDB con Mongoose, como el ejemplo de clase de la API de películas. Mismas rutas y respuestas: las 40 pruebas automáticas pasan contra MongoDB 8 con los datos de `npm run carga`, y la web se ha vuelto a probar en local (salas, login, crear un ticket como cliente y los paneles del administrador).
+
 **Pendiente:** repetir los casos 01 a 08 en las URLs públicas cuando estén desplegadas y rellenar la columna de producción.
 
 ## Pruebas de aceptación del enunciado

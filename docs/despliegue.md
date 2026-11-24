@@ -4,7 +4,7 @@ El enunciado pide que la entrega funcione en internet, sin `localhost`, y con la
 
 | Pieza | Dónde | Coste |
 | --- | --- | --- |
-| Base de datos MySQL | Aiven for MySQL, plan gratuito | 0 € |
+| Base de datos MongoDB | MongoDB Atlas, cluster M0 gratuito | 0 € |
 | API (Node + Express) | Render, servicio web gratuito (`render.yaml`) | 0 € |
 | Web (HTML, CSS y JS) | GitHub Pages (`.github/workflows/web.yml`) | 0 € |
 
@@ -13,34 +13,26 @@ Navegador ──► https://joelmh4.github.io/noexitrooms/  (GitHub Pages)
      │
      └──fetch──► https://<servicio>.onrender.com/api   (Render)
                         │
-                        └──SSL──► MySQL en Aiven
+                        └──TLS──► MongoDB en Atlas
 ```
 
-## 1. Base de datos en Aiven
+## 1. Base de datos en MongoDB Atlas
 
-1. Crea una cuenta en [aiven.io](https://aiven.io) y, dentro, un servicio **MySQL** con el plan **Free** en una región de Europa.
-2. Cuando esté en marcha, en *Overview > Connection information* apunta: **Host**, **Port**, **User** (`avnadmin`), **Password** y **Database** (`defaultdb`). Descarga también el **CA certificate** (`ca.pem`).
-3. Carga las tablas y los datos de ejemplo desde tu ordenador. En `backend/.env` pon los valores de Aiven:
+1. Crea una cuenta en [mongodb.com/atlas](https://www.mongodb.com/atlas) y, dentro, un cluster **M0** (gratuito) en una región de Europa.
+2. En *Database Access* crea un usuario con contraseña, y en *Network Access* permite el acceso desde `0.0.0.0/0` (Render no tiene una IP fija).
+3. En *Connect > Drivers* copia la dirección de conexión y añade el nombre de la base de datos, `noexitrooms`, antes de la `?`:
 
    ```
-   DB_HOST=…aivencloud.com
-   DB_PORT=…
-   DB_USER=avnadmin
-   DB_PASSWORD=…
-   DB_NAME=noexitrooms
-   DB_SSL=true
-   DB_SSL_CA="-----BEGIN CERTIFICATE-----
-   …contenido de ca.pem…
-   -----END CERTIFICATE-----"
+   MONGO_URL=mongodb+srv://usuario:contraseña@cluster0.xxxxx.mongodb.net/noexitrooms?retryWrites=true&w=majority
    ```
 
-   Conecta MySQL Workbench a Aiven con esos datos (en la pestaña *SSL*, *Use SSL: Require* y el `ca.pem` como *SSL CA File*) y ejecuta `backend/bbdd/noexitrooms.sql`. Crea la base de datos `noexitrooms` con sus tablas y datos, así que en el `.env` y en Render pon `DB_NAME=noexitrooms`. **Ojo:** el script borra la base de datos si ya existía; úsalo solo la primera vez o para dejarla como al principio.
+4. Carga las colecciones y los datos de ejemplo desde tu ordenador: pon esa `MONGO_URL` en `backend/.env` y ejecuta `npm run carga` dentro de `backend/`. **Ojo:** borra la base de datos si ya existía; úsalo solo la primera vez o para dejarla como al principio.
 
 ## 2. API en Render
 
 1. Crea una cuenta en [render.com](https://render.com) entrando con GitHub.
 2. *New > Blueprint* y elige el repositorio `joelmh4/noexitrooms`. Render lee `render.yaml` y prepara el servicio `noexitrooms-api`.
-3. Rellena las variables que pide: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` y `DB_SSL_CA` (el contenido entero de `ca.pem`). `TOKEN_PASSWORD` la genera Render sola y `CORS_ORIGIN` ya apunta a GitHub Pages.
+3. Rellena la variable que pide: `MONGO_URL` (la misma del paso 1). `TOKEN_PASSWORD` la genera Render sola y `CORS_ORIGIN` ya apunta a GitHub Pages.
 4. Cuando termine, abre `https://<servicio>.onrender.com/api/health`. Debe responder `"baseDeDatos":"ok"`. La documentación queda en `/api/docs`.
 
 > El plan gratuito se duerme tras 15 minutos sin visitas y tarda unos 50 segundos en despertar. Antes de la defensa, abre `/api/health` un par de minutos antes.
