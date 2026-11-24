@@ -17,8 +17,8 @@ El registro público siempre crea la cuenta con rol cliente, aunque se envíe ot
 | Ver la web pública y el catálogo de salas | Sí | Sí | Sí | Sí |
 | Crear cuenta | Sí (siempre cliente) | No | No | No |
 | Editar su perfil y contraseña | No | Sí | Sí | Sí |
-| Reservar una sesión y ver sus reservas | No | Sí | No | No |
-| Confirmar reservas | No | No | Sí | Sí |
+| Reservar una sesión, ver y cancelar sus reservas | No | Sí | No | No |
+| Confirmar o cancelar reservas | No | No | Sí (API) | Sí (página Reservas) |
 | Abrir un ticket | No | Sí | No | Sí |
 | Ver tickets | No | Solo los suyos | Solo los asignados a él | Todos |
 | Responder un ticket | No | Solo los suyos | Solo los asignados a él | Todos |
