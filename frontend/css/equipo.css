@@ -16,6 +16,12 @@
   background-position: 0 0, 0 0, 50% 100%;
   background-size: auto, auto, 72% auto;
   box-shadow: 0 24px 50px -16px rgba(0,0,0,.8); filter: contrast(1.05); }
+/* Con foto, solo la regla de alturas (sin la silueta, que se vería a través de la foto) */
+.ficha-policial-foto:has(img) {
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0 23px, rgba(30,30,30,.45) 23px 24px),
+    repeating-linear-gradient(to bottom, transparent 0 119px, rgba(30,30,30,.8) 119px 121px);
+}
 .ficha-policial-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; filter: grayscale(.25) contrast(1.1); }
 .ficha-policial-cartel { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%) rotate(-1deg); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 16px; background: #121314; color: #E8EBE6; font-family: var(--font-codigo); font-size: .66rem; letter-spacing: .14em; border: 2px solid #E8EBE6; box-shadow: 0 6px 14px rgba(0,0,0,.5); white-space: nowrap; }
 .ficha-policial-cartel b { font-size: 1.2rem; letter-spacing: .2em; color: #fff; }
