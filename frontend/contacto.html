@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
   <link rel="stylesheet" href="css/estilos.css">
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/lucide.min.js" defer></script>
   <script src="js/api.js" defer></script>
   <script src="js/ui.js" defer></script>
   <script src="js/paginas/estatica.js" defer></script>
@@ -24,15 +24,16 @@
         <img src="img/contacto.webp" alt="Mostrador de recepción con un timbre y un reloj de cuenta atrás." loading="lazy" width="1600" height="893">
         <figcaption>La recepción. Tocad el timbre: el reloj empieza a contar en cuanto entráis.</figcaption>
       </figure>
-      <div class="pasos" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div class="pasos pasos-tres">
         <div class="paso"><i data-lucide="map-pin"></i><h3>Dirección</h3><p>Calle del Candado 13<br>28012 Madrid<br>Metro Tirso de Molina (L1)</p></div>
         <div class="paso"><i data-lucide="clock"></i><h3>Horario</h3><p>Lunes a jueves: 16:00 a 23:00<br>Viernes a domingo: 10:00 a 01:00</p></div>
         <div class="paso"><i data-lucide="mail"></i><h3>Escríbenos</h3><p>hola@noexitrooms.example<br>Para reservas, bonos o incidencias, mejor por ticket.</p></div>
       </div>
       <div class="ficha">
-        <div class="tarjeta" style="min-height:280px;justify-content:center;align-items:center;background:var(--superficie-2)">
-          <i data-lucide="map" style="width:48px;height:48px;color:var(--texto-suave)"></i>
-          <p class="texto-suave">Aquí irá el mapa (Google Maps u OpenStreetMap).</p>
+        <div class="tarjeta mapa">
+          <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-3.7120%2C40.4085%2C-3.6970%2C40.4160&amp;layer=mapnik&amp;marker=40.4123%2C-3.7045"
+            title="Mapa: NoExitRooms, junto al metro de Tirso de Molina (Madrid)" loading="lazy"></iframe>
+          <a class="subtexto" href="https://www.openstreetmap.org/?mlat=40.4123&amp;mlon=-3.7045#map=17/40.4123/-3.7045" target="_blank" rel="noopener">Ver el mapa más grande</a>
         </div>
         <div class="tarjeta">
           <h2 style="font-size:1.4rem">Soporte por tickets</h2>
