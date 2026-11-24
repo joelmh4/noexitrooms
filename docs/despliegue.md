@@ -27,20 +27,20 @@ Navegador ──► https://joelmh4.github.io/noexitrooms/  (GitHub Pages)
    DB_PORT=…
    DB_USER=avnadmin
    DB_PASSWORD=…
-   DB_NAME=defaultdb
+   DB_NAME=noexitrooms
    DB_SSL=true
    DB_SSL_CA="-----BEGIN CERTIFICATE-----
    …contenido de ca.pem…
    -----END CERTIFICATE-----"
    ```
 
-   y ejecuta `npm run db:cargar` en `backend/`. Debe decir `6 usuarios de prueba`. **Ojo:** este comando borra y vuelve a crear todas las tablas; úsalo solo para cargarlas la primera vez o para dejar la base como al principio.
+   Conecta MySQL Workbench a Aiven con esos datos (en la pestaña *SSL*, *Use SSL: Require* y el `ca.pem` como *SSL CA File*) y ejecuta `backend/bbdd/noexitrooms.sql`. Crea la base de datos `noexitrooms` con sus tablas y datos, así que en el `.env` y en Render pon `DB_NAME=noexitrooms`. **Ojo:** el script borra la base de datos si ya existía; úsalo solo la primera vez o para dejarla como al principio.
 
 ## 2. API en Render
 
 1. Crea una cuenta en [render.com](https://render.com) entrando con GitHub.
 2. *New > Blueprint* y elige el repositorio `joelmh4/noexitrooms`. Render lee `render.yaml` y prepara el servicio `noexitrooms-api`.
-3. Rellena las variables que pide: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` y `DB_SSL_CA` (el contenido entero de `ca.pem`). `JWT_SECRET` la genera Render sola y `CORS_ORIGIN` ya apunta a GitHub Pages.
+3. Rellena las variables que pide: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` y `DB_SSL_CA` (el contenido entero de `ca.pem`). `TOKEN_PASSWORD` la genera Render sola y `CORS_ORIGIN` ya apunta a GitHub Pages.
 4. Cuando termine, abre `https://<servicio>.onrender.com/api/health`. Debe responder `"baseDeDatos":"ok"`. La documentación queda en `/api/docs`.
 
 > El plan gratuito se duerme tras 15 minutos sin visitas y tarda unos 50 segundos en despertar. Antes de la defensa, abre `/api/health` un par de minutos antes.

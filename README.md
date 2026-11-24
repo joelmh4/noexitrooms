@@ -21,8 +21,8 @@ Contraseña de todos: `Demo1234!`
 | Rol | Email |
 | --- | --- |
 | Administrador | admin@noexitrooms.test |
-| Agente | marta@noexitrooms.test, sergio@noexitrooms.test |
-| Cliente | lucia@ejemplo.test, pablo@ejemplo.test, ana@ejemplo.test |
+| Agente | abalos@noexitrooms.test, ramos@noexitrooms.test |
+| Cliente | pedro@ejemplo.test, cristiano@ejemplo.test, rosalia@ejemplo.test, abascal@ejemplo.test |
 
 Cualquier cuenta nueva creada desde *Registrarse* es siempre de cliente.
 
@@ -38,8 +38,8 @@ Los tickets siguen el ciclo Abierto → En curso → Pendiente del cliente → R
 ## Arquitectura
 
 ```
-Navegador ──► Web (HTML, CSS y JS) ──fetch + JWT──► API REST (Node, Express, TypeScript) ──► MySQL
-              GitHub Pages                          Render                                    Aiven
+Navegador ──► Web (HTML, CSS y JS) ──fetch + JWT──► API REST (Node, Express) ──► MySQL
+              GitHub Pages                          Render                       Aiven
 ```
 
 El frontend nunca habla con la base de datos: todo pasa por la API, que comprueba la sesión, el rol y la propiedad de cada recurso. Ocultar un botón en la web no da ni quita permisos.
@@ -47,7 +47,7 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 | Carpeta | Qué hay |
 | --- | --- |
 | [`frontend/`](frontend) | Web en HTML, CSS y JavaScript sin frameworks. Todas las páginas piden los datos a la API desde `js/api.js`. |
-| [`backend/`](backend) | API REST con rutas, controladores, servicios y middleware, documentación Swagger y 40 pruebas automáticas. |
+| [`backend/`](backend) | API REST en Express con Sequelize sobre MySQL (modelos, controladores, rutas y middleware, como el ejemplo de clase), documentación Swagger y 40 pruebas automáticas. |
 | [`docs/`](docs) | Ficha inicial, mapa de páginas, guía de estilo, wireframes, modelo entidad-relación, script SQL, permisos, casos de prueba, capturas y guía de despliegue. |
 
 ## Requisitos para ejecutarlo en local
@@ -58,41 +58,38 @@ El frontend nunca habla con la base de datos: todo pasa por la API, que comprueb
 
 ## Instalación en local
 
-1. Crea una base de datos vacía y un usuario con permisos sobre ella.
+1. Ejecuta `backend/bbdd/noexitrooms.sql` en MySQL Workbench o phpMyAdmin: crea la base de datos `noexitrooms`, su usuario, las tablas y los datos de ejemplo.
 2. Prepara el backend:
 
    ```bash
    cd backend
    npm install
-   cp .env.example .env     # rellena DB_*, JWT_SECRET y CORS_ORIGIN (la dirección donde abres la web, p. ej. http://127.0.0.1:5500)
-   npm run db:cargar        # crea las tablas y carga los datos de ejemplo
+   cp .env.example .env     # rellena DB_*, TOKEN_PASSWORD y CORS_ORIGIN (el ejemplo ya incluye http://localhost:5173)
    npm run dev              # API en http://localhost:3000/api
    ```
 
-3. Abre `frontend/index.html` con Live Server (o `python -m http.server 5500` dentro de `frontend/`). Cuando la web se abre en `localhost` o `127.0.0.1`, usa sola la API local; publicada, usa la de Render.
+3. En `frontend/`, `npm install` y `npm start`: abre la web en http://localhost:5173 (también vale Live Server). Cuando la web se abre en `localhost` o `127.0.0.1`, usa sola la API local; publicada, usa la de Render.
 
 ## Comandos del backend
 
 | Comando | Qué hace |
 | --- | --- |
 | `npm run dev` | Arranca la API con recarga automática |
-| `npm run build` | Compila TypeScript a `dist` |
-| `npm start` | Arranca la versión compilada (la de producción) |
+| `npm start` | Arranca la API sin recarga (la de producción) |
 | `npm test` | Lanza las 40 pruebas de la API contra la base de datos del `.env` |
-| `npm run db:cargar` | Borra y vuelve a crear las tablas con los datos de ejemplo |
 
 ## Documentación
 
 - [Permisos por rol](docs/permisos.md)
 - [Casos de prueba](docs/casos-de-prueba.md) y [capturas](docs/capturas/)
-- [Modelo entidad-relación](docs/05_Modelo_ER.html) y [script SQL](backend/sql/esquema.sql)
+- [Modelo entidad-relación](docs/05_Modelo_ER.html) y [script SQL](backend/bbdd/noexitrooms.sql)
 - [Wireframes](docs/04_Wireframes.html) y [guía de estilo](docs/03_Guia_de_estilo.html)
 - [Despliegue paso a paso](docs/despliegue.md)
-- API: Swagger en `/api/docs` y el archivo [`openapi.yaml`](backend/src/docs/openapi.yaml)
+- API: Swagger en `/api/docs`, generado con swagger-jsdoc a partir de los comentarios de [`backend/routes/`](backend/routes)
 
 ## Seguridad
 
 - Contraseñas guardadas con bcrypt; sesión con token JWT que caduca a las 8 horas.
-- Todas las consultas a MySQL son parametrizadas y todo texto se escapa antes de pintarlo en la web.
+- Todas las consultas a MySQL van parametrizadas (Sequelize) con valores ya validados, y todo texto se escapa antes de pintarlo en la web.
 - Diez intentos fallidos de login en 15 minutos bloquean temporalmente ese acceso (429).
 - Las claves y la conexión a la base de datos van en variables de entorno; en el repositorio solo está `backend/.env.example`.

@@ -353,7 +353,7 @@ async function contadoresMenu(yo) {
       el.title = titulo;
     };
     if (yo.role === "admin") poner("admin-tickets", libres, `${libres} sin asignar`);
-    else poner("soporte", mios + libres, `${mios} tuyos por atender y ${libres} sin asignar`);
+    else poner("soporte", mios, `${mios} tuyos por atender`);
   } catch { /* el menú funciona igual sin los números */ }
 }
 
