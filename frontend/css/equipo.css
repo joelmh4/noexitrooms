@@ -1,28 +1,131 @@
-/* =====================================================================
-   Sobre nosotros: el equipo en ficha policial.
-   Las fotos van en img/equipo/joel.webp, edu.webp e ivan.webp
-   (de frente, fondo liso, 4:5). Si falta una, se ve una silueta.
-   ===================================================================== */
 .equipo-policial { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-8); }
 .ficha-policial { display: flex; flex-direction: column; gap: var(--esp-4); }
 .ficha-policial:nth-child(2) { transform: translateY(24px); }
-.ficha-policial-foto { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 4px; background-color: #CFCBC2;
-  /* La regla de alturas de la pared, con una silueta debajo por si falta la foto */
-  background-image:
-    repeating-linear-gradient(to bottom, transparent 0 23px, rgba(30,30,30,.45) 23px 24px),
-    repeating-linear-gradient(to bottom, transparent 0 119px, rgba(30,30,30,.8) 119px 121px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'%3E%3Ccircle cx='50' cy='42' r='20' fill='%23312E2A'/%3E%3Cpath d='M12 120c0-26 17-44 38-44s38 18 38 44z' fill='%23312E2A'/%3E%3C/svg%3E");
+.ficha-policial-foto {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: #CFCBC2;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 23px, rgba(30,30,30,.45) 23px 24px), repeating-linear-gradient(to bottom, transparent 0 119px, rgba(30,30,30,.8) 119px 121px), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'%3E%3Ccircle cx='50' cy='42' r='20' fill='%23312E2A'/%3E%3Cpath d='M12 120c0-26 17-44 38-44s38 18 38 44z' fill='%23312E2A'/%3E%3C/svg%3E");
   background-repeat: repeat, repeat, no-repeat;
   background-position: 0 0, 0 0, 50% 100%;
   background-size: auto, auto, 72% auto;
-  box-shadow: 0 24px 50px -16px rgba(0,0,0,.8); filter: contrast(1.05); }
-.ficha-policial-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; filter: grayscale(.25) contrast(1.1); }
-.ficha-policial-cartel { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%) rotate(-1deg); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 16px; background: #121314; color: #E8EBE6; font-family: var(--font-codigo); font-size: .66rem; letter-spacing: .14em; border: 2px solid #E8EBE6; box-shadow: 0 6px 14px rgba(0,0,0,.5); white-space: nowrap; }
+  box-shadow: 0 24px 50px -16px rgba(0,0,0,.8);
+  filter: contrast(1.05);
+}
+
+.ficha-policial-foto:has(img) { background-image: repeating-linear-gradient(to bottom, transparent 0 23px, rgba(30,30,30,.45) 23px 24px), repeating-linear-gradient(to bottom, transparent 0 119px, rgba(30,30,30,.8) 119px 121px); }
+.ficha-policial-foto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  filter: grayscale(1) contrast(1.3) brightness(1.05);
+  transition: filter var(--dur) var(--curva);
+}
+.ficha-policial-cartel {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%) rotate(-1deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 16px;
+  background: #121314;
+  color: #E8EBE6;
+  font-family: var(--font-codigo);
+  font-size: .66rem;
+  letter-spacing: .14em;
+  border: 2px solid #E8EBE6;
+  box-shadow: 0 6px 14px rgba(0,0,0,.5);
+  white-space: nowrap;
+}
 .ficha-policial-cartel b { font-size: 1.2rem; letter-spacing: .2em; color: #fff; }
 .ficha-policial-datos h3 { font-size: 1.4rem; }
-.ficha-policial-cargos-titulo { margin: 8px 0 0; font-family: var(--font-codigo); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: #E05555; }
+.ficha-policial-cargos-titulo {
+  margin: 8px 0 0;
+  font-family: var(--font-codigo);
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #E05555;
+}
 .ficha-policial-cargos { margin: 0; padding-left: 1.1em; color: #C9CEC6; display: flex; flex-direction: column; gap: 4px; }
+
+.sobre-cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: var(--esp-12);
+  align-items: center;
+}
+.expediente {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 380px);
+  margin-top: 28px;
+  padding: 30px 28px 78px;
+  transform: rotate(2.5deg);
+  color: #3B3225;
+  font-family: var(--font-codigo);
+  background: radial-gradient(ellipse at 90% 15%, rgba(120, 85, 30, .18), transparent 45%), radial-gradient(ellipse at 5% 95%, rgba(90, 65, 25, .22), transparent 50%), linear-gradient(#D9C08C, #C9AD74);
+  border-radius: 4px 10px 8px 8px;
+  box-shadow: 0 2px 0 rgba(255,255,255,.25) inset, 0 30px 60px -18px rgba(0,0,0,.85), 0 4px 10px rgba(0,0,0,.4);
+}
+
+.expediente-pestana {
+  position: absolute;
+  top: -26px;
+  left: 18px;
+  padding: 6px 18px 4px;
+  border-radius: 8px 8px 0 0;
+  background: #D9C08C;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.expediente-titulo {
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #3B3225;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+}
+.expediente dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; font-size: .84rem; }
+.expediente dt { color: #6E5F45; text-transform: uppercase; font-size: .7rem; letter-spacing: .12em; padding-top: 2px; }
+.expediente dd { margin: 0; font-weight: 700; }
+
+.expediente-sello {
+  position: absolute;
+  right: 22px;
+  bottom: 20px;
+  padding: 4px 12px;
+  transform: rotate(-14deg);
+  border: 3px solid rgba(178, 34, 34, .8);
+  border-radius: 6px;
+  color: rgba(178, 34, 34, .85);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  mix-blend-mode: multiply;
+}
+.ficha-policial:hover .ficha-policial-foto img { filter: grayscale(.2) contrast(1.1); }
+
 @media (max-width: 860px) {
   .equipo-policial { grid-template-columns: 1fr; max-width: 420px; }
   .ficha-policial:nth-child(2) { transform: none; }
+  .sobre-cabecera { grid-template-columns: 1fr; gap: var(--esp-8); }
+  .expediente { justify-self: start; transform: rotate(1.5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ficha-policial-foto img { transition: none; }
 }

@@ -29,9 +29,9 @@ Cualquier cuenta nueva creada desde *Registrarse* es siempre de cliente.
 ## Qué hace
 
 - **Web pública:** inicio, catálogo de salas con buscador y filtros, ficha de cada sala con galería, sobre nosotros, ayuda con preguntas frecuentes y contacto.
-- **Cliente:** registro, inicio y cierre de sesión, perfil editable, reservas, abrir tickets, ver solo los suyos, filtrarlos por estado, responder, confirmar el cierre o pedir la reapertura.
-- **Agente:** panel de soporte con sus tickets y los que no tienen agente; responde, escribe notas internas, cambia estado y prioridad.
-- **Administrador:** dashboard con métricas, todos los tickets con filtros por cliente, agente, estado y prioridad, asignación de tickets, usuarios y roles, categorías y CRUD de salas.
+- **Cliente:** registro, inicio y cierre de sesión, perfil editable, reservar sala y cancelar sus reservas, abrir tickets, ver solo los suyos, filtrarlos por estado, responder, y confirmar el cierre de un ticket resuelto o pedir que se reabra.
+- **Agente:** panel de soporte con los tickets que tiene asignados; responde, escribe notas internas, cambia estado y prioridad.
+- **Administrador:** dashboard con métricas, todos los tickets con filtros por cliente, agente, estado y prioridad, asignación de tickets, abrir tickets, confirmar o cancelar reservas, usuarios y roles, categorías y CRUD de salas.
 
 Los tickets siguen el ciclo Abierto → En curso → Pendiente del cliente → Resuelto → Cerrado, y cada cambio queda en el historial.
 

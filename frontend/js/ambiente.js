@@ -1,13 +1,3 @@
-/* =====================================================================
-   Ambientación de cada sala (ficha de sala.html).
-   Un panel con un texto "desde dentro" de la sala: un terminal, una consola,
-   un acta… Es solo contenido: para cada sala guardamos un título, una clase
-   CSS (el aspecto del panel) y las líneas que se muestran.
-   Las líneas con clase "alarma", "bien" o "apagado" cambian de color.
-   (La pantalla usa white-space: pre-wrap para respetar la sangría del COBOL,
-   por eso las líneas se pegan sin saltos de línea en medio.)
-   ===================================================================== */
-
 const AMBIENTES = {
   "el-manicomio-de-san-tomas": {
     titulo: "Terminal del pabellón C · 1974",

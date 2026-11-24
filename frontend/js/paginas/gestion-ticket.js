@@ -1,9 +1,7 @@
-// Gestión de un ticket (agente y admin): responder, notas internas, estado, prioridad y asignación
 iniciar(async yo => {
   const id = Number(parametro("id"));
   const zona = document.getElementById("ticket");
   const volver = yo.role === "admin" ? ["admin-tickets.html", "Todos los tickets"] : ["soporte.html", "Mis tickets"];
-  // Solo el admin asigna tickets, así que solo él necesita la lista de agentes
   const agentes = yo.role === "admin" ? await api.usuarios.agentes() : [];
 
   let recienEnviado = false;
@@ -16,22 +14,13 @@ iniciar(async yo => {
       return;
     }
     document.title = `${codigoTicket(t.id)} · Soporte · NoExitRooms`;
-    // El agente no cierra tickets: lo hace el cliente al confirmar o un admin
     const estadosPermitidos = Object.entries(ESTADOS).filter(([v]) => yo.role === "admin" || v !== "cerrado" || t.status === "cerrado");
 
-    let asignacion;
-    if (yo.role === "admin") {
-      asignacion = `
-        <div class="campo">
-          <label for="agente">Agente asignado</label>
-          <select id="agente">
-            <option value="">Sin asignar</option>
-            ${agentes.map(a => `<option value="${a.id}"${a.id === t.agent_id ? " selected" : ""}>${esc(a.name)}</option>`).join("")}
-          </select>
-        </div>`;
-    } else {
-      asignacion = `<dl class="datos-ticket"><dt>Agente</dt><dd>${esc(t.agente.name)}</dd></dl>`;
-    }
+    const asignacion = yo.role === "admin" ? `
+      <div class="campo">
+        <label for="agente">Agente asignado</label>
+        <select id="agente">${opciones(agentes.map(a => [a.id, a.name]), "Sin asignar", t.agent_id)}</select>
+      </div>` : `<dl class="datos-ticket"><dt>Agente</dt><dd>${esc(t.agente.name)}</dd></dl>`;
 
     zona.innerHTML = `
       <a href="${volver[0]}" class="subtexto">← ${volver[1]}</a>
@@ -75,21 +64,16 @@ iniciar(async yo => {
             ${asignacion}
             <div class="campo">
               <label for="estado">Estado</label>
-              <select id="estado">
-                ${estadosPermitidos.map(([v, txt]) => `<option value="${v}"${v === t.status ? " selected" : ""}>${txt}</option>`).join("")}
-              </select>
+              <select id="estado">${opciones(estadosPermitidos, null, t.status)}</select>
             </div>
             <div class="campo">
               <label for="prioridad">Prioridad</label>
-              <select id="prioridad">
-                ${Object.entries(PRIORIDADES).map(([v, txt]) => `<option value="${v}"${v === t.priority ? " selected" : ""}>${txt}</option>`).join("")}
-              </select>
+              <select id="prioridad">${opciones(Object.entries(PRIORIDADES), null, t.priority)}</select>
             </div>
           </section>
         </aside>
       </div>`;
 
-    // Cada cambio se guarda al momento y recarga el ticket
     async function guardar(accion, mensaje) {
       try {
         await accion();
@@ -108,14 +92,14 @@ iniciar(async yo => {
     zona.querySelector("#form-respuesta")?.addEventListener("submit", async e => {
       e.preventDefault();
       const { respuesta, interna } = e.target.elements;
-      limpiarErrores(e.target);
-      if (!respuesta.value.trim()) { marcarError(respuesta, "Escribe un mensaje antes de enviar."); return; }
+      if (!validar(e.target, [[!respuesta.value.trim(), respuesta, "Escribe un mensaje antes de enviar."]])) return;
       recienEnviado = true;
+      e.target.querySelector('[type="submit"]').disabled = true;
       await guardar(() => api.tickets.responder(id, respuesta.value, interna.checked), interna.checked ? "Nota interna guardada." : "Respuesta enviada.");
     });
-    // El mensaje que acabas de enviar llega desde la caja de respuesta
     if (recienEnviado) { [...zona.querySelectorAll(".mensaje")].pop()?.classList.add("recien"); recienEnviado = false; }
     pintarIconos();
   }
+  if (parametro("nuevo")) toast("ok", "Ticket creado.");
   await cargar();
 });

@@ -1,5 +1,4 @@
-// Panel del agente: los tickets que tiene asignados (la API no le devuelve otros)
-iniciar(async yo => {
+iniciar(async () => {
   const mios = await api.tickets.listar();
   const form = document.getElementById("filtros");
 
@@ -10,10 +9,8 @@ iniciar(async yo => {
     ["Resueltos", mios.filter(t => t.status === "resuelto").length, "var(--estado-resuelto)"]
   ].map(([texto, n, color]) => `<div class="metrica" style="--punto:${color}"><span>${texto}</span><b>${n}</b></div>`).join("");
 
-  form.elements.estado.innerHTML = `<option value="">Todos los estados</option>` +
-    Object.entries(ESTADOS).map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
-  form.elements.prioridad.innerHTML = `<option value="">Todas las prioridades</option>` +
-    Object.entries(PRIORIDADES).map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
+  form.elements.estado.innerHTML = opciones(Object.entries(ESTADOS), "Todos los estados");
+  form.elements.prioridad.innerHTML = opciones(Object.entries(PRIORIDADES), "Todas las prioridades");
 
   function pintar() {
     const estado = form.elements.estado.value;

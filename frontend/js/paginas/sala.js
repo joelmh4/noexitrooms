@@ -1,5 +1,3 @@
-// Ficha de sala: /sala.html?slug=...
-// Texto de ambientación (js/ambiente.js), galería con visor a pantalla completa y reserva con calendario
 iniciar(async () => {
   let sala;
   try {
@@ -9,14 +7,14 @@ iniciar(async () => {
     throw err;
   }
   document.title = `${sala.name} · NoExitRooms`;
+  const ficha = document.getElementById("ficha");
+  ficha.classList.add(claseFondo(sala.theme));
   const esParodia = sala.description.includes("caricaturizados");
   const fotos = fotosGaleria(sala);
-
-  // Las pruebas llegan en un solo texto, una por línea
   const pruebas = (sala.challenges || "").split("\n").map(p => p.trim()).filter(Boolean);
-  document.getElementById("ficha").innerHTML = `
+  ficha.innerHTML = `
     <nav class="migas" aria-label="Migas de pan"><a href="salas.html">Salas</a> / ${esc(sala.name)}</nav>
-    <div class="ficha-cabecera ${claseFondo(sala.theme)}"><img class="foto-sala" src="${esc(fotoSala(sala))}" alt="" ${QUITAR_SI_FALTA}><span class="tema-tag">${esc(sala.theme)}</span></div>
+    <div class="ficha-cabecera"><img class="foto-sala" src="${esc(fotoSala(sala))}" alt="" ${QUITAR_SI_FALTA}><span class="tema-tag">${esc(sala.theme)}</span></div>
     <div class="ficha">
       <div class="ficha-texto">
         <h1>${esc(sala.name)}</h1>
@@ -57,7 +55,6 @@ iniciar(async () => {
   pintarIconos();
 });
 
-/* ---------- Galería: al pulsar una foto se abre en un <dialog> a pantalla completa ---------- */
 function montarGaleria(sala, fotos) {
   const galeria = document.getElementById("galeria");
   if (!galeria || !fotos.length) return;
@@ -76,7 +73,7 @@ function montarGaleria(sala, fotos) {
   let actual = 0;
 
   function mostrar(i) {
-    const visibles = [...galeria.querySelectorAll(".galeria-foto img")];   // las que existen de verdad
+    const visibles = [...galeria.querySelectorAll(".galeria-foto img")];
     if (!visibles.length) return;
     actual = (i + visibles.length) % visibles.length;
     img.src = visibles[actual].src;
@@ -92,12 +89,11 @@ function montarGaleria(sala, fotos) {
   visor.querySelector(".visor-cerrar").addEventListener("click", () => visor.close());
   visor.querySelector(".visor-anterior").addEventListener("click", () => mostrar(actual - 1));
   visor.querySelector(".visor-siguiente").addEventListener("click", () => mostrar(actual + 1));
-  visor.addEventListener("click", e => { if (e.target === visor) visor.close(); });   // clic fuera de la foto
+  visor.addEventListener("click", e => { if (e.target === visor) visor.close(); });
   visor.addEventListener("keydown", e => {
     if (e.key === "ArrowLeft") mostrar(actual - 1);
     if (e.key === "ArrowRight") mostrar(actual + 1);
   });
-  // Deslizar con el dedo
   let inicioX = null;
   visor.addEventListener("pointerdown", e => { inicioX = e.clientX; });
   visor.addEventListener("pointerup", e => {
@@ -108,7 +104,6 @@ function montarGaleria(sala, fotos) {
   });
 }
 
-/* ---------- Reserva con calendario ---------- */
 function montarReserva(sala) {
   const caja = document.getElementById("reservar");
   const yo = api.auth.usuarioActual();
@@ -116,7 +111,6 @@ function montarReserva(sala) {
   let semana = 0, elegido = null, jugadores = Math.min(sala.max_players, Math.max(sala.min_players, 4)), mensaje = "";
   const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
   const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const deIso = f => new Date(f + "T00:00:00");
   const textoDia = f => { const d = deIso(f); return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}`; };
   const textoLargo = s => {
@@ -126,7 +120,7 @@ function montarReserva(sala) {
 
   async function pintar() {
     const desde = new Date(hoy); desde.setDate(desde.getDate() + semana * 7);
-    const dias = await api.reservas.huecos(sala.id, iso(desde), 7);
+    const dias = await api.reservas.huecos(sala.id, fechaIso(desde), 7);
     const hasta = deIso(dias[6].fecha);
     caja.innerHTML = `
       <div class="reserva-cabecera">

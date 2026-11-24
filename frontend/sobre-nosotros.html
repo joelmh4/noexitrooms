@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/equipo.css">
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/lucide.min.js" defer></script>
   <script src="js/api.js" defer></script>
   <script src="js/ui.js" defer></script>
   <script src="js/paginas/estatica.js" defer></script>
@@ -20,12 +20,26 @@
 <main>
   <section class="seccion">
     <div class="contenedor">
-      <div class="pila" style="gap:8px;max-width:760px">
-        <span class="etiqueta-superior">Sobre nosotros</span>
-        <h1>Encerramos gente por diversión</h1>
-        <p class="texto-suave" style="font-size:1.15rem">NoExitRooms nace en Madrid con seis salas en las que el humor, el terror y un poco de mala leche conviven con enigmas de verdad. Nada de candados al azar: cada prueba cuenta parte de la historia.</p>
+      <div class="sobre-cabecera">
+        <div class="pila" style="gap:8px;max-width:760px">
+          <span class="etiqueta-superior">Sobre nosotros</span>
+          <h1>Encerramos gente por diversión</h1>
+          <p class="texto-suave" style="font-size:1.15rem">NoExitRooms nace en Madrid con seis salas en las que el humor, el terror y un poco de mala leche conviven con enigmas de verdad. Nada de candados al azar: cada prueba cuenta parte de la historia.</p>
+        </div>
+        <div class="expediente" aria-hidden="true">
+          <span class="expediente-pestana">Caso 2026-NER</span>
+          <p class="expediente-titulo">Expediente</p>
+          <dl>
+            <dt>Local</dt><dd>Antigua imprenta, Madrid</dd>
+            <dt>Superficie</dt><dd>400 m²</dd>
+            <dt>Salas</dt><dd>6 (insonorizadas)</dd>
+            <dt>Sospechosos</dt><dd>3</dd>
+            <dt>Salidas</dt><dd>1. Encontradla.</dd>
+          </dl>
+          <span class="expediente-sello">Clasificado</span>
+        </div>
       </div>
-      <div class="pasos" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div class="pasos pasos-tres">
         <div class="paso"><i data-lucide="map-pin"></i><h3>El local</h3><p>Una antigua imprenta de 400 m² en Madrid con seis salas insonorizadas y una zona de espera con juegos de mesa.</p></div>
         <div class="paso"><i data-lucide="puzzle"></i><h3>Las salas</h3><p>Diseñadas y construidas por nosotros. Cada temporada renovamos al menos una.</p></div>
         <div class="paso"><i data-lucide="accessibility"></i><h3>Para todos</h3><p>Tres salas accesibles en silla de ruedas y versiones para familias con niños.</p></div>
@@ -72,19 +86,6 @@
             <ul class="ficha-policial-cargos"><li>Encerrar los datos en MongoDB y perder la llave.</li><li>Normalizar hasta la lista de la compra.</li></ul>
           </div>
         </article>
-      </div>
-    </div>
-  </section>
-  <section class="seccion">
-    <div class="contenedor">
-      <div class="tarjeta">
-        <span class="etiqueta-superior">Sobre el proyecto</span>
-        <h2>Proyecto trimestral de DAW</h2>
-        <p class="texto-suave">Esta web es el proyecto trimestral del ciclo de Desarrollo de Aplicaciones Web. Une una web pública de escape rooms con un sistema de soporte por tickets con tres roles (cliente, agente y administrador).</p>
-        <div class="fila">
-          <span class="pastilla pastilla-inactiva">HTML</span><span class="pastilla pastilla-inactiva">CSS</span><span class="pastilla pastilla-inactiva">JavaScript</span>
-          <span class="pastilla pastilla-inactiva">Node.js + Express</span><span class="pastilla pastilla-inactiva">MongoDB</span><span class="pastilla pastilla-inactiva">JWT</span><span class="pastilla pastilla-inactiva">Swagger</span>
-        </div>
       </div>
     </div>
   </section>

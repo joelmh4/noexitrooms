@@ -11,10 +11,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/inicio.css">
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/lucide.min.js" defer></script>
   <script src="js/api.js" defer></script>
   <script src="js/ui.js" defer></script>
-  <script src="js/inicio-escenas.js" defer></script>
   <script src="js/paginas/inicio.js" defer></script>
 </head>
 <body class="tema-oscuro" data-zona="publica" data-pagina="inicio">
@@ -23,20 +22,19 @@
     <div class="contenedor">
       <div class="portada-texto">
         <span class="etiqueta-superior">Escape rooms en Madrid</span>
-        <h1>No hay salida.<br>Hasta que la encuentras.</h1>
-        <p>Seis salas, sesenta minutos (o ciento cincuenta, si os atrevéis con San Tomás) y un equipo que sale por la puerta o se queda dentro para siempre.</p>
-        <div class="fila">
+        <h1><span class="titular-1">No hay salida.</span> <span class="titular-2" data-texto="Hasta que la encuentras.">Hasta que la encuentras.</span></h1>
+        <p class="portada-entra">Seis salas, sesenta minutos (o ciento cincuenta, si os atrevéis con San Tomás) y un equipo que sale por la puerta o se queda dentro para siempre.</p>
+        <div class="fila portada-entra">
           <a class="boton boton-primario" href="salas.html">Ver las salas</a>
           <a class="boton boton-secundario" href="ayuda.html">¿Cómo funciona?</a>
         </div>
-        <p class="bono-portada">Primera visita: un 10 % menos con el código <a href="nuevo-ticket.html?bono=NOEXIT-1974"><code>NOEXIT-1974</code></a></p>
+        <p class="bono-portada portada-entra">Primera visita: un 10 % menos con el código <a href="nuevo-ticket.html?bono=NOEXIT-1974"><code>NOEXIT-1974</code></a></p>
       </div>
-    </div>
-  </section>
-  <section class="manifiesto manifiesto-estatico" aria-label="Qué pasa cuando se cierra la puerta">
-    <div class="manifiesto-fondo" aria-hidden="true"><img src="img/portada.webp" alt="" loading="lazy"></div>
-    <div class="contenedor">
-      <p class="manifiesto-texto">Se cierra la puerta. Se apaga la luz. Alguien estuvo aquí antes que vosotros y dejó las pistas a medias. Tenéis sesenta minutos para terminar lo que él no pudo.</p>
+      <div class="portada-reloj" aria-label="Cuenta atrás de una partida">
+        <p class="reloj-etiqueta"><span class="piloto-rojo" aria-hidden="true"></span>La cuenta atrás ya ha empezado</p>
+        <p class="reloj-digitos" id="reloj-portada" role="timer" aria-label="Sesenta minutos">60:00</p>
+        <p class="reloj-pie">La puerta se cierra. El reloj no espera.</p>
+      </div>
     </div>
   </section>
   <section class="seccion">
@@ -71,14 +69,14 @@
   <section class="seccion">
     <div class="contenedor">
       <div class="pila" style="gap:8px"><span class="etiqueta-superior">Cómo funciona</span><h2>Seis pasos para escapar</h2></div>
-      <div class="pasos pasos-seis">
-        <div class="paso"><img src="img/iconos/candado.png" alt=""><h3>1. Elige sala</h3><p>Filtra por temática, dificultad y número de jugadores.</p></div>
-        <div class="paso"><img src="img/iconos/grupo.png" alt=""><h3>2. Reúne al grupo</h3><p>De 2 a 7 personas según la sala. Cuantos más cerebros, mejor.</p></div>
-        <div class="paso"><img src="img/iconos/calendario.png" alt=""><h3>3. Reserva</h3><p>Elige día y hora y te lo confirmamos por ticket desde tu área.</p></div>
-        <div class="paso"><img src="img/iconos/idea.png" alt=""><h3>4. Resuelve</h3><p>Enigmas, candados y pistas escondidas que cuentan la historia.</p></div>
-        <div class="paso"><img src="img/iconos/reloj.png" alt=""><h3>5. Contra el reloj</h3><p>60 minutos (o 150 en San Tomás). El reloj no espera a nadie.</p></div>
-        <div class="paso"><img src="img/iconos/salida.png" alt=""><h3>6. Escapa</h3><p>Abrid la última puerta y salid a por la foto de grupo.</p></div>
-      </div>
+      <ol class="recorrido">
+        <li class="parada"><span class="parada-icono"><img src="img/iconos/candado.png" alt=""></span><span class="parada-num">01</span><h3>Elige sala</h3><p>Filtra por temática, dificultad y número de jugadores.</p></li>
+        <li class="parada"><span class="parada-icono"><img src="img/iconos/grupo.png" alt=""></span><span class="parada-num">02</span><h3>Reúne al grupo</h3><p>De 2 a 7 personas según la sala. Cuantos más cerebros, mejor.</p></li>
+        <li class="parada"><span class="parada-icono"><img src="img/iconos/calendario.png" alt=""></span><span class="parada-num">03</span><h3>Reserva</h3><p>Elige día y hora y te lo confirmamos por ticket desde tu área.</p></li>
+        <li class="parada"><span class="parada-icono"><img src="img/iconos/idea.png" alt=""></span><span class="parada-num">04</span><h3>Resuelve</h3><p>Enigmas, candados y pistas escondidas que cuentan la historia.</p></li>
+        <li class="parada"><span class="parada-icono"><img src="img/iconos/reloj.png" alt=""></span><span class="parada-num">05</span><h3>Contra el reloj</h3><p>60 minutos (o 150 en San Tomás). El reloj no espera a nadie.</p></li>
+        <li class="parada parada-salida"><span class="parada-icono"><img src="img/iconos/salida.png" alt=""></span><span class="parada-num">06 · Salida</span><h3>Escapa</h3><p>Abrid la última puerta y salid a por la foto de grupo.</p></li>
+      </ol>
     </div>
   </section>
   <section class="seccion normas-seccion" aria-labelledby="titulo-normas">
@@ -120,9 +118,16 @@
   </section>
   <section class="seccion">
     <div class="contenedor">
-      <div class="tarjeta fila-entre" style="padding:32px">
-        <div class="pila" style="gap:8px"><h2>¿Grupo grande, cumpleaños o empresa?</h2><p class="texto-suave">Cuéntanos qué buscáis y os preparamos un plan a medida.</p></div>
-        <a class="boton boton-primario" href="nuevo-ticket.html">Abrir un ticket</a>
+      <div class="entrada-grupo">
+        <div class="entrada-cuerpo">
+          <span class="entrada-sello" aria-hidden="true">Admite: grupos · cumpleaños · empresas</span>
+          <h2>¿Grupo grande, cumpleaños o empresa?</h2>
+          <p class="texto-suave">Cuéntanos qué buscáis y os preparamos un plan a medida.</p>
+        </div>
+        <div class="entrada-talon">
+          <span class="entrada-codigo" aria-hidden="true">Nº 000013</span>
+          <a class="boton boton-primario" href="nuevo-ticket.html">Abrir un ticket</a>
+        </div>
       </div>
     </div>
   </section>

@@ -11,12 +11,12 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@500;700;800&display=swap">
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="stylesheet" href="css/panel.css">
-  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" defer></script>
+  <script src="js/lucide.min.js" defer></script>
   <script src="js/api.js" defer></script>
   <script src="js/ui.js" defer></script>
   <script src="js/paginas/nuevo-ticket.js" defer></script>
 </head>
-<body class="tema-claro" data-zona="cliente" data-pagina="nuevo-ticket" data-rol="cliente">
+<body class="tema-claro" data-zona="cliente" data-pagina="nuevo-ticket" data-rol="cliente,admin">
 <main>
   <div class="cabecera-pagina"><h1 style="font-size:2rem">Nuevo ticket</h1></div>
   <form class="tarjeta formulario" id="form-ticket" novalidate style="max-width:760px">
@@ -49,7 +49,7 @@
       <span class="ayuda" id="contador-descripcion">0 / 2000</span>
     </div>
     <div class="fila" style="justify-content:flex-end">
-      <a class="boton boton-secundario" href="mis-tickets.html">Cancelar</a>
+      <a class="boton boton-secundario" href="mis-tickets.html" id="cancelar">Cancelar</a>
       <button class="boton boton-primario" type="submit">Enviar ticket</button>
     </div>
   </form>

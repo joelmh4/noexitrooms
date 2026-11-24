@@ -154,8 +154,8 @@ const tickets = [
     },
     {
         _id: 4, customer_id: 4, agent_id: 2, category_id: 1, room_id: 1, booking_id: 1,
-        subject: "Cambio de fecha de la partida del sábado",
-        description: "¿Podemos pasar la partida del sábado al domingo a la misma hora?",
+        subject: "Cambio de fecha de nuestra partida",
+        description: "¿Podemos pasar la partida al día siguiente a la misma hora?",
         priority: "media", status: "en_curso", created_at: "2026-10-26T18:02:00Z", closed_at: null
     },
     {
@@ -172,10 +172,10 @@ const mensajes = [
     { ticket_id: 2, author_id: 5, body: "Son unas gafas negras de pasta, creo que en la oficina de los archivadores.", is_internal: false, created_at: "2026-10-19T09:30:00Z" },
     { ticket_id: 2, author_id: 3, body: "Las tenemos en recepción. Puedes pasar a recogerlas cuando quieras.", is_internal: false, created_at: "2026-10-19T11:05:00Z" },
     { ticket_id: 3, author_id: 4, body: "Al canjear el código BONO-7731 me dice que no es válido.", is_internal: false, created_at: "2026-10-24T17:45:00Z" },
-    { ticket_id: 3, author_id: 2, body: "El bono caducó el 30/09. Revisa si tienes otro código o mándanos foto del bono.", is_internal: false, created_at: "2026-10-24T18:30:00Z" },
+    { ticket_id: 3, author_id: 2, body: "El bono caducó hace un mes. Revisa si tienes otro código o mándanos foto del bono.", is_internal: false, created_at: "2026-10-24T18:30:00Z" },
     { ticket_id: 3, author_id: 2, body: "Si lo compró en la campaña de verano, se puede ampliar 1 mes.", is_internal: true, created_at: "2026-10-24T18:31:00Z" },
-    { ticket_id: 4, author_id: 4, body: "¿Podemos pasar la partida del sábado al domingo a la misma hora?", is_internal: false, created_at: "2026-10-26T18:02:00Z" },
-    { ticket_id: 4, author_id: 2, body: "¡Hola Pedro! El domingo a las 18:00 está libre. ¿Seguís siendo 5 personas?", is_internal: false, created_at: "2026-10-26T19:12:00Z" },
+    { ticket_id: 4, author_id: 4, body: "¿Podemos pasar la partida al día siguiente a la misma hora?", is_internal: false, created_at: "2026-10-26T18:02:00Z" },
+    { ticket_id: 4, author_id: 2, body: "¡Hola Pedro! El día siguiente a las 18:00 está libre. ¿Seguís siendo 5 personas?", is_internal: false, created_at: "2026-10-26T19:12:00Z" },
     { ticket_id: 5, author_id: 6, body: "Somos dos adultos y dos niños de 10 y 12 años.", is_internal: false, created_at: "2026-10-27T09:10:00Z" }
 ];
 
@@ -193,5 +193,26 @@ const historial = [
     { ticket_id: 4, changed_by_id: 2, old_status: "abierto", new_status: "en_curso", changed_at: "2026-10-26T19:10:00Z" },
     { ticket_id: 5, changed_by_id: 6, old_status: null, new_status: "abierto", changed_at: "2026-10-27T09:10:00Z" }
 ];
+
+// Las fechas de arriba están escritas como si hoy fuera el 28 de octubre de 2026.
+// Al cargar los datos se mueven los mismos días que hayan pasado desde entonces, para que
+// la web siempre parezca recién usada: reservas en los próximos días, tickets de esta semana...
+const UN_DIA = 24 * 60 * 60 * 1000;
+const diasPasados = Math.max(0, Math.floor((Date.now() - new Date("2026-10-28T00:00:00Z")) / UN_DIA));
+
+// "2026-10-31T18:00:00" → la misma hora, diasPasados días después
+function moverFecha(texto) {
+    if (!texto) return texto;
+    const dia = new Date(texto.slice(0, 10) + "T12:00:00Z");
+    dia.setUTCDate(dia.getUTCDate() + diasPasados);
+    return dia.toISOString().slice(0, 10) + texto.slice(10);
+}
+for (const r of reservas) r.starts_at = moverFecha(r.starts_at);
+for (const t of tickets) {
+    t.created_at = moverFecha(t.created_at);
+    t.closed_at = moverFecha(t.closed_at);
+}
+for (const m of mensajes) m.created_at = moverFecha(m.created_at);
+for (const h of historial) h.changed_at = moverFecha(h.changed_at);
 
 module.exports = { usuarios, salas, categorias, reservas, tickets, mensajes, historial };
